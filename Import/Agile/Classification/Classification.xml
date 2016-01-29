@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<tasks>
+  <task id="UploadStructure" name="Creating project structure" plugin="Microsoft.ProjectCreationWizard.Classification" completionMessage="Team project structure created.">
+    <taskXml>
+      <Nodes>
+        <Node StructureType="ProjectLifecycle" Name="Iteration" xmlns="">
+          <Children>
+            <Node StructureType="ProjectLifecycle" Name="Iteration 1" />
+            <Node StructureType="ProjectLifecycle" Name="Iteration 2" />
+            <Node StructureType="ProjectLifecycle" Name="Iteration 3" />
+          </Children>
+        </Node>
+        <Node StructureType="ProjectModelHierarchy" Name="Area" xmlns="" />
+      </Nodes>
+      <properties>
+        <property name="MSPROJ" value="Classification\FileMapping.xml" isFile="true" />
+        <property name="Process Template" value="Agile"/>
+      </properties>
+    </taskXml>
+  </task>
+</tasks>

@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>
+    SELECT [System.Id], 
+           [Microsoft.VSTS.Common.StackRank], 
+           [Microsoft.VSTS.Common.Priority], 
+           [Microsoft.VSTS.Common.Severity], 
+           [System.AssignedTo], 
+           [System.Reason], 
+           [System.Title]
+      FROM WorkItems
+     WHERE [System.TeamProject] = @project 
+       AND [System.IterationPath] UNDER '$$PROJECTNAME$$\Iteration 1'
+       AND [System.WorkItemType] = 'Bug' 
+       AND [System.State] = 'Resolved'
+  ORDER BY [Microsoft.VSTS.Common.StackRank], 
+           [Microsoft.VSTS.Common.Priority], 
+           [Microsoft.VSTS.Common.Severity], 
+           [System.Id]
+  </Wiql>
+</WorkItemQuery>

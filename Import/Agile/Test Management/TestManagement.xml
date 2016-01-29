@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<tasks>
+  <task id="TestVariable" name="Default test variables" plugin="Microsoft.ProjectCreationWizard.TestManagement" completionMessage="Default test variables created">
+    <taskXml>
+      <TestVariables fileName="Test Management\TestVariable.xml" />
+    </taskXml>
+  </task>
+  <task id="TestConfiguration" name="Default test configurations" plugin="Microsoft.ProjectCreationWizard.TestManagement" completionMessage="Default test configurations created">
+    <dependencies>
+      <dependency taskId="TestVariable" />
+    </dependencies>
+    <taskXml>
+      <TestConfigurations fileName="Test Management\TestConfiguration.xml" />
+    </taskXml>
+  </task>
+  <task id="TestSettings" name="Default test settings" plugin="Microsoft.ProjectCreationWizard.TestManagement" completionMessage="Default test settings created">
+    <taskXml>
+      <TestSettings fileName="Test Management\TestSettings.xml" />
+    </taskXml>
+  </task>
+  <task id="TestResolutionState" name="Default test resolution states" plugin="Microsoft.ProjectCreationWizard.TestManagement" completionMessage="Default test resolution states created">
+    <taskXml>
+      <TestResolutionStates fileName="Test Management\TestResolutionState.xml" />
+    </taskXml>
+  </task>
+</tasks>

@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<tasks>
+  <task id="LinkTypes" name="LinkType definitions" plugin="Microsoft.ProjectCreationWizard.WorkItemTracking" completionMessage="Work item link types created">
+    <taskXml>
+      <LINKTYPES>
+      </LINKTYPES>
+    </taskXml>
+  </task>
+  <task id="WITs" name="WorkItemType definitions" plugin="Microsoft.ProjectCreationWizard.WorkItemTracking" completionMessage="Work item types created">
+    <dependencies>
+      <dependency taskId="LinkTypes" />
+    </dependencies>
+    <taskXml>
+      <WORKITEMTYPES>
+      </WORKITEMTYPES>
+    </taskXml>
+  </task>
+  <task id="Categories" name="Categories definitions" plugin="Microsoft.ProjectCreationWizard.WorkItemTracking" completionMessage="Work item type categories created">
+    <dependencies>
+      <dependency taskId="WITs" />
+    </dependencies>
+    <taskXml>
+      <CATEGORIES fileName="WorkItem Tracking\Categories.xml" />
+    </taskXml>
+  </task>
+  <task id="ProcessConfiguration" name="Process Configuration" plugin="Microsoft.ProjectCreationWizard.WorkItemTracking" completionMessage="Process configuration uploaded">
+    <dependencies>
+      <dependency taskId="WITs" />
+      <dependency taskId="Categories" />
+    </dependencies>
+    <taskXml>
+      <PROCESSCONFIGURATION>
+        <ProjectConfiguration fileName="WorkItem Tracking\Process\ProcessConfiguration.xml"/>
+      </PROCESSCONFIGURATION>
+    </taskXml>
+  </task>
+</tasks>

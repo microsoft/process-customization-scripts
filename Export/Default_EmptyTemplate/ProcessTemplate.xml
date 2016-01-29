@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ProcessTemplate>
+  <metadata>
+    <name>Unnamed Process</name>
+    <description>This process was exported from a project but no description was provided</description>
+    <version type="" major="1" minor="0" />
+    <plugins>
+      <plugin name="Microsoft.ProjectCreationWizard.Classification"   wizardPage="false"/>
+      <plugin name="Microsoft.ProjectCreationWizard.Reporting"        wizardPage="false"/>
+      <plugin name="Microsoft.ProjectCreationWizard.Portal"           wizardPage="true" />
+      <plugin name="Microsoft.ProjectCreationWizard.Groups"           wizardPage="false"/>
+      <plugin name="Microsoft.ProjectCreationWizard.WorkItemTracking" wizardPage="false"/>
+      <plugin name="Microsoft.ProjectCreationWizard.VersionControl"   wizardPage="true" />
+      <plugin name="Microsoft.ProjectCreationWizard.TestManagement"   wizardPage="false"/>
+      <plugin name="Microsoft.ProjectCreationWizard.Build"            wizardPage="false"/>
+      <plugin name="Microsoft.ProjectCreationWizard.Lab"              wizardPage="false"/>		
+    </plugins>
+  </metadata>
+  <groups>
+    <group id                ="Classification"
+		   description       ="Structure definition for the project."
+           completionMessage ="Project Structure uploaded.">
+        <dependencies>
+        </dependencies>
+        <taskList filename="Classification\Classification.xml"/>
+    </group>
+      
+    <group id                ="Groups"
+		   description       ="Create Groups and assign Permissions." 
+           completionMessage ="Groups created and Permissions assigned.">
+        <dependencies>
+            <dependency groupId="Classification" />
+        </dependencies>
+        <taskList filename="Groups and Permissions\GroupsandPermissions.xml" />
+    </group>
+      
+   <group id                ="WorkItemTracking"
+		   description       ="Workitem definitions uploading."
+           completionMessage ="Work item tracking tasks completed.">
+        <dependencies>
+            <dependency groupId="Classification"/>
+            <dependency groupId="Groups"/>
+        </dependencies>
+        <taskList filename="WorkItem Tracking\WorkItems.xml"/>
+    </group>
+      
+    <group id                ="VersionControl"
+		   description       ="Creating version control."
+           completionMessage ="Version control task completed.">
+        <dependencies>
+            <dependency groupId="Classification"/>
+            <dependency groupId="Groups"/>
+            <dependency groupId="WorkItemTracking" /> 
+        </dependencies>
+        <taskList filename="Version Control\VersionControl.xml"/>
+    </group>
+
+    <group id                ="Build"
+           description       ="Build default processes uploading."
+           completionMessage ="Build default processes uploaded.">
+        <dependencies>
+            <dependency groupId="VersionControl" />
+            <dependency groupId="Groups"/>
+        </dependencies>
+        <taskList filename="Build\Build.xml"/>
+    </group>
+
+    <group id                ="Lab"
+           description       ="Creating Lab."
+           completionMessage ="Lab task completed.">
+        <dependencies>
+            <dependency groupId="Classification"/>
+            <dependency groupId="Groups"/>
+            <dependency groupId="WorkItemTracking" />
+            <dependency groupId="Build" />
+        </dependencies>
+        <taskList filename="Lab\Lab.xml"/>
+    </group>
+
+    <group id                ="TestManagement"
+           description       ="Test Management default configurations uploading."
+           completionMessage ="Test Management default configurations uploaded.">
+        <dependencies>
+            <dependency groupId="Classification"/>
+            <dependency groupId="Groups"/>
+            <dependency groupId="WorkItemTracking" />
+        </dependencies>
+        <taskList filename="Test Management\TestManagement.xml"/>
+    </group>
+      
+    <group id                ="Reporting"
+		   description       ="Project reports uploading."
+           completionMessage ="Project reporting tasks completed.">
+        <dependencies>
+            <dependency groupId="Classification"/>
+            <dependency groupId="WorkItemTracking"/>
+            <dependency groupId="VersionControl" />
+        </dependencies>
+        <taskList filename="Reports\ReportsTasks.xml"/>
+    </group>
+       
+    <group id                ="Portal"
+		   description       ="Creating project Site"
+           completionMessage ="Project portal tasks completed.">
+        <dependencies>
+            <dependency groupId="Classification"/>
+            <dependency groupId="Reporting"/>
+        </dependencies>
+        <taskList filename="Windows SharePoint Services\WssTasks.xml"/>
+    </group>
+      
+  </groups>
+</ProcessTemplate>

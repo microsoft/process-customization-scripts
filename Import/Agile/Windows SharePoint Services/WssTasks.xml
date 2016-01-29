@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<tasks>
+  <task id="SharePointPortal" name="Create Sharepoint Portal" plugin="Microsoft.ProjectCreationWizard.Portal" completionMessage="Project portal site created.">
+    <dependencies />
+    <taskXml>
+      <Portal>
+        <site template="Team Foundation Server Project Portal" language="1033" />
+        <documentLibraries>
+          <documentLibrary name="Shared Documents" description="Shared Documents" />
+          <documentLibrary name="Samples and Templates" description="Sample Documents and Templates" />
+          <documentLibrary name="Process Guidance" description="How to make best use of the Team Foundation Server tools and process" isProcessGuidance="true" />
+        </documentLibraries>
+        <folders>
+          <folder documentLibrary="Shared Documents" name="Iteration 1" />
+          <folder documentLibrary="Shared Documents" name="Iteration 2" />
+          <folder documentLibrary="Shared Documents" name="Iteration 3" />
+          <folder documentLibrary="Samples and Templates" name="Logistics" />
+          <folder documentLibrary="Samples and Templates" name="Personas and Design" />
+          <folder documentLibrary="Samples and Templates" name="Retrospectives" />
+          <folder documentLibrary="Samples and Templates" name="Security" />
+          <folder documentLibrary="Samples and Templates" name="Test" />
+          <folder documentLibrary="Samples and Templates" name="Vision and Planning" />
+          <folder documentLibrary="Process Guidance" name="Supporting Files" />
+        </folders>
+        <files>
+          <!-- Shared documents -->
+          <file source="Windows SharePoint Services\Shared Documents\Wiki.htm" documentLibrary="Shared Documents" target="Wiki.htm" />
+          <file source="Windows SharePoint Services\Shared Documents\Project Management\Issues.xlsx" documentLibrary="Shared Documents" target="Iteration 1/Issues.xlsx" queryId="Current Iteration/Open Issues" />
+          <file source="Windows SharePoint Services\Shared Documents\Bugs\Triage.xlsx" documentLibrary="Shared Documents" target="Iteration 1/Triage.xlsx" queryId="Current Iteration/Bug Triage" />
+          <!-- Samples - Logistics -->
+          <file source="Windows SharePoint Services\Samples and Templates\Logistics\Sample Document - Logistics and Rollout Plan.docx" documentLibrary="Samples and Templates" target="Logistics/Sample Document - Logistics and Rollout Plan.docx" />
+          <file source="Windows SharePoint Services\Samples and Templates\Logistics\Document Template - Logistics and Rollout Plan.dotx" documentLibrary="Samples and Templates" target="Logistics/Document Template - Logistics and Rollout Plan.dotx" />
+          <!-- Samples - Personas and Design -->
+          <file source="Windows SharePoint Services\Samples and Templates\Personas and Design\Document Template - Persona definition.dotx" documentLibrary="Samples and Templates" target="Personas and Design/Document Template - Persona definition.dotx" />
+          <file source="Windows SharePoint Services\Samples and Templates\Personas and Design\Sample Document - Persona definition.docx" documentLibrary="Samples and Templates" target="Personas and Design/Sample Document - Persona definition.docx" />
+          <!-- Samples and Templates - Backup of planning workbooks -->
+          <!-- Samples - Retrospectives -->
+          <file source="Windows SharePoint Services\Samples and Templates\Retrospectives\Document Template - Iteration Retrospective.dotx" documentLibrary="Samples and Templates" target="Retrospectives/Document Template - Iteration Retrospective.dotx" />
+          <file source="Windows SharePoint Services\Samples and Templates\Retrospectives\Sample Document - Iteration Retrospective.docx" documentLibrary="Samples and Templates" target="Retrospectives/Sample Document - Iteration Retrospective.docx" />
+          <!-- Samples - Security -->
+          <file source="Windows SharePoint Services\Samples and Templates\Security\Document Template - Threat Model.dotx" documentLibrary="Samples and Templates" target="Security/Document Template - Threat Model.dotx" />
+          <!-- Test -->
+          <file source="Windows SharePoint Services\Samples and Templates\Test\Document Template - Test Approach.dotx" documentLibrary="Samples and Templates" target="Test/Document Template - Test Approach.dotx" />
+          <file source="Windows SharePoint Services\Samples and Templates\Test\Sample Document - Test Approach.docx" documentLibrary="Samples and Templates" target="Test/Sample Document - Test Approach.docx" />
+          <!-- Samples and Templates - Vision and Planning -->
+          <file source="Windows SharePoint Services\Samples and Templates\Vision and Planning\Document Template - Vision.dotx" documentLibrary="Samples and Templates" target="Vision and Planning/Document Template - Vision.dotx" />
+          <file source="Windows SharePoint Services\Samples and Templates\Vision and Planning\Sample Document - Vision.docx" documentLibrary="Samples and Templates" target="Vision and Planning/Sample Document - Vision.docx" />
+          <file source="Windows SharePoint Services\Samples and Templates\Vision and Planning\Document Template - Stakeholder Matrix.xltx" documentLibrary="Samples and Templates" target="Vision and Planning/Document Template - Stakeholder Matrix.xltx" />
+          <file source="Windows SharePoint Services\Samples and Templates\Vision and Planning\Sample Document - Stakeholder Matrix.xlsx" documentLibrary="Samples and Templates" target="Vision and Planning/Sample Document - Stakeholder Matrix.xlsx" />
+          <file source="Windows SharePoint Services\Samples and Templates\Vision and Planning\Sample Document - Project Startup Checklist.docx" documentLibrary="Samples and Templates" target="Vision and Planning/Sample Document - Project Startup Checklist.docx" />
+          <file source="Windows SharePoint Services\Samples and Templates\Vision and Planning\Sample Document - Project Structure.docx" documentLibrary="Samples and Templates" target="Vision and Planning/Sample Document - Project Structure.docx" />
+          <file source="Windows SharePoint Services\Samples and Templates\Vision and Planning\Document Template - Project Structure.dotx" documentLibrary="Samples and Templates" target="Vision and Planning/Document Template - Project Structure.dotx" />
+          <!-- Process Guidance -->
+          <file source="Windows SharePoint Services\Process Guidance\ProcessGuidance.html" documentLibrary="Process Guidance" target="ProcessGuidance.html" />
+          <file source="Windows SharePoint Services\Process Guidance\ProcessGuidance.html" documentLibrary="Process Guidance" target="ProcessGuidance.aspx" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\AboutWorkItems.htm" documentLibrary="Process Guidance" target="Supporting Files/AboutWorkItems.htm" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\AboutWorkItems.htm" documentLibrary="Process Guidance" target="Supporting Files/AboutWorkItems.aspx" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\Bug.htm" documentLibrary="Process Guidance" target="Supporting Files/Bug.htm" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\Bug.htm" documentLibrary="Process Guidance" target="Supporting Files/Bug.aspx" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\CodeReviewRequest.htm" documentLibrary="Process Guidance" target="Supporting Files/Code Review Request.htm" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\CodeReviewRequest.htm" documentLibrary="Process Guidance" target="Supporting Files/Code Review Request.aspx" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\CodeReviewResponse.htm" documentLibrary="Process Guidance" target="Supporting Files/Code Review Response.htm" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\CodeReviewResponse.htm" documentLibrary="Process Guidance" target="Supporting Files/Code Review Response.aspx" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\Feature.htm" documentLibrary="Process Guidance" target="Supporting Files/Feature.htm" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\Feature.htm" documentLibrary="Process Guidance" target="Supporting Files/Feature.aspx" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\FeedbackRequest.htm" documentLibrary="Process Guidance" target="Supporting Files/Feedback Request.htm" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\FeedbackRequest.htm" documentLibrary="Process Guidance" target="Supporting Files/Feedback Request.aspx" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\FeedbackResponse.htm" documentLibrary="Process Guidance" target="Supporting Files/Feedback Response.htm" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\FeedbackResponse.htm" documentLibrary="Process Guidance" target="Supporting Files/Feedback Response.aspx" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\Issue.htm" documentLibrary="Process Guidance" target="Supporting Files/Issue.htm" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\Issue.htm" documentLibrary="Process Guidance" target="Supporting Files/Issue.aspx" />
+          <file source="Windows SharePoint Services\Process Guidance\ProcessGuidance.html" documentLibrary="Process Guidance" target="Supporting Files/ProcessGuidance.htm" />
+          <file source="Windows SharePoint Services\Process Guidance\ProcessGuidance.html" documentLibrary="Process Guidance" target="Supporting Files/ProcessGuidance.aspx" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\SharedSteps.htm" documentLibrary="Process Guidance" target="Supporting Files/Shared Steps.htm" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\SharedSteps.htm" documentLibrary="Process Guidance" target="Supporting Files/Shared Steps.aspx" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\Task.htm" documentLibrary="Process Guidance" target="Supporting Files/Task.htm" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\Task.htm" documentLibrary="Process Guidance" target="Supporting Files/Task.aspx" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\TestCase.htm" documentLibrary="Process Guidance" target="Supporting Files/Test Case.htm" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\TestCase.htm" documentLibrary="Process Guidance" target="Supporting Files/Test Case.aspx" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\UserStory.htm" documentLibrary="Process Guidance" target="Supporting Files/User Story.htm" />
+          <file source="Windows SharePoint Services\Process Guidance\Supporting Files\UserStory.htm" documentLibrary="Process Guidance" target="Supporting Files/User Story.aspx" />
+        </files>
+        <activateFeatures>
+          <!-- TfsDashboardAgileMoss -->
+          <feature featureId="0D953EE4-B77D-485b-A43C-F5FBB9367207" />
+          <!-- TfsDashboardAgileQuickLaunch -->
+          <feature featureId="1D363A6D-D9BA-4498-AD1A-9874ACA5F827" />
+        </activateFeatures>
+      </Portal>
+    </taskXml>
+  </task>
+</tasks>

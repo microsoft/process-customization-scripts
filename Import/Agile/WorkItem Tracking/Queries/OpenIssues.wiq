@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>
+    SELECT [System.Id],
+           [Microsoft.VSTS.Common.StackRank],
+           [System.Title],
+           [Microsoft.VSTS.Common.Priority],
+           [System.AssignedTo]
+      FROM WorkItems
+     WHERE [System.TeamProject] = @project
+       AND [System.WorkItemType] = 'Issue'
+       AND [System.State] &lt;&gt; 'Closed'
+       AND [System.IterationPath] UNDER '$$PROJECTNAME$$\Iteration 1'
+  ORDER BY [Microsoft.VSTS.Common.StackRank],
+           [Microsoft.VSTS.Common.Priority],
+           [System.Id]
+  </Wiql>
+</WorkItemQuery>

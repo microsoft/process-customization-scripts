@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>
+    SELECT [System.Id], 
+           [Microsoft.VSTS.Common.StackRank], 
+           [Microsoft.VSTS.Common.Priority], 
+           [System.AssignedTo], 
+           [Microsoft.VSTS.Scheduling.RemainingWork], 
+           [Microsoft.VSTS.Scheduling.CompletedWork], 
+           [System.Title] 
+      FROM WorkItems
+     WHERE [System.TeamProject] = @project 
+       AND [System.IterationPath] UNDER '$$PROJECTNAME$$\Iteration 1'
+       AND [System.WorkItemType] = 'Task' 
+       AND [System.State] = 'Active'
+  ORDER BY [Microsoft.VSTS.Common.StackRank], 
+           [Microsoft.VSTS.Common.Priority], 
+           [System.Id]
+    </Wiql>
+</WorkItemQuery>

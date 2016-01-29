@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <!-- 
+    Shows active Tasks and Bugs together so that they can be ranked.
+    Shows the unranked ones first, starting with those not assigned to an iteration. 
+    Then the Bugs and Tasks that have been ranked.
+    So in a triage meeting, your task is to assess the ones at the top of the list
+    and give them ranks, fitting them in between the existing ones.
+  -->
+  <Wiql>
+    SELECT [System.Id], 
+           [Microsoft.VSTS.Common.StackRank], 
+           [Microsoft.VSTS.Common.Priority], 
+           [Microsoft.VSTS.Common.Severity], 
+           [System.Title], 
+           [System.WorkItemType], 
+           [Microsoft.VSTS.Scheduling.RemainingWork], 
+           [Microsoft.VSTS.Scheduling.CompletedWork], 
+           [System.AssignedTo], 
+           [System.IterationPath]
+      FROM WorkItems 
+     WHERE [System.TeamProject] = @project 
+       AND [System.IterationPath] UNDER '$$PROJECTNAME$$\Iteration 1'
+       AND [System.WorkItemType] = 'Bug'
+       AND [System.State] = 'Active' 
+       AND [System.AssignedTo] = ''
+  ORDER BY [Microsoft.VSTS.Common.StackRank], 
+           [System.IterationPath], 
+           [Microsoft.VSTS.Common.Priority], 
+           [Microsoft.VSTS.Common.Severity], 
+           [System.Id] 
+  </Wiql>
+</WorkItemQuery>

@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>
+    SELECT [System.Id], 
+           [System.Links.LinkType], 
+           [System.Title]
+      FROM WorkItemLinks
+     WHERE (
+                Source.[System.TeamProject] = @project
+            AND Source.[System.WorkItemType] = 'User Story'
+           )
+       AND Source.[System.IterationPath] UNDER '$$PROJECTNAME$$\Iteration 1'
+       AND Source.[System.State] &lt;&gt; 'Removed'
+       AND System.Links.LinkType &lt;&gt; ''
+       AND Target.[System.WorkItemType] = 'Test Case'
+  ORDER BY [System.Id] mode(DoesNotContain)
+  </Wiql>
+</WorkItemQuery>
