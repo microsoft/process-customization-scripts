@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<tasks>
+  <task id="LabTask" name="Create Lab area" plugin="Microsoft.ProjectCreationWizard.Lab" completionMessage="Lab Task completed.">
+    <dependencies />
+    <taskXml>
+      <permission allow="Read, Create, Write, Edit, Delete, ManagePermissions, ManageChildPermissions, Start, Stop, ManageSnapshots, Pause, ManageLocation, DeleteLocation, ManageTestMachines" identity="$$PROJECTCOLLECTIONADMINGROUP$$" />
+      <permission allow="Read, Create, Write, Edit, Delete, ManageChildPermissions, Start, Stop, ManageSnapshots, Pause, ManageLocation, DeleteLocation, ManageTestMachines" identity="[$$PROJECTNAME$$]\$$PROJECTADMINGROUP$$" />
+      <permission allow="Read, Create, Write, Edit, Start, Stop, ManageSnapshots, Pause" identity="[$$PROJECTNAME$$]\Contributors" />
+      <permission allow="Read" identity="[$$PROJECTNAME$$]\Readers" />
+      <permission allow="Read, Write, Edit, Start, Stop, ManageSnapshots, Pause" identity="$$BUILDSERVICEGROUP$$" />
+    </taskXml>
+  </task>
+</tasks>

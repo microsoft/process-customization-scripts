@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>
+    SELECT [System.Id],
+           [Microsoft.VSTS.Common.StackRank],
+           [System.Title],
+           [System.AssignedTo],
+           [System.Reason]
+      FROM WorkItems
+     WHERE [System.TeamProject] = @project
+      AND  [System.IterationPath] UNDER '$$PROJECTNAME$$\Iteration 1'
+      AND  [System.WorkItemType] = 'User Story'
+      AND  [System.State] = 'Closed'
+      AND  [System.Reason] = 'Acceptance tests pass'
+  ORDER BY [System.Id]
+  </Wiql>
+</WorkItemQuery>

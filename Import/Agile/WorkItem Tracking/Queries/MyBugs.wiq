@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>
+    SELECT [System.Id], 
+           [Microsoft.VSTS.Common.StackRank], 
+           [Microsoft.VSTS.Common.Priority], 
+           [Microsoft.VSTS.Common.Severity], 
+           [System.State], 
+           [System.Title] 
+      FROM WorkItems 
+     WHERE [System.TeamProject] = @project 
+       AND [System.AssignedTo] = @me  
+       AND [System.WorkItemType] = 'Bug'
+       AND [System.State] &lt;&gt; 'Closed' 
+  ORDER BY [System.State], 
+           [Microsoft.VSTS.Common.StackRank], 
+           [Microsoft.VSTS.Common.Priority], 
+           [Microsoft.VSTS.Common.Severity], 
+           [System.Id]
+  </Wiql>
+</WorkItemQuery>

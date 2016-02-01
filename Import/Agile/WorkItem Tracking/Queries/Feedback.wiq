@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>
+    SELECT [System.Id], 
+           [System.Title],
+           [System.State], 
+           [System.CreatedBy], 
+           [Microsoft.VSTS.Common.Rating]
+     FROM WorkItems
+     WHERE (
+            [System.TeamProject] = @project
+            AND [System.WorkItemType] IN GROUP 'Microsoft.FeedbackResponseCategory'
+            AND [System.State] = 'Active'
+           )
+  ORDER BY [System.Id]
+  </Wiql>
+</WorkItemQuery>

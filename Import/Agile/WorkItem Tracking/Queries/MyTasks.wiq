@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>
+    SELECT [System.Id], 
+           [Microsoft.VSTS.Common.StackRank], 
+           [Microsoft.VSTS.Common.Priority], 
+           [System.State], 
+           [Microsoft.VSTS.Scheduling.RemainingWork], 
+           [Microsoft.VSTS.Scheduling.CompletedWork], 
+           [System.Title] 
+      FROM WorkItems 
+     WHERE [System.TeamProject] = @project 
+       AND [System.AssignedTo] = @me 
+       AND [System.WorkItemType] = 'Task' 
+       AND [System.State] &lt;&gt; 'Closed' 
+       AND [System.State] &lt;&gt; 'Removed' 
+  ORDER BY [System.State], 
+           [Microsoft.VSTS.Common.StackRank], 
+           [Microsoft.VSTS.Common.Priority], 
+           [System.Id]
+  </Wiql>
+</WorkItemQuery>
