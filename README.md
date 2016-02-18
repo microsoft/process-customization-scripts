@@ -30,12 +30,12 @@ PowerShell script that extracts the process from the project and saves it into t
 
 Syntax
 ```
-./ExportProjectTemplate.ps1 "collection" "projectname" -true
+./ExportProjectTemplate.ps1 "collection" "projectname" -Force
 ```
 
 Example
 ```
-.\ExportProjectTemplate.ps1 "http://myServer/tfs/DefaultCollection" "foo" -true
+.\ExportProjectTemplate.ps1 "http://myServer/tfs/DefaultCollection" "foo" -Force
 ```
 > **Note:** You will need to run the ExportProjectTemplate.ps1 script for each project 
 
