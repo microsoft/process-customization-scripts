@@ -35,7 +35,7 @@ Syntax
 
 Example
 ```
-.\ExportProjectTemplate.ps1 "http://myServer/tfs/DefaultCollection" "foo" -true
+.\ExportProjectTemplate.ps1 "http://myServer/tfs/DefaultCollection" "foo" -force
 ```
 > **Note:** You will need to run the ExportProjectTemplate.ps1 script for each project 
 
