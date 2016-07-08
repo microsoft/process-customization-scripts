@@ -63,6 +63,12 @@ Example
 ./ConformProject.ps1 "http://myServer/tfs/DefaultCollection" "foo" "c:\folder\agile"
 ```
 
+-------------
+
+Misc
+-------------------
+use GetProjects.ps1 to get a list or projects from a collection using the REST API's
+
 Support
 -------------------
 Contact vsocustpt@microsoft.com with questions or issues
