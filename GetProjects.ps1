@@ -10,7 +10,7 @@
 
 param
 (
-    [Parameter(Mandatory=$true,HelpMessage="team services account is required. Usage Example: accountname.visualstudio.com")] [string] $account,
+    [Parameter(Mandatory=$true,HelpMessage="tfs collection is required. Usage Example: https://tfsserver/defaultcollection")] [string] $account,
     [Parameter(Mandatory=$true,HelpMessage="access token is required.")] [string] $token   
 )
 
@@ -23,7 +23,7 @@ $headers = @{Authorization=("Basic {0}" -f $accessToken)};
 $instance = "danhellem";
 
 Write-Host "Getting list of projects from $account" -ForegroundColor Yellow    
-$projects = Invoke-RestMethod -Uri "https://$($account)/DefaultCollection/_apis/projects?api-version=1.0" -Headers $headers -Method Get
+$projects = Invoke-RestMethod -Uri "$($account)/_apis/projects?api-version=1.0" -Headers $headers -Method Get
 $OutArray = @(); 
 
 Write-Host "Building array of projects..." -ForegroundColor Yellow   
@@ -38,6 +38,6 @@ foreach($project in $projects.value)
 }
 
 Write-Host "Exporting to csv" -ForegroundColor Yellow   
-$OutArray | Export-Csv "final.csv" -NoTypeInformation
+$OutArray | Export-Csv "tfsprojects.csv" -NoTypeInformation
 
 Write-Host "Done" -ForegroundColor Green
