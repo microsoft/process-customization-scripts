@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<tasks>
+  <task id="LinkTypes" name="LinkType definitions" plugin="Microsoft.ProjectCreationWizard.WorkItemTracking" completionMessage="Work item link types created">
+    <taskXml>
+      <LINKTYPES>
+        <LINKTYPE fileName="WorkItem Tracking\LinkTypes\SharedStep.xml" />
+        <LINKTYPE fileName="WorkItem Tracking\LinkTypes\TestedBy.xml" />
+        <LINKTYPE fileName="WorkItem Tracking\LinkTypes\Affects.xml" />
+        <LINKTYPE fileName="WorkItem Tracking\LinkTypes\SharedParameterLink.xml" />
+      </LINKTYPES>
+    </taskXml>
+  </task>
+  <task id="WITs" name="WorkItemType definitions" plugin="Microsoft.ProjectCreationWizard.WorkItemTracking" completionMessage="Work item types created">
+    <dependencies>
+      <dependency taskId="LinkTypes" />
+    </dependencies>
+    <taskXml>
+      <WORKITEMTYPES>
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\Bug.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\CodeReviewRequest.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\CodeReviewResponse.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\Epic.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\Feature.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\FeedbackRequest.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\FeedbackResponse.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\Task.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\Issue.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\ChangeRequest.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\Risk.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\Requirement.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\Review.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\TestCase.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\TestPlan.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\TestSuite.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\SharedStep.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\SharedParameter.xml" />
+      </WORKITEMTYPES>
+    </taskXml>
+  </task>
+  <task id="Queries" name="Stored Query Definitions" plugin="Microsoft.ProjectCreationWizard.WorkItemTracking" completionMessage="Work item queries uploaded">
+    <dependencies>
+      <dependency taskId="WITs" />
+    </dependencies>
+    <taskXml>
+      <QUERIES>
+        <Permission allow="Read, Contribute, Delete, ManagePermissions, FullControl" identity="[SERVER]\$$PROJECTCOLLECTIONADMINGROUP$$" />
+        <Permission allow="Read, Contribute, Delete, ManagePermissions, FullControl" identity="[$$PROJECTNAME$$]\$$PROJECTADMINGROUP$$" />
+        <Permission allow="Read" identity="[$$PROJECTNAME$$]\Readers" />
+        <Permission allow="Read" identity="[$$PROJECTNAME$$]\Contributors" />
+        <Permission allow="Read" identity="[$$PROJECTNAME$$]\Build Administrators" />
+        <QueryFolder name="Development and Testing">
+          <Query name="Active Bugs" fileName="WorkItem Tracking\Queries\ActiveBugs.wiq" />
+          <Query name="Development Tasks" fileName="WorkItem Tracking\Queries\DevelopmentTasks.wiq" />
+          <Query name="My Test Cases" fileName="WorkItem Tracking\Queries\MyTestCases.wiq" />
+          <Query name="Open Tasks" fileName="WorkItem Tracking\Queries\OpenTasks.wiq" />
+          <Query name="Open Test Cases" fileName="WorkItem Tracking\Queries\OpenTestCases.wiq" />
+          <Query name="Resolved Bugs" fileName="WorkItem Tracking\Queries\ResolvedBugs.wiq" />
+          <Query name="Test Tasks" fileName="WorkItem Tracking\Queries\TestTasks.wiq" />
+        </QueryFolder>
+        <QueryFolder name="Planning and Tracking">
+          <Query name="Customer Requirements" fileName="WorkItem Tracking\Queries\CustomerRequirements.wiq" />
+          <Query name="Open Requirements" fileName="WorkItem Tracking\Queries\OpenRequirements.wiq" />
+          <Query name="Open Work Items" fileName="WorkItem Tracking\Queries\OpenWorkItems.wiq" />
+          <Query name="Product Requirements" fileName="WorkItem Tracking\Queries\ProductRequirements.wiq" />
+          <Query name="Proposed Work Items" fileName="WorkItem Tracking\Queries\ProposedWorkItems.wiq" />
+          <Query name="Open Requirements without Test Cases" fileName="WorkItem Tracking\Queries\RequirementsWithoutTestCases.wiq" />
+          <Query name="Reviews" fileName="WorkItem Tracking\Queries\Reviews.wiq" />
+          <Query name="Untriaged Work Items" fileName="WorkItem Tracking\Queries\UntriagedWorkItems.wiq" />
+          <Query name="Work Breakdown" fileName="WorkItem Tracking\Queries\WorkBreakdown.wiq" />
+          <Query name="Work Items With Summary Values" fileName="WorkItem Tracking\Queries\WorkItemsWithSummaryValues.wiq" />
+        </QueryFolder>
+        <QueryFolder name="Change Management">
+          <Query name="Change Requests" fileName="WorkItem Tracking\Queries\ChangeRequests.wiq" />
+          <Query name="Open Change Requests With Requirements" fileName="WorkItem Tracking\Queries\OpenChangeRequestsWithRequirements.wiq" />
+          <Query name="Requirements with Open Change Requests" fileName="WorkItem Tracking\Queries\RequirementsWithOpenChangeRequests.wiq" />
+        </QueryFolder>
+        <QueryFolder name="Troubleshooting">
+          <Query name="Blocked Work Items" fileName="WorkItem Tracking\Queries\BlockedWorkItems.wiq" />
+          <Query name="Corrective Actions" fileName="WorkItem Tracking\Queries\CorrectiveActions.wiq" />
+          <Query name="Mitigation Actions" fileName="WorkItem Tracking\Queries\MitigationActions.wiq" />
+          <Query name="Open Issues" fileName="WorkItem Tracking\Queries\OpenIssues.wiq" />
+          <Query name="Risks" fileName="WorkItem Tracking\Queries\Risks.wiq" />
+        </QueryFolder>
+        <Query name="My Work Items" fileName="WorkItem Tracking\Queries\MyWorkItems.wiq" />
+        <Query name="Feedback" fileName="WorkItem Tracking\Queries\Feedback.wiq" />
+      </QUERIES>
+    </taskXml>
+  </task>
+  <task id="Categories" name="Categories definitions" plugin="Microsoft.ProjectCreationWizard.WorkItemTracking" completionMessage="Work item type categories created">
+    <dependencies>
+      <dependency taskId="WITs" />
+    </dependencies>
+    <taskXml>
+      <CATEGORIES fileName="WorkItem Tracking\Categories.xml" />
+    </taskXml>
+  </task>
+  <task id="ProcessConfiguration" name="Process Configuration" plugin="Microsoft.ProjectCreationWizard.WorkItemTracking" completionMessage="Process configuration uploaded">
+    <dependencies>
+      <dependency taskId="WITs" />
+      <dependency taskId="Categories" />
+    </dependencies>
+    <taskXml>
+      <PROCESSCONFIGURATION>
+        <ProjectConfiguration fileName="WorkItem Tracking\Process\ProcessConfiguration.xml"/>
+      </PROCESSCONFIGURATION>
+    </taskXml>
+  </task>
+</tasks>

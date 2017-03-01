@@ -1,0 +1,1699 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2008/01/reportdefinition">
+  <Description>Helps you track the team's progress toward completing the work for an iteration. Shows how many hours of work the team has completed, how many hours remain, the rate of progress, and the work assigned to each team member.</Description>
+  <DataSources>
+    <DataSource Name="TfsOlapReportDS">
+      <DataSourceReference>TfsOlapReportDS</DataSourceReference>
+      <rd:DataSourceID>4e3c41a9-c90d-4846-93b9-7f5a94bccba4</rd:DataSourceID>
+      <rd:SecurityType>None</rd:SecurityType>
+    </DataSource>
+    <DataSource Name="TfsReportDS">
+      <DataSourceReference>TfsReportDS</DataSourceReference>
+      <rd:DataSourceID>678c1073-4a41-4e68-a169-cf5c3be954de</rd:DataSourceID>
+      <rd:SecurityType>None</rd:SecurityType>
+    </DataSource>
+  </DataSources>
+  <DataSets>
+    <DataSet Name="dsProjectGuid">
+      <Fields>
+        <Field Name="ProjectNodeGUID">
+          <DataField>ProjectNodeGUID</DataField>
+          <rd:TypeName>System.Guid</rd:TypeName>
+        </Field>
+        <Field Name="ProjectNodeName">
+          <DataField>ProjectNodeName</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>TfsReportDS</DataSourceName>
+        <CommandText>SELECT TOP 1 p.ProjectNodeGUID, p.ProjectNodeName FROM
+(
+    SELECT ProjectNodeGUID, ProjectNodeName, 1 AS RowRank FROM GetProjectNodeInfoFromReportFolder(@ReportPath)
+    UNION
+    SELECT '00000000-0000-0000-0000-000000000000' AS ProjectNodeGUID, 'missing' AS ProjectNodeName, 0 AS RowRank
+) p ORDER BY p.RowRank DESC</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@ReportPath">
+            <Value>=Parameters!ReportPath.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+    </DataSet>
+    <DataSet Name="dsArea">
+      <Fields>
+        <Field Name="ParameterCaption">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[ParameterCaption]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="ParameterValue">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[ParameterValue]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="ParameterLevel">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[ParameterLevel]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>TfsOlapReportDS</DataSourceName>
+        <CommandText>WITH
+	MEMBER [Measures].[Add Spaces] AS
+		VBA.Space(([Work Item].[Area Hierarchy].CurrentMember.Level.Ordinal - 1) * 2)
+	MEMBER [Measures].[ParameterCaption] AS
+		IIF([Work Item].[Area Hierarchy].CurrentMember IS [Work Item].[Area Hierarchy].[All],
+			@AllNoFilter,
+			[Measures].[Add Spaces] + [Work Item].[Area Hierarchy].CurrentMember.Member_Caption
+		)
+	MEMBER [Measures].[ParameterValue] AS [Work Item].[Area Hierarchy].CurrentMember.UniqueName
+	MEMBER [Measures].[ParameterLevel] AS [Work Item].[Area Hierarchy].CurrentMember.Level.Ordinal
+SELECT
+{
+	[Measures].[ParameterCaption],
+	[Measures].[ParameterValue],
+	[Measures].[ParameterLevel]
+} ON COLUMNS,
+{
+	Union(
+		[Work Item].[Area Hierarchy].[All],
+		Descendants(
+			//
+			// We use Except to remove the extra [All] member so we get the descendants only of the
+			// team project.
+			//
+			Except(
+				Extract(
+					Union(
+						//
+						// We add [All] so Extract always has at least one tuple to work with. Otherwise
+						// it produces an error when there are no tuples returned by the NonEmpty below.
+						//
+						CrossJoin(
+							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							[Work Item].[Area Hierarchy].[All]
+						),
+						NonEmpty(
+							CrossJoin(
+								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								[Work Item].[Area Hierarchy].[Area0]
+							),
+							[Measures].[Work Item Count]
+						)
+					),
+					[Work Item].[Area Hierarchy]
+				),
+				[Work Item].[Area Hierarchy].[All]
+			)
+		)
+	)
+} ON ROWS
+FROM [Team System]</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="ProjectGuid">
+            <Value>=Parameters!ProjectGuid.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="AllNoFilter">
+            <Value>=Parameters!AllNoFilter.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Level"><DimensionName>Work Item</DimensionName><HierarchyName>Area Hierarchy</HierarchyName><HierarchyUniqueName>[Work Item].[Area Hierarchy]</HierarchyUniqueName><LevelName>Team Project Collection</LevelName><UniqueName>[Work Item].[Area Hierarchy].[Team Project Collection]</UniqueName></ID><ItemCaption>Team Project Collection</ItemCaption></Item><Item><ID xsi:type="Level"><DimensionName>Work Item</DimensionName><HierarchyName>Area Hierarchy</HierarchyName><HierarchyUniqueName>[Work Item].[Area Hierarchy]</HierarchyUniqueName><LevelName>Area0</LevelName><UniqueName>[Work Item].[Area Hierarchy].[Area0]</UniqueName></ID><ItemCaption>Area0</ItemCaption></Item><Item><ID xsi:type="Level"><DimensionName>Work Item</DimensionName><HierarchyName>Area Hierarchy</HierarchyName><HierarchyUniqueName>[Work Item].[Area Hierarchy]</HierarchyUniqueName><LevelName>Area1</LevelName><UniqueName>[Work Item].[Area Hierarchy].[Area1]</UniqueName></ID><ItemCaption>Area1</ItemCaption></Item><Item><ID xsi:type="Level"><DimensionName>Work Item</DimensionName><HierarchyName>Area Hierarchy</HierarchyName><HierarchyUniqueName>[Work Item].[Area Hierarchy]</HierarchyUniqueName><LevelName>Area2</LevelName><UniqueName>[Work Item].[Area Hierarchy].[Area2]</UniqueName></ID><ItemCaption>Area2</ItemCaption></Item><Item><ID xsi:type="Level"><DimensionName>Work Item</DimensionName><HierarchyName>Area Hierarchy</HierarchyName><HierarchyUniqueName>[Work Item].[Area Hierarchy]</HierarchyUniqueName><LevelName>Area3</LevelName><UniqueName>[Work Item].[Area Hierarchy].[Area3]</UniqueName></ID><ItemCaption>Area3</ItemCaption></Item><Item><ID xsi:type="Level"><DimensionName>Work Item</DimensionName><HierarchyName>Area Hierarchy</HierarchyName><HierarchyUniqueName>[Work Item].[Area Hierarchy]</HierarchyUniqueName><LevelName>Area4</LevelName><UniqueName>[Work Item].[Area Hierarchy].[Area4]</UniqueName></ID><ItemCaption>Area4</ItemCaption></Item><Item><ID xsi:type="Level"><DimensionName>Work Item</DimensionName><HierarchyName>Area Hierarchy</HierarchyName><HierarchyUniqueName>[Work Item].[Area Hierarchy]</HierarchyUniqueName><LevelName>Area5</LevelName><UniqueName>[Work Item].[Area Hierarchy].[Area5]</UniqueName></ID><ItemCaption>Area5</ItemCaption></Item><Item><ID xsi:type="Measure"><MeasureName>ParameterCaption</MeasureName><UniqueName>[Measures].[ParameterCaption]</UniqueName></ID><ItemCaption>ParameterCaption</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>ParameterValue</MeasureName><UniqueName>[Measures].[ParameterValue]</UniqueName></ID><ItemCaption>ParameterValue</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>ParameterLevel</MeasureName><UniqueName>[Measures].[ParameterLevel]</UniqueName></ID><ItemCaption>ParameterLevel</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>WITH
+	MEMBER [Measures].[Add Spaces] AS
+		VBA.Space(([Work Item].[Area Hierarchy].CurrentMember.Level.Ordinal - 1) * 2)
+	MEMBER [Measures].[ParameterCaption] AS
+		IIF([Work Item].[Area Hierarchy].CurrentMember IS [Work Item].[Area Hierarchy].[All],
+			@AllNoFilter,
+			[Measures].[Add Spaces] + [Work Item].[Area Hierarchy].CurrentMember.Member_Caption
+		)
+	MEMBER [Measures].[ParameterValue] AS [Work Item].[Area Hierarchy].CurrentMember.UniqueName
+	MEMBER [Measures].[ParameterLevel] AS [Work Item].[Area Hierarchy].CurrentMember.Level.Ordinal
+SELECT
+{
+	[Measures].[ParameterCaption],
+	[Measures].[ParameterValue],
+	[Measures].[ParameterLevel]
+} ON COLUMNS,
+{
+	Union(
+		[Work Item].[Area Hierarchy].[All],
+		Descendants(
+			//
+			// We use Except to remove the extra [All] member so we get the descendants only of the
+			// team project.
+			//
+			Except(
+				Extract(
+					Union(
+						//
+						// We add [All] so Extract always has at least one tuple to work with. Otherwise
+						// it produces an error when there are no tuples returned by the NonEmpty below.
+						//
+						CrossJoin(
+							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							[Work Item].[Area Hierarchy].[All]
+						),
+						NonEmpty(
+							CrossJoin(
+								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								[Work Item].[Area Hierarchy].[Area0]
+							),
+							[Measures].[Work Item Count]
+						)
+					),
+					[Work Item].[Area Hierarchy]
+				),
+				[Work Item].[Area Hierarchy].[All]
+			)
+		)
+	)
+} ON ROWS
+FROM [Team System]</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>F0CB7644-85B2-4C21-A196-819F78FA890C</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AllNoFilter</Name><DefaultValues><DefaultValue>All (No Filter)</DefaultValue></DefaultValues><Caption>AllNoFilter</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
+      </Query>
+      <Filters>
+        <Filter>
+          <FilterExpression>=Fields!ParameterLevel.Value</FilterExpression>
+          <Operator>NotEqual</Operator>
+          <FilterValues>
+            <FilterValue DataType="Integer">2</FilterValue>
+          </FilterValues>
+        </Filter>
+      </Filters>
+    </DataSet>
+    <DataSet Name="dsIteration">
+      <Fields>
+        <Field Name="ParameterCaption">
+          <DataField>ParameterCaption</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="ParameterValue">
+          <DataField>ParameterValue</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="ParameterLevel">
+          <DataField>ParameterLevel</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>TfsReportDS</DataSourceName>
+        <CommandText>-- Select the Iterations from the project and return the "tree" of nodes
+-- indented by their path depth, along with the equivalent cube key
+-- for the corresponding cube member
+WITH Iterations (IterationPath, IterationName, Depth, IterationGUID)
+AS (
+	SELECT IterationPath, IterationName, Depth, IterationGUID
+	FROM DimIteration
+	WHERE ProjectGUID = CAST(@ProjectGUID AS NVARCHAR(256))
+)
+SELECT ParameterCaption, ParameterValue, Depth AS ParameterLevel
+FROM (
+	SELECT
+		'' AS IterationPath,
+		CAST(@AllNoFilter AS NVARCHAR(4000)) AS ParameterCaption,
+		'[Work Item].[Iteration Hierarchy].[All]' AS ParameterValue,
+		0 AS Depth
+	UNION
+	SELECT
+		IterationPath,
+		SPACE(2 * (Depth+1)) + IterationName,
+		dbo.GetWorkItemIterationKey(Depth, IterationGUID),
+		Depth + 2
+	FROM Iterations
+	UNION
+	SELECT
+		IterationPath,
+		SPACE(2 * (Depth + 2)) + '(' + IterationName + ')',
+		dbo.GetWorkItemIterationKey(Depth + 1, IterationGUID),
+		Depth + 3
+	FROM Iterations
+) i
+ORDER BY IterationPath, Depth</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@ProjectGUID">
+            <Value>=Parameters!ProjectGuid.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@AllNoFilter">
+            <Value>=Parameters!AllNoFilter.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+      </Query>
+      <Filters>
+        <Filter>
+          <FilterExpression>=Fields!ParameterLevel.Value</FilterExpression>
+          <Operator>NotEqual</Operator>
+          <FilterValues>
+            <FilterValue DataType="Integer">2</FilterValue>
+          </FilterValues>
+        </Filter>
+      </Filters>
+    </DataSet>
+    <DataSet Name="dsStates">
+      <Fields>
+        <Field Name="StateCaption">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[StateCaption]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="System_State">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Level" UniqueName="[Work Item].[System_State].[System_State]" /&gt;</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="State_Change_Count">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[State Change Count]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="StateID">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[StateID]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>TfsOlapReportDS</DataSourceName>
+        <CommandText>WITH
+MEMBER [Measures].[StateCaption] AS
+	IIF([Work Item].[System_State].CurrentMember IS [Work Item].[System_State].[All],
+		@AllNoFilter,
+		[Work Item].[System_State].CurrentMember.Member_Caption
+	)
+
+MEMBER [Measures].[StateID] AS
+	[Work Item].[System_State].CurrentMember.UniqueName
+
+SELECT
+{
+	[Measures].[State Change Count],
+	[Measures].[StateID],
+	[Measures].[StateCaption]
+} ON COLUMNS,
+{
+	// Ensure All is present even when the warehouse is not yet populated.
+	[Work Item].[System_State].[All] +
+	NonEmpty(
+		EXCEPT(Descendants([Work Item].[System_State].[All]),StrToMember("[Work Item].[System_State].&amp;[" + @RemovedName + "]")),
+		[Measures].[State Change Count]
+	)
+} ON ROWS
+FROM
+(
+	SELECT 
+		CrossJoin(
+			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			Except(
+				Descendants(StrToSet(@WorkItemTypeParam)),
+				[Work Item].[System_WorkItemType].[All] + StrToSet(@WorkItemsToExclude)
+			)
+		) ON COLUMNS
+	FROM [Team System]
+)</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="ProjectGuid">
+            <Value>=Parameters!ProjectGuid.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="AllNoFilter">
+            <Value>=Parameters!AllNoFilter.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="WorkItemTypeParam">
+            <Value>=Parameters!WorkItemTypeParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="WorkItemsToExclude">
+            <Value>=Code.CollectionToMDX(Parameters!WorkItemsToExclude.Value, "[Work Item].[System_WorkItemType].&amp;[", "]")</Value>
+          </QueryParameter>
+          <QueryParameter Name="RemovedName">
+            <Value>=Parameters!RemovedName.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Measure"><MeasureName>State Change Count</MeasureName><UniqueName>[Measures].[State Change Count]</UniqueName></ID><ItemCaption>State Change Count</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>StateID</MeasureName><UniqueName>[Measures].[StateID]</UniqueName></ID><ItemCaption>StateID</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>StateCaption</MeasureName><UniqueName>[Measures].[StateCaption]</UniqueName></ID><ItemCaption>StateCaption</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>WITH
+MEMBER [Measures].[StateCaption] AS
+	IIF([Work Item].[System_State].CurrentMember IS [Work Item].[System_State].[All],
+		@AllNoFilter,
+		[Work Item].[System_State].CurrentMember.Member_Caption
+	)
+
+MEMBER [Measures].[StateID] AS
+	[Work Item].[System_State].CurrentMember.UniqueName
+
+SELECT
+{
+	[Measures].[State Change Count],
+	[Measures].[StateID],
+	[Measures].[StateCaption]
+} ON COLUMNS,
+{
+	// Ensure All is present even when the warehouse is not yet populated.
+	[Work Item].[System_State].[All] +
+	NonEmpty(
+		EXCEPT(Descendants([Work Item].[System_State].[All]),StrToMember("[Work Item].[System_State].&amp;[" + @RemovedName + "]")),
+		[Measures].[State Change Count]
+	)
+} ON ROWS
+FROM
+(
+	SELECT 
+		CrossJoin(
+			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			Except(
+				Descendants(StrToSet(@WorkItemTypeParam)),
+				[Work Item].[System_WorkItemType].[All] + StrToSet(@WorkItemsToExclude)
+			)
+		) ON COLUMNS
+	FROM [Team System]
+)</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>A8915606-5343-4FAB-8502-E8D9BD4B3D20</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AllNoFilter</Name><DefaultValues><DefaultValue>All (No Filter)</DefaultValue></DefaultValues><Caption>AllNoFilter</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>WorkItemTypeParam</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Task]</DefaultValue></DefaultValues><Caption>WorkItemTypeParam</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>WorkItemsToExclude</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Test Case]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Issue]</DefaultValue></DefaultValues><Caption>WorkItemsToExclude</Caption><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_WorkItemType].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>RemovedName</Name><DefaultValues><DefaultValue>Removed</DefaultValue></DefaultValues><Caption>RemovedName</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
+        <rd:SuppressAutoUpdate>true</rd:SuppressAutoUpdate>
+      </Query>
+    </DataSet>
+    <DataSet Name="dsWorkItemType">
+      <Fields>
+        <Field Name="System_WorkItemType">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Level" UniqueName="[Work Item].[System_WorkItemType].[System_WorkItemType]" /&gt;</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="WorkItemTypeCaption">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[WorkItemTypeCaption]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="Cumulative_Count">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[Work Item Count]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="WorkItemTypeID">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[WorkItemTypeID]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>TfsOlapReportDS</DataSourceName>
+        <CommandText>WITH
+MEMBER [Measures].[WorkItemTypeCaption] AS
+	IIF([Work Item].[System_WorkItemType].CurrentMember IS [Work Item].[System_WorkItemType].[All],
+		@AllNoFilter,
+		[Work Item].[System_WorkItemType].CurrentMember.Member_Caption
+	)
+
+MEMBER [Measures].[WorkItemTypeID] AS
+	[Work Item].[System_WorkItemType].CurrentMember.UniqueName
+
+SELECT
+{
+	[Measures].[WorkItemTypeCaption],
+	[Measures].[Work Item Count],
+	[Measures].[WorkItemTypeID]
+} ON COLUMNS,
+{
+	Union(
+		[Work Item].[System_WorkItemType].[All],
+		Extract(
+			Union(
+				CrossJoin([Work Item].[System_WorkItemType].[All], [Team Project].[Project Node GUID].[All]),
+				NonEmpty(
+					CrossJoin(
+						Descendants([Work Item].[System_WorkItemType].AllMembers),
+						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]")
+					),
+					[Measures].[Work Item Count]
+				)
+			),
+			[Work Item].[System_WorkItemType]
+		),
+		StrToMember("[Work Item].[System_WorkItemType].&amp;[" + @DefaultWorkItemType + "]")
+	)
+} ON ROWS
+FROM
+(
+	SELECT 
+		Except(
+			Descendants([Work Item].[System_WorkItemType].[All]),
+			[Work Item].[System_WorkItemType].[All] + StrToSet(@WorkItemsToExclude)
+		)
+	ON COLUMNS
+	FROM [Team System]
+)</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="ProjectGuid">
+            <Value>=Parameters!ProjectGuid.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="AllNoFilter">
+            <Value>=Parameters!AllNoFilter.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="WorkItemsToExclude">
+            <Value>=Code.CollectionToMDX(Parameters!WorkItemsToExclude.Value, "[Work Item].[System_WorkItemType].&amp;[", "]")</Value>
+          </QueryParameter>
+          <QueryParameter Name="DefaultWorkItemType">
+            <Value>=Parameters!DefaultWorkItemType.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Level"><DimensionName>Work Item</DimensionName><HierarchyName>System_WorkItemType</HierarchyName><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><LevelName>System_WorkItemType</LevelName><UniqueName>[Work Item].[System_WorkItemType].[System_WorkItemType]</UniqueName></ID><ItemCaption>Work Item Type</ItemCaption></Item><Item><ID xsi:type="Measure"><MeasureName>WorkItemTypeCaption</MeasureName><UniqueName>[Measures].[WorkItemTypeCaption]</UniqueName></ID><ItemCaption>WorkItemTypeCaption</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Work Item Count</MeasureName><UniqueName>[Measures].[Work Item Count]</UniqueName></ID><ItemCaption>Work Item Count</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>WorkItemTypeID</MeasureName><UniqueName>[Measures].[WorkItemTypeID]</UniqueName></ID><ItemCaption>WorkItemTypeID</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>WITH
+MEMBER [Measures].[WorkItemTypeCaption] AS
+	IIF([Work Item].[System_WorkItemType].CurrentMember IS [Work Item].[System_WorkItemType].[All],
+		@AllNoFilter,
+		[Work Item].[System_WorkItemType].CurrentMember.Member_Caption
+	)
+
+MEMBER [Measures].[WorkItemTypeID] AS
+	[Work Item].[System_WorkItemType].CurrentMember.UniqueName
+
+SELECT
+{
+	[Measures].[WorkItemTypeCaption],
+	[Measures].[Work Item Count],
+	[Measures].[WorkItemTypeID]
+} ON COLUMNS,
+{
+	Union(
+		[Work Item].[System_WorkItemType].[All],
+		Extract(
+			Union(
+				CrossJoin([Work Item].[System_WorkItemType].[All], [Team Project].[Project Node GUID].[All]),
+				NonEmpty(
+					CrossJoin(
+						Descendants([Work Item].[System_WorkItemType].AllMembers),
+						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]")
+					),
+					[Measures].[Work Item Count]
+				)
+			),
+			[Work Item].[System_WorkItemType]
+		),
+		StrToMember("[Work Item].[System_WorkItemType].&amp;[" + @DefaultWorkItemType + "]")
+	)
+} ON ROWS
+FROM
+(
+	SELECT 
+		Except(
+			Descendants([Work Item].[System_WorkItemType].[All]),
+			[Work Item].[System_WorkItemType].[All] + StrToSet(@WorkItemsToExclude)
+		)
+	ON COLUMNS
+	FROM [Team System]
+)</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>9284C674-9472-4B25-A1AC-95D7B721DC3F</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AllNoFilter</Name><DefaultValues><DefaultValue>All (No Filter)</DefaultValue></DefaultValues><Caption>AllNoFilter</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>WorkItemsToExclude</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Issue]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Test Case]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Shared Step Set]</DefaultValue></DefaultValues><Caption>WorkItemsToExclude</Caption><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_WorkItemType].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>DefaultWorkItemType</Name><DefaultValues><DefaultValue>Task</DefaultValue></DefaultValues><Caption>DefaultWorkItemType</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
+        <rd:SuppressAutoUpdate>true</rd:SuppressAutoUpdate>
+      </Query>
+    </DataSet>
+    <DataSet Name="dsVelocity">
+      <Fields>
+        <Field Name="Cumulative_Count">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[Work Item Count]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="System_State">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Level" UniqueName="[Work Item].[System_State].[System_State]" /&gt;</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Remaining_Work">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[Remaining Work]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="Completed_Work">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[Completed Work]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="CurrentVelocity">
+          <Value>=IIF(
+	Parameters!YAxis.Value = "hours",
+	Fields!Completed_Work.Value,
+	IIF(
+		Fields!System_State.Value=Parameters!ClosedName.Value,
+		Fields!Cumulative_Count.Value,
+		0
+		)
+	) / Code.DaysCompleted(Parameters!StartDateParam.Value, Parameters!EndDateParam.Value, Parameters!NonWorkDays.Value)</Value>
+        </Field>
+        <Field Name="RequiredVelocity">
+          <Value>=IIF(
+	Parameters!YAxis.Value = "hours", 
+	Fields!Remaining_Work.Value, 
+	IIF(
+		Fields!System_State.Value&lt;&gt;Parameters!ClosedName.Value,
+		Fields!Cumulative_Count.Value,
+		0
+		)
+	) / Code.DaysRemaining(Parameters!StartDateParam.Value, Parameters!EndDateParam.Value, Parameters!NonWorkDays.Value)</Value>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>TfsOlapReportDS</DataSourceName>
+        <CommandText>WITH
+	MEMBER [Measures].[Remaining Work] AS [Measures].[FactCurrentWorkItem Microsoft_VSTS_Scheduling_RemainingWork]
+	MEMBER [Measures].[Completed Work] AS [Measures].[FactCurrentWorkItem Microsoft_VSTS_Scheduling_CompletedWork]
+SELECT
+{
+	[Measures].[Work Item Count],
+	[Measures].[Remaining Work],
+	[Measures].[Completed Work]
+} ON COLUMNS,
+{
+	NonEmpty(
+		Except([Work Item].[System_State].[System_State],StrToMember("[Work Item].[System_State].&amp;[" + @RemovedName + "]")),
+		[Measures].[Work Item Count]
+	)
+} ON ROWS
+FROM
+(
+	SELECT
+		CrossJoin(
+			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToSet(@StateParam),
+			StrToSet(@AreaParam),
+			StrToSet(@IterationParam),
+			Except(
+				Descendants(StrToSet(@WorkItemTypeParam)),
+				[Work Item].[System_WorkItemType].[All] + StrToSet(@WorkItemsToExclude)
+			)
+		) ON COLUMNS
+	FROM [Team System]
+)</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="ProjectGuid">
+            <Value>=Parameters!ProjectGuid.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="AreaParam">
+            <Value>=Parameters!AreaParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="IterationParam">
+            <Value>=Parameters!IterationParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="WorkItemTypeParam">
+            <Value>=Parameters!WorkItemTypeParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="StateParam">
+            <Value>=Parameters!StateParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="WorkItemsToExclude">
+            <Value>=Code.CollectionToMDX(Parameters!WorkItemsToExclude.Value, "[Work Item].[System_WorkItemType].&amp;[", "]")</Value>
+          </QueryParameter>
+          <QueryParameter Name="RemovedName">
+            <Value>=Parameters!RemovedName.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Measure"><MeasureName>Work Item Count</MeasureName><UniqueName>[Measures].[Work Item Count]</UniqueName></ID><ItemCaption>Work Item Count</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Remaining Work</MeasureName><UniqueName>[Measures].[Remaining Work]</UniqueName></ID><ItemCaption>Remaining Work</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Completed Work</MeasureName><UniqueName>[Measures].[Completed Work]</UniqueName></ID><ItemCaption>Completed Work</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>WITH
+	MEMBER [Measures].[Remaining Work] AS [Measures].[FactCurrentWorkItem Microsoft_VSTS_Scheduling_RemainingWork]
+	MEMBER [Measures].[Completed Work] AS [Measures].[FactCurrentWorkItem Microsoft_VSTS_Scheduling_CompletedWork]
+SELECT
+{
+	[Measures].[Work Item Count],
+	[Measures].[Remaining Work],
+	[Measures].[Completed Work]
+} ON COLUMNS,
+{
+	NonEmpty(
+		Except([Work Item].[System_State].[System_State],StrToMember("[Work Item].[System_State].&amp;[" + @RemovedName + "]")),
+		[Measures].[Work Item Count]
+	)
+} ON ROWS
+FROM
+(
+	SELECT
+		CrossJoin(
+			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToSet(@StateParam),
+			StrToSet(@AreaParam),
+			StrToSet(@IterationParam),
+			Except(
+				Descendants(StrToSet(@WorkItemTypeParam)),
+				[Work Item].[System_WorkItemType].[All] + StrToSet(@WorkItemsToExclude)
+			)
+		) ON COLUMNS
+	FROM [Team System]
+)</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>A8915606-5343-4FAB-8502-E8D9BD4B3D20</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AreaParam</Name><DefaultValues><DefaultValue>[Work Item].[Area Hierarchy].[All]</DefaultValue></DefaultValues><Caption>AreaParam</Caption><HierarchyUniqueName>[Work Item].[Area Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[Area Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>IterationParam</Name><DefaultValues><DefaultValue>[Work Item].[Iteration Hierarchy].[All]</DefaultValue></DefaultValues><Caption>IterationParam</Caption><HierarchyUniqueName>[Work Item].[Iteration Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[Iteration Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>WorkItemTypeParam</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Task]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[User Story]</DefaultValue></DefaultValues><Caption>WorkItemTypeParam</Caption><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_WorkItemType].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>StateParam</Name><DefaultValues><DefaultValue>[Work Item].[System_State].[All]</DefaultValue></DefaultValues><Caption>StateParam</Caption><HierarchyUniqueName>[Work Item].[System_State]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_State].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_State].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_State].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_State].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>WorkItemsToExclude</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Issue]</DefaultValue></DefaultValues><Caption>WorkItemsToExclude</Caption><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_WorkItemType].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>RemovedName</Name><DefaultValues><DefaultValue>Removed</DefaultValue></DefaultValues><Caption>RemovedName</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
+        <rd:SuppressAutoUpdate>true</rd:SuppressAutoUpdate>
+      </Query>
+    </DataSet>
+    <DataSet Name="dsWorkItemDefault">
+      <Fields>
+        <Field Name="Work_Item_Type">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Level" UniqueName="[Work Item].[System_WorkItemType].[System_WorkItemType]" /&gt;</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="WorkItemTypeID">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[WorkItemTypeID]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>TfsOlapReportDS</DataSourceName>
+        <CommandText>WITH
+MEMBER [Measures].[WorkItemTypeID] AS
+	[Work Item].[System_WorkItemType].CurrentMember.UniqueName
+
+SELECT
+{
+	[Measures].[WorkItemTypeID]
+} ON COLUMNS,
+{
+	Tail(
+		Union(
+			[Work Item].[System_WorkItemType].[All],
+			StrToMember("[Work Item].[System_WorkItemType].&amp;[" + @DefaultWorkItemType + "]")
+		),
+		1
+	)
+} ON ROWS
+FROM [Team System]</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="DefaultWorkItemType">
+            <Value>=Parameters!DefaultWorkItemType.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Level"><DimensionName>Work Item</DimensionName><HierarchyName>System_WorkItemType</HierarchyName><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><LevelName>System_WorkItemType</LevelName><UniqueName>[Work Item].[System_WorkItemType].[System_WorkItemType]</UniqueName></ID><ItemCaption>Work Item Type</ItemCaption></Item><Item><ID xsi:type="Measure"><MeasureName>WorkItemTypeID</MeasureName><UniqueName>[Measures].[WorkItemTypeID]</UniqueName></ID><ItemCaption>WorkItemTypeID</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>WITH
+MEMBER [Measures].[WorkItemTypeID] AS
+	[Work Item].[System_WorkItemType].CurrentMember.UniqueName
+
+SELECT
+{
+	[Measures].[WorkItemTypeID]
+} ON COLUMNS,
+{
+	Tail(
+		Union(
+			[Work Item].[System_WorkItemType].[All],
+			StrToMember("[Work Item].[System_WorkItemType].&amp;[" + @DefaultWorkItemType + "]")
+		),
+		1
+	)
+} ON ROWS
+FROM [Team System]</Statement><ParameterDefinitions><ParameterDefinition><Name>DefaultWorkItemType</Name><DefaultValues><DefaultValue>Task</DefaultValue></DefaultValues><Caption>DefaultWorkItemType</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
+      </Query>
+    </DataSet>
+    <DataSet Name="dsIterationStartEndDates">
+      <Fields>
+        <Field Name="IterationStartDate">
+          <DataField>IterationStartDate</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="IterationFinishDate">
+          <DataField>IterationFinishDate</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>TfsReportDS</DataSourceName>
+        <CommandText>DECLARE @IterationParameter varchar(255), @IterationProjectGUID varchar(255)
+
+SET @IterationParameter = (@IterationListParam)
+
+DECLARE @StartDate datetime, @EndDate datetime
+
+SET @IterationProjectGUID = (@ProjectGuid)
+
+IF CHARINDEX('[Work Item].[Iteration Hierarchy].[All]' ,@IterationParameter) &lt;&gt; 0
+BEGIN
+  -- Get global min/max for all iteration dates
+  SELECT
+    @StartDate = MIN(StartDate),
+    @EndDate = MAX(FinishDate)
+  FROM DimIteration
+  WHERE ProjectGUID = CAST(@ProjectGuid AS NVARCHAR(256))
+END
+ELSE
+BEGIN
+  -- Get min/max for selected iteration dates
+  SELECT
+    @StartDate = MIN(StartDate),
+    @EndDate = MAX(FinishDate)
+  FROM dbo.DimIteration
+  WHERE ProjectGUID = CAST(@ProjectGuid AS NVARCHAR(256))
+  AND (
+    '[Work Item].[Iteration Hierarchy].[Iteration' + CONVERT(varchar, Depth) + '].&amp;[' + 
+      CONVERT(nvarchar, CONVERT(bigint, SUBSTRING(CONVERT(binary(16), CONVERT(uniqueidentifier, IterationGUID)), 1, 8))) +
+      ']&amp;[' +
+      CONVERT(nvarchar, CONVERT(bigint, SUBSTRING(CONVERT(binary(16), CONVERT(uniqueidentifier, IterationGUID)), 9, 8))) +
+      ']' IN (@IterationParam)
+    OR
+    '[Work Item].[Iteration Hierarchy].[Iteration' + CONVERT(varchar, Depth + 1) + '].&amp;[' + 
+      CONVERT(nvarchar, CONVERT(bigint, SUBSTRING(CONVERT(binary(16), CONVERT(uniqueidentifier, IterationGUID)), 1, 8))) +
+      ']&amp;[' +
+      CONVERT(nvarchar, CONVERT(bigint, SUBSTRING(CONVERT(binary(16), CONVERT(uniqueidentifier, IterationGUID)), 9, 8))) +
+      ']' IN (@IterationParam)
+  )
+END
+
+-- Handle iterations without dates by defaulting to a moving 30 days window
+SELECT
+  @StartDate = COALESCE(@StartDate, DATEADD(DAY,-5,GETDATE())),
+  @EndDate = COALESCE(@EndDate, DATEADD(DAY,25,GETDATE()))
+
+-- Return the dates and their text version
+SELECT
+  CAST(@StartDate AS DATE) AS IterationStartDate,
+  CAST(@EndDate AS DATE) AS IterationFinishDate</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@IterationListParam">
+            <Value>=Parameters!IterationListParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@ProjectGuid">
+            <Value>=Parameters!ProjectGuid.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@IterationParam">
+            <Value>=Parameters!IterationParam.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+    </DataSet>
+    <DataSet Name="dsDefaultIteration">
+      <Fields>
+        <Field Name="IterationName">
+          <DataField>IterationName</DataField>
+          <rd:TypeName>System.Object</rd:TypeName>
+        </Field>
+        <Field Name="ParameterValue">
+          <DataField>ParameterValue</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>TfsReportDS</DataSourceName>
+        <CommandText>DECLARE @theDate DATE
+SET @theDate = GETDATE()
+
+DECLARE @Results TABLE (
+	IterationSK INT,
+	StartDate DATE,
+	FinishDate DATE,
+	IterationPath NVARCHAR(4000)
+)
+DECLARE @IterationSK INT
+
+-- Get all iterations with dates (excluding the root since that's not
+-- available as an iteration to select in IterationParam anyway)
+INSERT @Results
+	SELECT
+		IterationSK,
+		StartDate, 
+		FinishDate,
+		IterationPath
+	FROM DimIteration
+	WHERE StartDate IS NOT NULL
+	AND FinishDate IS NOT NULL
+	AND Depth &gt; 0
+	AND ProjectGUID = @ProjectGuid
+
+-- select iterations where we are within start-end dates
+SELECT TOP 1 @IterationSK = IterationSK
+FROM @Results
+WHERE @theDate BETWEEN StartDate AND FinishDate
+ORDER BY StartDate, FinishDate, IterationPath
+
+-- if not found, find the most recently completed iteration
+IF @IterationSK IS NULL BEGIN
+	SELECT TOP 1 @IterationSK = IterationSK
+	FROM @Results
+	WHERE FinishDate &lt;= @theDate
+	ORDER BY FinishDate DESC, StartDate, IterationPath
+END
+
+-- if not found, find the first iteration in the future
+-- or the first (alphabetical) iteration if no iteration dates are set
+IF @IterationSK IS NULL BEGIN
+	SELECT TOP 1 @IterationSK = IterationSK
+	FROM @Results
+	ORDER BY COALESCE(StartDate,'9999-12-31'), FinishDate, IterationPath
+END
+
+--
+-- Return the results with the correct formatting
+--
+IF @IterationSK IS NULL
+	SELECT @AllNoFilter AS IterationName, '[Work Item].[Iteration Hierarchy].[All]' AS ParameterValue
+ELSE
+	SELECT 
+		SUBSTRING(IterationPath, CHARINDEX('\', IterationPath, 2) + 1, LEN(IterationPath)) AS IterationName,
+		dbo.GetWorkItemIterationKey(Depth, IterationGUID)ParameterValue
+	FROM DimIteration
+	WHERE IterationSK = @IterationSK</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@ProjectGuid">
+            <Value>=Parameters!ProjectGuid.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@AllNoFilter">
+            <Value>=Parameters!AllNoFilter.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+    </DataSet>
+  </DataSets>
+  <Body>
+    <ReportItems>
+      <Chart Name="dundasChartControl3">
+        <ChartCategoryHierarchy>
+          <ChartMembers>
+            <ChartMember>
+              <Label />
+            </ChartMember>
+          </ChartMembers>
+        </ChartCategoryHierarchy>
+        <ChartSeriesHierarchy>
+          <ChartMembers>
+            <ChartMember>
+              <Label>Actual</Label>
+            </ChartMember>
+            <ChartMember>
+              <Label>Required</Label>
+            </ChartMember>
+          </ChartMembers>
+        </ChartSeriesHierarchy>
+        <ChartData>
+          <ChartSeriesCollection>
+            <ChartSeries Name="Series1">
+              <ChartDataPoints>
+                <ChartDataPoint>
+                  <ChartDataPointValues>
+                    <Y>=(Int(Sum(Fields!CurrentVelocity.Value) * 100.0 + 0.5)) / 100.0</Y>
+                  </ChartDataPointValues>
+                  <ChartDataLabel>
+                    <Style>
+                      <FontFamily>Microsoft Sans Serif</FontFamily>
+                      <FontSize>8pt</FontSize>
+                      <Format>F</Format>
+                      <Color>#333333</Color>
+                    </Style>
+                    <UseValueAsLabel>true</UseValueAsLabel>
+                    <Visible>true</Visible>
+                  </ChartDataLabel>
+                  <Style>
+                    <Border>
+                      <Color>#1a3b69</Color>
+                      <Style>None</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                    <Color>#8013577c</Color>
+                    <BackgroundGradientEndColor>#427094</BackgroundGradientEndColor>
+                  </Style>
+                  <ChartMarker>
+                    <Style />
+                  </ChartMarker>
+                  <CustomProperties>
+                    <CustomProperty>
+                      <Name>BarLabelStyle</Name>
+                      <Value>Outside</Value>
+                    </CustomProperty>
+                  </CustomProperties>
+                </ChartDataPoint>
+              </ChartDataPoints>
+              <Type>Bar</Type>
+              <Style>
+                <ShadowOffset>0pt</ShadowOffset>
+              </Style>
+              <ChartEmptyPoints>
+                <Style />
+                <ChartMarker>
+                  <Style />
+                </ChartMarker>
+                <ChartDataLabel>
+                  <Style />
+                </ChartDataLabel>
+              </ChartEmptyPoints>
+              <CustomProperties>
+                <CustomProperty>
+                  <Name>PointWidth</Name>
+                  <Value>1</Value>
+                </CustomProperty>
+              </CustomProperties>
+              <LegendName>Default</LegendName>
+              <ChartAreaName>Default</ChartAreaName>
+              <ValueAxisName>Primary</ValueAxisName>
+              <CategoryAxisName>Primary</CategoryAxisName>
+              <ChartSmartLabel>
+                <Disabled>true</Disabled>
+                <MaxMovingDistance>22.5pt</MaxMovingDistance>
+              </ChartSmartLabel>
+            </ChartSeries>
+            <ChartSeries Name="Series2">
+              <ChartDataPoints>
+                <ChartDataPoint>
+                  <ChartDataPointValues>
+                    <Y>=(Int(Sum(Fields!RequiredVelocity.Value) * 100.0 + 0.5)) / 100.0</Y>
+                  </ChartDataPointValues>
+                  <ChartDataLabel>
+                    <Style>
+                      <FontFamily>Microsoft Sans Serif</FontFamily>
+                      <FontSize>8pt</FontSize>
+                      <Format>F</Format>
+                      <Color>#333333</Color>
+                    </Style>
+                    <UseValueAsLabel>true</UseValueAsLabel>
+                    <Visible>true</Visible>
+                  </ChartDataLabel>
+                  <Style>
+                    <Border>
+                      <Color>#1a3b69</Color>
+                      <Style>None</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                    <Color>=IIF(Sum(Fields!RequiredVelocity.Value) &gt; Sum(Fields!CurrentVelocity.Value), "#80c90012", "#805b8007")</Color>
+                    <BackgroundGradientEndColor>=IIF(Sum(Fields!RequiredVelocity.Value) &gt; Sum(Fields!CurrentVelocity.Value), "#c22030", "#72991e")</BackgroundGradientEndColor>
+                  </Style>
+                  <ChartMarker>
+                    <Style />
+                  </ChartMarker>
+                  <CustomProperties>
+                    <CustomProperty>
+                      <Name>BarLabelStyle</Name>
+                      <Value>Outside</Value>
+                    </CustomProperty>
+                  </CustomProperties>
+                </ChartDataPoint>
+              </ChartDataPoints>
+              <Type>Bar</Type>
+              <Style>
+                <ShadowOffset>0pt</ShadowOffset>
+              </Style>
+              <ChartEmptyPoints>
+                <Style />
+                <ChartMarker>
+                  <Style />
+                </ChartMarker>
+                <ChartDataLabel>
+                  <Style />
+                </ChartDataLabel>
+              </ChartEmptyPoints>
+              <CustomProperties>
+                <CustomProperty>
+                  <Name>PointWidth</Name>
+                  <Value>1</Value>
+                </CustomProperty>
+              </CustomProperties>
+              <LegendName>Default</LegendName>
+              <ChartAreaName>Default</ChartAreaName>
+              <ValueAxisName>Primary</ValueAxisName>
+              <CategoryAxisName>Primary</CategoryAxisName>
+              <ChartSmartLabel>
+                <Disabled>true</Disabled>
+                <MaxMovingDistance>22.5pt</MaxMovingDistance>
+              </ChartSmartLabel>
+            </ChartSeries>
+          </ChartSeriesCollection>
+        </ChartData>
+        <ChartAreas>
+          <ChartArea Name="Default">
+            <ChartCategoryAxes>
+              <ChartAxis Name="Primary">
+                <Style>
+                  <Border>
+                    <Style>None</Style>
+                  </Border>
+                  <FontFamily>tahoma</FontFamily>
+                  <FontSize>8pt</FontSize>
+                  <Color>#333333</Color>
+                </Style>
+                <ChartAxisTitle>
+                  <Caption />
+                  <Style>
+                    <FontFamily>Microsoft Sans Serif</FontFamily>
+                    <FontSize>8pt</FontSize>
+                  </Style>
+                </ChartAxisTitle>
+                <Margin>True</Margin>
+                <ChartMajorGridLines>
+                  <Enabled>False</Enabled>
+                  <Style>
+                    <Border>
+                      <Color>Silver</Color>
+                      <Style>Solid</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                  </Style>
+                  <IntervalOffset>NaN</IntervalOffset>
+                </ChartMajorGridLines>
+                <ChartMinorGridLines>
+                  <Enabled>False</Enabled>
+                  <Style>
+                    <Border>
+                      <Color>Silver</Color>
+                      <Style>Solid</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                  </Style>
+                  <IntervalOffset>NaN</IntervalOffset>
+                </ChartMinorGridLines>
+                <ChartMajorTickMarks>
+                  <Enabled>False</Enabled>
+                  <Type>None</Type>
+                </ChartMajorTickMarks>
+                <Reverse>true</Reverse>
+                <HideLabels>true</HideLabels>
+                <AllowLabelRotation>Rotate30</AllowLabelRotation>
+              </ChartAxis>
+              <ChartAxis Name="Secondary">
+                <Style>
+                  <FontFamily>Microsoft Sans Serif</FontFamily>
+                  <FontSize>8pt</FontSize>
+                </Style>
+                <ChartAxisTitle>
+                  <Caption />
+                  <Style>
+                    <FontFamily>Microsoft Sans Serif</FontFamily>
+                    <FontSize>8pt</FontSize>
+                  </Style>
+                </ChartAxisTitle>
+                <Margin>True</Margin>
+                <ChartMajorGridLines>
+                  <Enabled>False</Enabled>
+                  <Style>
+                    <Border>
+                      <Color>Silver</Color>
+                      <Style>Solid</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                  </Style>
+                  <IntervalOffset>NaN</IntervalOffset>
+                </ChartMajorGridLines>
+                <ChartMinorGridLines>
+                  <Enabled>False</Enabled>
+                  <Style>
+                    <Border>
+                      <Color>Silver</Color>
+                      <Style>Solid</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                  </Style>
+                  <IntervalOffset>NaN</IntervalOffset>
+                </ChartMinorGridLines>
+                <ChartMajorTickMarks>
+                  <Enabled>False</Enabled>
+                </ChartMajorTickMarks>
+                <Location>Opposite</Location>
+                <AllowLabelRotation>Rotate30</AllowLabelRotation>
+              </ChartAxis>
+            </ChartCategoryAxes>
+            <ChartValueAxes>
+              <ChartAxis Name="Primary">
+                <Style>
+                  <Border>
+                    <Style>None</Style>
+                  </Border>
+                  <FontFamily>tahoma</FontFamily>
+                  <FontSize>8pt</FontSize>
+                  <Color>#333333</Color>
+                </Style>
+                <ChartAxisTitle>
+                  <Caption />
+                  <Style>
+                    <FontFamily>Microsoft Sans Serif</FontFamily>
+                    <FontSize>8pt</FontSize>
+                  </Style>
+                </ChartAxisTitle>
+                <Margin>True</Margin>
+                <ChartMajorGridLines>
+                  <Enabled>True</Enabled>
+                  <Style>
+                    <Border>
+                      <Color>#d8d8d8</Color>
+                      <Style>Solid</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                  </Style>
+                  <IntervalOffset>NaN</IntervalOffset>
+                </ChartMajorGridLines>
+                <ChartMinorGridLines>
+                  <Enabled>False</Enabled>
+                  <Style>
+                    <Border>
+                      <Color>Silver</Color>
+                      <Style>Solid</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                  </Style>
+                  <IntervalOffset>NaN</IntervalOffset>
+                </ChartMinorGridLines>
+                <ChartMajorTickMarks>
+                  <Enabled>True</Enabled>
+                  <Type>None</Type>
+                  <Style>
+                    <Border>
+                      <Color>#d8d8d8</Color>
+                      <Style>Solid</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                  </Style>
+                </ChartMajorTickMarks>
+                <AllowLabelRotation>Rotate30</AllowLabelRotation>
+                <LabelsAutoFitDisabled>true</LabelsAutoFitDisabled>
+              </ChartAxis>
+              <ChartAxis Name="Secondary">
+                <Style>
+                  <FontFamily>Microsoft Sans Serif</FontFamily>
+                  <FontSize>8pt</FontSize>
+                </Style>
+                <ChartAxisTitle>
+                  <Caption />
+                  <Style>
+                    <FontFamily>Microsoft Sans Serif</FontFamily>
+                    <FontSize>8pt</FontSize>
+                  </Style>
+                </ChartAxisTitle>
+                <Margin>True</Margin>
+                <ChartMajorGridLines>
+                  <Enabled>False</Enabled>
+                  <Style>
+                    <Border>
+                      <Color>Silver</Color>
+                      <Style>Solid</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                  </Style>
+                  <IntervalOffset>NaN</IntervalOffset>
+                </ChartMajorGridLines>
+                <ChartMinorGridLines>
+                  <Enabled>False</Enabled>
+                  <Style>
+                    <Border>
+                      <Color>Silver</Color>
+                      <Style>Solid</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                  </Style>
+                  <IntervalOffset>NaN</IntervalOffset>
+                </ChartMinorGridLines>
+                <ChartMajorTickMarks>
+                  <Enabled>False</Enabled>
+                </ChartMajorTickMarks>
+                <Location>Opposite</Location>
+                <AllowLabelRotation>Rotate30</AllowLabelRotation>
+              </ChartAxis>
+            </ChartValueAxes>
+            <ChartThreeDProperties>
+              <Shading>Simple</Shading>
+              <WallThickness>4</WallThickness>
+              <Clustered>true</Clustered>
+            </ChartThreeDProperties>
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <BackgroundColor>White</BackgroundColor>
+            </Style>
+            <AlignOrientation>Vertical</AlignOrientation>
+          </ChartArea>
+        </ChartAreas>
+        <ChartLegends>
+          <ChartLegend Name="Default">
+            <Style>
+              <Border>
+                <Style>None</Style>
+              </Border>
+              <BackgroundColor>White</BackgroundColor>
+              <FontFamily>tahoma</FontFamily>
+              <FontSize>8pt</FontSize>
+              <Color>#666666</Color>
+            </Style>
+            <Position>TopRight</Position>
+            <Layout>Row</Layout>
+            <ChartLegendTitle>
+              <Caption />
+              <Style>
+                <FontFamily>tahoma</FontFamily>
+                <FontSize>8pt</FontSize>
+                <FontWeight>Bold</FontWeight>
+              </Style>
+            </ChartLegendTitle>
+            <AutoFitTextDisabled>true</AutoFitTextDisabled>
+          </ChartLegend>
+        </ChartLegends>
+        <ChartTitles>
+          <ChartTitle Name="Title1">
+            <Caption>=IIF(Parameters!YAxis.Value = "hours", "Burn Rate (Hours Completed/Day)","Burn Rate (Work Items Completed/Day)")</Caption>
+            <Style>
+              <FontSize>8pt</FontSize>
+              <FontWeight>Bold</FontWeight>
+              <Color>#333333</Color>
+            </Style>
+            <Position>TopLeft</Position>
+            <DockToChartArea>Default</DockToChartArea>
+            <DockOutsideChartArea>true</DockOutsideChartArea>
+          </ChartTitle>
+        </ChartTitles>
+        <Palette>BrightPastel</Palette>
+        <DynamicHeight>=Parameters!Height.Value</DynamicHeight>
+        <DynamicWidth>=Parameters!Width.Value</DynamicWidth>
+        <ChartBorderSkin>
+          <Style>
+            <BackgroundColor>CornflowerBlue</BackgroundColor>
+            <BackgroundGradientEndColor>CornflowerBlue</BackgroundGradientEndColor>
+            <Color>White</Color>
+          </Style>
+        </ChartBorderSkin>
+        <ChartNoDataMessage Name="NoDataMessageTitle">
+          <Caption>*****  No Data  *****</Caption>
+          <Style>
+            <FontFamily>Microsoft Sans Serif</FontFamily>
+            <FontSize>8pt</FontSize>
+          </Style>
+        </ChartNoDataMessage>
+        <DataSetName>dsVelocity</DataSetName>
+        <Height>2.6in</Height>
+        <Width>2.6in</Width>
+        <Style>
+          <Border>
+            <Color>#1a3b69</Color>
+            <Style>None</Style>
+          </Border>
+          <BackgroundColor>White</BackgroundColor>
+        </Style>
+      </Chart>
+    </ReportItems>
+    <Height>2.6in</Height>
+    <Style />
+  </Body>
+  <ReportParameters>
+    <ReportParameter Name="ExplicitProject">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>/TfsReports/DefaultCollection/Agile01</Value>
+        </Values>
+      </DefaultValue>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>ExplicitProject</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ReportPath">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>=IIF(LEN(Globals!ReportFolder) &gt; 0,
+	Globals!ReportFolder,
+	Parameters!ExplicitProject.Value
+)</Value>
+        </Values>
+      </DefaultValue>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+    <ReportParameter Name="ProjectGuid">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <DataSetReference>
+          <DataSetName>dsProjectGuid</DataSetName>
+          <ValueField>ProjectNodeGUID</ValueField>
+        </DataSetReference>
+      </DefaultValue>
+      <Hidden>true</Hidden>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dsProjectGuid</DataSetName>
+          <ValueField>ProjectNodeGUID</ValueField>
+          <LabelField>ProjectNodeGUID</LabelField>
+        </DataSetReference>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="ProjectName">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <DataSetReference>
+          <DataSetName>dsProjectGuid</DataSetName>
+          <ValueField>ProjectNodeName</ValueField>
+        </DataSetReference>
+      </DefaultValue>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+    <ReportParameter Name="IsRuntime">
+      <DataType>Boolean</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>=IIF(LEN(Globals!ReportFolder) &gt; 0, True, False)</Value>
+        </Values>
+      </DefaultValue>
+      <AllowBlank>true</AllowBlank>
+    </ReportParameter>
+    <ReportParameter Name="ActiveName">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Active</Value>
+        </Values>
+      </DefaultValue>
+      <AllowBlank>true</AllowBlank>
+    </ReportParameter>
+    <ReportParameter Name="ClosedName">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Closed</Value>
+        </Values>
+      </DefaultValue>
+      <AllowBlank>true</AllowBlank>
+    </ReportParameter>
+    <ReportParameter Name="ResolvedName">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Resolved</Value>
+        </Values>
+      </DefaultValue>
+      <AllowBlank>true</AllowBlank>
+    </ReportParameter>
+    <ReportParameter Name="RemovedName">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Removed</Value>
+        </Values>
+      </DefaultValue>
+      <AllowBlank>true</AllowBlank>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+    <ReportParameter Name="DefaultWorkItemType">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Task</Value>
+        </Values>
+      </DefaultValue>
+      <AllowBlank>true</AllowBlank>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+    <ReportParameter Name="AllNoFilter">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>All (No Filter)</Value>
+        </Values>
+      </DefaultValue>
+    </ReportParameter>
+    <ReportParameter Name="WorkItemsToExclude">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Issue</Value>
+          <Value>Test Case</Value>
+          <Value>Shared Steps</Value>
+        </Values>
+      </DefaultValue>
+      <AllowBlank>true</AllowBlank>
+      <MultiValue>true</MultiValue>
+    </ReportParameter>
+    <ReportParameter Name="NonWorkDays">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>0,6</Value>
+        </Values>
+      </DefaultValue>
+    </ReportParameter>
+    <ReportParameter Name="IterationParam">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <DataSetReference>
+          <DataSetName>dsDefaultIteration</DataSetName>
+          <ValueField>ParameterValue</ValueField>
+        </DataSetReference>
+      </DefaultValue>
+      <Prompt>Iteration</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dsIteration</DataSetName>
+          <ValueField>ParameterValue</ValueField>
+          <LabelField>ParameterCaption</LabelField>
+        </DataSetReference>
+      </ValidValues>
+      <MultiValue>true</MultiValue>
+    </ReportParameter>
+    <ReportParameter Name="IterationListParam">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>=JOIN(Parameters!IterationParam.Value,",")</Value>
+        </Values>
+      </DefaultValue>
+      <Hidden>true</Hidden>
+      <ValidValues>
+        <ParameterValues>
+          <ParameterValue>
+            <Value>=JOIN(Parameters!IterationParam.Value,",")</Value>
+          </ParameterValue>
+        </ParameterValues>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="StartDateParam">
+      <DataType>DateTime</DataType>
+      <DefaultValue>
+        <DataSetReference>
+          <DataSetName>dsIterationStartEndDates</DataSetName>
+          <ValueField>IterationStartDate</ValueField>
+        </DataSetReference>
+      </DefaultValue>
+      <Prompt>Iteration Start (Date)</Prompt>
+      <Hidden>true</Hidden>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dsIterationStartEndDates</DataSetName>
+          <ValueField>IterationStartDate</ValueField>
+          <LabelField>IterationStartDate</LabelField>
+        </DataSetReference>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="EndDateParam">
+      <DataType>DateTime</DataType>
+      <DefaultValue>
+        <DataSetReference>
+          <DataSetName>dsIterationStartEndDates</DataSetName>
+          <ValueField>IterationFinishDate</ValueField>
+        </DataSetReference>
+      </DefaultValue>
+      <Prompt>Iteration End (Date)</Prompt>
+      <Hidden>true</Hidden>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dsIterationStartEndDates</DataSetName>
+          <ValueField>IterationFinishDate</ValueField>
+          <LabelField>IterationFinishDate</LabelField>
+        </DataSetReference>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="AreaParam">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>[Work Item].[Area Hierarchy].[All]</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Area</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dsArea</DataSetName>
+          <ValueField>ParameterValue</ValueField>
+          <LabelField>ParameterCaption</LabelField>
+        </DataSetReference>
+      </ValidValues>
+      <MultiValue>true</MultiValue>
+    </ReportParameter>
+    <ReportParameter Name="WorkItemTypeParam">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <DataSetReference>
+          <DataSetName>dsWorkItemDefault</DataSetName>
+          <ValueField>WorkItemTypeID</ValueField>
+        </DataSetReference>
+      </DefaultValue>
+      <Prompt>Work Item Type</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dsWorkItemType</DataSetName>
+          <ValueField>WorkItemTypeID</ValueField>
+          <LabelField>WorkItemTypeCaption</LabelField>
+        </DataSetReference>
+      </ValidValues>
+      <MultiValue>true</MultiValue>
+    </ReportParameter>
+    <ReportParameter Name="StateParam">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>[Work Item].[System_State].[All]</Value>
+        </Values>
+      </DefaultValue>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>State</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dsStates</DataSetName>
+          <ValueField>StateID</ValueField>
+          <LabelField>StateCaption</LabelField>
+        </DataSetReference>
+      </ValidValues>
+      <MultiValue>true</MultiValue>
+    </ReportParameter>
+    <ReportParameter Name="YAxis">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>hours</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Measurement</Prompt>
+      <ValidValues>
+        <ParameterValues>
+          <ParameterValue>
+            <Value>hours</Value>
+            <Label>Hours of Work</Label>
+          </ParameterValue>
+          <ParameterValue>
+            <Value>count</Value>
+            <Label>Number of Work Items</Label>
+          </ParameterValue>
+        </ParameterValues>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="Width">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>Width</Prompt>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+    <ReportParameter Name="Height">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>Height</Prompt>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+  </ReportParameters>
+  <Code>	Private firstValue As Double = Double.NaN
+	Private firstDate As Date
+	Private lastState As String
+	Private numDays As Integer
+
+	Function Burndown(ByVal val As Object, ByVal valDate As Date, ByVal endDate As Date)
+		If valDate &lt; firstDate Then
+			firstValue = Double.NaN
+			firstDate = DateTime.MinValue
+		End If
+
+		If Double.IsNaN(firstValue) Then
+			If Not val Is Nothing And val &lt;&gt; 0 Then
+				firstValue = val
+				firstDate = valDate
+				numDays = Math.Max(1, (endDate - valDate).Days)
+
+				Return firstValue
+			End If
+		Else
+			Return ((endDate - valDate).Days / numDays) * firstValue
+		End If
+
+		Return Nothing
+	End Function
+
+	Function DaysCompleted(ByVal startDate as Date, ByVal endDate As Date, ByVal weekendList As String) As Integer
+		Dim endDay as Date
+    
+		if Now.Date &lt; endDate.AddDays(1)
+			endDay = Now.Date
+		else
+			endDay = endDate.AddDays(1)
+		end if
+    
+		Dim days As Integer = WorkDays(startDate, endDay, weekendList)
+		Return Math.Max(days, 1)
+	End Function
+
+	Function DaysRemaining(ByVal startDate as Date, ByVal endDate As Date, ByVal weekendList As String) As Integer
+		Dim startDay as Date 
+    
+		if Now.Date &gt; startDate then
+			startDay = Now.Date
+		else
+			startDay = startDate
+		end if 
+    
+		Dim days As Integer = WorkDays(startDay, endDate.AddDays(1), weekendList)
+		Return Math.Max(days, 1)
+	End Function
+
+
+	Public Function WorkDays(ByVal startDate As Date, ByVal endDate As Date, ByVal weekendDayList As String) As Integer
+		Dim days As New Collection
+		Dim weekendDays() As String
+		Dim numDays As Integer
+		Dim day As Integer
+		Dim d As Date
+		Dim i As Integer
+
+		weekendDays = weekendDayList.Split(",")
+		For i = LBound(weekendDays) To UBound(weekendDays)
+			day = Convert.ToInt32(Trim(weekendDays(i)))
+			days.Add(day, day)
+		Next
+
+		'
+		' Get the number of days, which may include weekend days
+		'
+		numDays = (endDate - startDate).Days
+
+		d = startDate
+		For i = 1 To numDays
+			day = Convert.ToInt32(d.DayOfWeek)
+			If days.Contains(day) Then
+				numDays = numDays - 1
+			End If
+			d = d.AddDays(1)
+		Next
+
+		Return numDays
+	End Function
+
+
+	' Used to convert parameters from MDX to SQL query conventions
+	Function UnWrap(ByVal values As Object) As String()
+		Dim newValues(values.Length - 1) As String
+
+		For i As Integer = 0 To values.Length - 1
+			If values(i).EndsWith("[All]") Then
+				newValues(i) = "*"
+			Else
+				Dim startIndex As Integer = values(i).LastIndexOf("[") + 1
+				Dim endIndex As Integer = values(i).LastIndexOf("]")
+				newValues(i) = values(i).Substring(startIndex, endIndex - startIndex)
+			End If
+		Next
+		Return newValues
+	End Function
+
+	Public Function GetShortDayMonthAbbrev() As String
+		Dim info As System.Globalization.DateTimeFormatInfo = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat
+		Return info.MonthDayPattern.Replace("MMMM", "MMM")
+	End Function
+
+
+	Function ParametersToString(ByVal values As Object()) As String
+		Dim str As System.Text.StringBuilder = New System.Text.StringBuilder()
+
+		For i As Integer = 0 To values.Length - 1
+			If i &gt; 0 Then str.Append(", ")
+			str.Append(Trim(values(i).ToString))
+		Next
+		Return str.ToString
+	End Function
+
+	Function ValueToString(ByVal value As Object) As String
+		Dim result As Integer
+		result = Convert.ToInt32(value)
+
+		If result &gt; 0 Then
+			Return result.ToString()
+		End If
+		Return ""
+	End Function
+
+	Function CollectionToMDX(ByVal values As Object(), ByVal prefix As String, ByVal suffix As String) As String()
+		Dim results(0 To values.Length - 1) As String
+		For i As Integer = 0 To values.Length - 1
+			results(i) = prefix &amp; Trim(values(i).ToString) &amp; suffix
+		Next
+		Return results
+	End Function</Code>
+  <Width>2.6in</Width>
+  <Page>
+    <InteractiveHeight>0in</InteractiveHeight>
+    <InteractiveWidth>0in</InteractiveWidth>
+    <LeftMargin>0.25in</LeftMargin>
+    <RightMargin>0.25in</RightMargin>
+    <TopMargin>0.25in</TopMargin>
+    <BottomMargin>0.25in</BottomMargin>
+    <Style />
+  </Page>
+  <Language>=User!Language</Language>
+  <ConsumeContainerWhitespace>true</ConsumeContainerWhitespace>
+  <rd:ReportID>f569c542-3c77-4a49-a332-991b13cc9509</rd:ReportID>
+  <rd:ReportUnitType>Inch</rd:ReportUnitType>
+</Report>

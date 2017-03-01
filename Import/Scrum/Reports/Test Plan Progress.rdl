@@ -1,0 +1,3377 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2008/01/reportdefinition">
+  <Description>Helps you track the progress of your test plans. Shows the results of running the tests over time.</Description>
+  <DataSources>
+    <DataSource Name="TfsOlapReportDS">
+      <DataSourceReference>TfsOlapReportDS</DataSourceReference>
+      <rd:DataSourceID>4e3c41a9-c90d-4846-93b9-7f5a94bccba4</rd:DataSourceID>
+      <rd:SecurityType>None</rd:SecurityType>
+    </DataSource>
+    <DataSource Name="TfsReportDS">
+      <DataSourceReference>TfsReportDS</DataSourceReference>
+      <rd:DataSourceID>678c1073-4a41-4e68-a169-cf5c3be954de</rd:DataSourceID>
+      <rd:SecurityType>None</rd:SecurityType>
+    </DataSource>
+  </DataSources>
+  <DataSets>
+    <DataSet Name="dsLastProcessedTime">
+      <Fields>
+        <Field Name="LastProcessedTime">
+          <DataField>LastProcessedTime</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="Warning">
+          <DataField>Warning</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>TfsReportDS</DataSourceName>
+        <CommandText>SELECT AnalysisLastUpdated AS LastProcessedTime, Warning
+  FROM dbo.GetLastUpdatedInfoFromProjectNodeGUID(@ProjectGuid)
+ WHERE JobName = 'Test Management Warehouse Sync'</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@ProjectGuid">
+            <Value>=Parameters!ProjectGuid.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+    </DataSet>
+    <DataSet Name="dsIteration">
+      <Fields>
+        <Field Name="ParameterCaption">
+          <DataField>ParameterCaption</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="ParameterValue">
+          <DataField>ParameterValue</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="ParameterLevel">
+          <DataField>ParameterLevel</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>TfsReportDS</DataSourceName>
+        <CommandText>-- Select the Iterations from the project and return the "tree" of nodes
+-- indented by their path depth, along with the equivalent cube key
+-- for the corresponding cube member
+WITH Iterations (IterationPath, IterationName, Depth, IterationGUID)
+AS (
+	SELECT IterationPath, IterationName, Depth, IterationGUID
+	FROM DimIteration
+	WHERE ProjectGUID = CAST(@ProjectGUID AS NVARCHAR(256))
+)
+SELECT ParameterCaption, ParameterValue, Depth AS ParameterLevel
+FROM (
+	SELECT
+		'' AS IterationPath,
+		CAST(@AllNoFilter AS NVARCHAR(4000)) AS ParameterCaption,
+		'[Test Plan].[Iteration Hierarchy].[All]' AS ParameterValue,
+		0 AS Depth
+	UNION
+	SELECT
+		IterationPath,
+		SPACE(2 * (Depth+1)) + IterationName,
+		dbo.GetClassificationKey('Test Plan', 'Iteration', Depth, IterationGUID),
+		Depth + 2
+	FROM Iterations
+	UNION
+	SELECT
+		IterationPath,
+		SPACE(2 * (Depth + 2)) + '(' + IterationName + ')',
+		dbo.GetClassificationKey('Test Plan', 'Iteration', Depth + 1, IterationGUID),
+		Depth + 3
+	FROM Iterations
+) i
+ORDER BY IterationPath, Depth</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@ProjectGUID">
+            <Value>=Parameters!ProjectGuid.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@AllNoFilter">
+            <Value>=Parameters!AllNoFilter.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:SuppressAutoUpdate>true</rd:SuppressAutoUpdate>
+      </Query>
+      <Filters>
+        <Filter>
+          <FilterExpression>=Fields!ParameterLevel.Value</FilterExpression>
+          <Operator>NotEqual</Operator>
+          <FilterValues>
+            <FilterValue DataType="Integer">2</FilterValue>
+          </FilterValues>
+        </Filter>
+      </Filters>
+    </DataSet>
+    <DataSet Name="dsArea">
+      <Fields>
+        <Field Name="ParameterCaption">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[ParameterCaption]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="ParameterValue">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[ParameterValue]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="ParameterLevel">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[ParameterLevel]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>TfsOlapReportDS</DataSourceName>
+        <CommandText>WITH
+	MEMBER [Measures].[Add Spaces] AS
+		VBA.Space(([Test Case].[Area Hierarchy].CurrentMember.Level.Ordinal - 1) * 2)
+	MEMBER [Measures].[ParameterCaption] AS
+		IIF([Test Case].[Area Hierarchy].CurrentMember IS [Test Case].[Area Hierarchy].[All],
+			@AllNoFilter,
+			[Measures].[Add Spaces] + [Test Case].[Area Hierarchy].CurrentMember.Member_Caption
+		)
+	MEMBER [Measures].[ParameterValue] AS [Test Case].[Area Hierarchy].CurrentMember.UniqueName
+	MEMBER [Measures].[ParameterLevel] AS [Test Case].[Area Hierarchy].CurrentMember.Level.Ordinal
+	MEMBER [Measures].[EmptyOrZeroPointCountTrend] AS 
+	IIF (ISEMPTY([Measures].[Point Count Trend]) OR [Measures].[Point Count Trend] = 0,
+		null,
+		1
+	)
+SELECT
+{
+	[Measures].[ParameterCaption],
+	[Measures].[ParameterValue],
+	[Measures].[ParameterLevel]
+} ON COLUMNS,
+{
+	Union(
+		[Test Case].[Area Hierarchy].[All],
+		Descendants(
+			//
+			// We use Except to remove the extra [All] member so we get the descendants only of the
+			// team project.
+			//
+			Except(
+				Extract(
+					Union(
+						//
+						// We add [All] so Extract always has at least one tuple to work with. Otherwise
+						// it produces an error when there are no tuples returned by the NonEmpty below.
+						//
+						CrossJoin(
+							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							[Test Case].[Area Hierarchy].[All]
+						),
+						NonEmpty(
+							CrossJoin(
+								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								[Test Case].[Area Hierarchy].[Area0]
+							),
+							[Measures].[EmptyOrZeroPointCountTrend]
+						)
+					),
+					[Test Case].[Area Hierarchy]
+				),
+				[Test Case].[Area Hierarchy].[All]
+			)
+		)
+	)
+} ON ROWS
+FROM [Team System]</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="ProjectGuid">
+            <Value>=Parameters!ProjectGuid.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="AllNoFilter">
+            <Value>=Parameters!AllNoFilter.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Level"><DimensionName>Test Case</DimensionName><HierarchyName>Area Hierarchy</HierarchyName><HierarchyUniqueName>[Test Case].[Area Hierarchy]</HierarchyUniqueName><LevelName>Team Project Collection</LevelName><UniqueName>[Test Case].[Area Hierarchy].[Team Project Collection]</UniqueName></ID><ItemCaption>Team Project Collection</ItemCaption></Item><Item><ID xsi:type="Level"><DimensionName>Test Case</DimensionName><HierarchyName>Area Hierarchy</HierarchyName><HierarchyUniqueName>[Test Case].[Area Hierarchy]</HierarchyUniqueName><LevelName>Area0</LevelName><UniqueName>[Test Case].[Area Hierarchy].[Area0]</UniqueName></ID><ItemCaption>Area0</ItemCaption></Item><Item><ID xsi:type="Level"><DimensionName>Test Case</DimensionName><HierarchyName>Area Hierarchy</HierarchyName><HierarchyUniqueName>[Test Case].[Area Hierarchy]</HierarchyUniqueName><LevelName>Area1</LevelName><UniqueName>[Test Case].[Area Hierarchy].[Area1]</UniqueName></ID><ItemCaption>Area1</ItemCaption></Item><Item><ID xsi:type="Level"><DimensionName>Test Case</DimensionName><HierarchyName>Area Hierarchy</HierarchyName><HierarchyUniqueName>[Test Case].[Area Hierarchy]</HierarchyUniqueName><LevelName>Area2</LevelName><UniqueName>[Test Case].[Area Hierarchy].[Area2]</UniqueName></ID><ItemCaption>Area2</ItemCaption></Item><Item><ID xsi:type="Level"><DimensionName>Test Case</DimensionName><HierarchyName>Area Hierarchy</HierarchyName><HierarchyUniqueName>[Test Case].[Area Hierarchy]</HierarchyUniqueName><LevelName>Area3</LevelName><UniqueName>[Test Case].[Area Hierarchy].[Area3]</UniqueName></ID><ItemCaption>Area3</ItemCaption></Item><Item><ID xsi:type="Level"><DimensionName>Test Case</DimensionName><HierarchyName>Area Hierarchy</HierarchyName><HierarchyUniqueName>[Test Case].[Area Hierarchy]</HierarchyUniqueName><LevelName>Area4</LevelName><UniqueName>[Test Case].[Area Hierarchy].[Area4]</UniqueName></ID><ItemCaption>Area4</ItemCaption></Item><Item><ID xsi:type="Level"><DimensionName>Test Case</DimensionName><HierarchyName>Area Hierarchy</HierarchyName><HierarchyUniqueName>[Test Case].[Area Hierarchy]</HierarchyUniqueName><LevelName>Area5</LevelName><UniqueName>[Test Case].[Area Hierarchy].[Area5]</UniqueName></ID><ItemCaption>Area5</ItemCaption></Item><Item><ID xsi:type="Measure"><MeasureName>ParameterCaption</MeasureName><UniqueName>[Measures].[ParameterCaption]</UniqueName></ID><ItemCaption>ParameterCaption</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>ParameterValue</MeasureName><UniqueName>[Measures].[ParameterValue]</UniqueName></ID><ItemCaption>ParameterValue</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>ParameterLevel</MeasureName><UniqueName>[Measures].[ParameterLevel]</UniqueName></ID><ItemCaption>ParameterLevel</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>WITH
+	MEMBER [Measures].[Add Spaces] AS
+		VBA.Space(([Test Case].[Area Hierarchy].CurrentMember.Level.Ordinal - 1) * 2)
+	MEMBER [Measures].[ParameterCaption] AS
+		IIF([Test Case].[Area Hierarchy].CurrentMember IS [Test Case].[Area Hierarchy].[All],
+			@AllNoFilter,
+			[Measures].[Add Spaces] + [Test Case].[Area Hierarchy].CurrentMember.Member_Caption
+		)
+	MEMBER [Measures].[ParameterValue] AS [Test Case].[Area Hierarchy].CurrentMember.UniqueName
+	MEMBER [Measures].[ParameterLevel] AS [Test Case].[Area Hierarchy].CurrentMember.Level.Ordinal
+	MEMBER [Measures].[EmptyOrZeroPointCountTrend] AS 
+	IIF (ISEMPTY([Measures].[Point Count Trend]) OR [Measures].[Point Count Trend] = 0,
+		null,
+		1
+	)
+SELECT
+{
+	[Measures].[ParameterCaption],
+	[Measures].[ParameterValue],
+	[Measures].[ParameterLevel]
+} ON COLUMNS,
+{
+	Union(
+		[Test Case].[Area Hierarchy].[All],
+		Descendants(
+			//
+			// We use Except to remove the extra [All] member so we get the descendants only of the
+			// team project.
+			//
+			Except(
+				Extract(
+					Union(
+						//
+						// We add [All] so Extract always has at least one tuple to work with. Otherwise
+						// it produces an error when there are no tuples returned by the NonEmpty below.
+						//
+						CrossJoin(
+							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							[Test Case].[Area Hierarchy].[All]
+						),
+						NonEmpty(
+							CrossJoin(
+								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								[Test Case].[Area Hierarchy].[Area0]
+							),
+							[Measures].[EmptyOrZeroPointCountTrend]
+						)
+					),
+					[Test Case].[Area Hierarchy]
+				),
+				[Test Case].[Area Hierarchy].[All]
+			)
+		)
+	)
+} ON ROWS
+FROM [Team System]</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>6B8880E8-1A08-4027-8504-CFE732DF49EC</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AllNoFilter</Name><DefaultValues><DefaultValue>All (No Filter)</DefaultValue></DefaultValues><Caption>AllNoFilter</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
+        <rd:SuppressAutoUpdate>true</rd:SuppressAutoUpdate>
+      </Query>
+      <Filters>
+        <Filter>
+          <FilterExpression>=Fields!ParameterLevel.Value</FilterExpression>
+          <Operator>NotEqual</Operator>
+          <FilterValues>
+            <FilterValue DataType="Integer">2</FilterValue>
+          </FilterValues>
+        </Filter>
+      </Filters>
+    </DataSet>
+    <DataSet Name="dsStates">
+      <Fields>
+        <Field Name="Cumulative_Result_Count">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[Point Count Trend]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="ParameterValue">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[ParameterValue]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="ParameterCaption">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[ParameterCaption]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>TfsOlapReportDS</DataSourceName>
+        <CommandText>WITH
+MEMBER [Measures].[ParameterCaption] AS
+	IIF([Test Plan].[Test Plan State ID].CurrentMember IS [Test Plan].[Test Plan State ID].[All],
+		@AllNoFilter,
+		[Test Plan].[Test Plan State].CurrentMember.Member_Caption
+	)
+
+MEMBER [Measures].[ParameterValue] AS
+	[Test Plan].[Test Plan State ID].CurrentMember.UniqueName
+
+SELECT
+{
+	[Measures].[Point Count Trend],
+	[Measures].[ParameterValue],
+	[Measures].[ParameterCaption]
+} ON COLUMNS,
+{
+	([Test Plan].[Test Plan State ID].[All], [Test Plan].[Test Plan State].[All]) +
+	Extract(
+		(
+			[Test Plan].[Test Plan State ID].[All], 
+			[Test Plan].[Test Plan State].[All],
+			[Team Project].[Project Node GUID].[All],
+			[Test Case].[Area Hierarchy].[All],
+			[Test Plan].[Iteration Hierarchy].[All],
+			[Test Plan].[Test Plan ID].[All]
+		) +
+		Filter(
+			CrossJoin(
+				[Test Plan].[Test Plan State ID].Children,
+				Exists([Test Plan].[Test Plan State].[Test Plan State], [Test Plan].[Test Plan State ID].CurrentMember),
+				StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+				StrToSet(@AreaParam),
+				StrToSet(@IterationParam),
+				StrToSet(@TestPlanParam)
+				),
+			[Measures].[Point Count Trend]
+		),
+		[Test Plan].[Test Plan State ID], [Test Plan].[Test Plan State]
+	)
+} ON ROWS
+FROM [Team System]</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="ProjectGuid">
+            <Value>=Parameters!ProjectGuid.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="AllNoFilter">
+            <Value>=Parameters!AllNoFilter.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="TestPlanParam">
+            <Value>=Parameters!TestPlanParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="AreaParam">
+            <Value>=Parameters!AreaParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="IterationParam">
+            <Value>=Parameters!IterationParam.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Level"><DimensionName>Test Plan</DimensionName><HierarchyName>Test Plan State ID</HierarchyName><HierarchyUniqueName>[Test Plan].[Test Plan State ID]</HierarchyUniqueName><LevelName>Test Plan State ID</LevelName><UniqueName>[Test Plan].[Test Plan State ID].[Test Plan State ID]</UniqueName></ID><ItemCaption>Test Plan State Id</ItemCaption></Item><Item><ID xsi:type="Level"><DimensionName>Test Plan</DimensionName><HierarchyName>Test Plan State</HierarchyName><HierarchyUniqueName>[Test Plan].[Test Plan State]</HierarchyUniqueName><LevelName>Test Plan State</LevelName><UniqueName>[Test Plan].[Test Plan State].[Test Plan State]</UniqueName></ID><ItemCaption>Test Plan State</ItemCaption></Item><Item><ID xsi:type="Measure"><MeasureName>Point Count Trend</MeasureName><UniqueName>[Measures].[Point Count Trend]</UniqueName></ID><ItemCaption>Point Count Trend</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>ParameterValue</MeasureName><UniqueName>[Measures].[ParameterValue]</UniqueName></ID><ItemCaption>ParameterValue</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>ParameterCaption</MeasureName><UniqueName>[Measures].[ParameterCaption]</UniqueName></ID><ItemCaption>ParameterCaption</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>WITH
+MEMBER [Measures].[ParameterCaption] AS
+	IIF([Test Plan].[Test Plan State ID].CurrentMember IS [Test Plan].[Test Plan State ID].[All],
+		@AllNoFilter,
+		[Test Plan].[Test Plan State].CurrentMember.Member_Caption
+	)
+
+MEMBER [Measures].[ParameterValue] AS
+	[Test Plan].[Test Plan State ID].CurrentMember.UniqueName
+
+SELECT
+{
+	[Measures].[Point Count Trend],
+	[Measures].[ParameterValue],
+	[Measures].[ParameterCaption]
+} ON COLUMNS,
+{
+	([Test Plan].[Test Plan State ID].[All], [Test Plan].[Test Plan State].[All]) +
+	Extract(
+		(
+			[Test Plan].[Test Plan State ID].[All], 
+			[Test Plan].[Test Plan State].[All],
+			[Team Project].[Project Node GUID].[All],
+			[Test Case].[Area Hierarchy].[All],
+			[Test Plan].[Iteration Hierarchy].[All],
+			[Test Plan].[Test Plan ID].[All]
+		) +
+		Filter(
+			CrossJoin(
+				[Test Plan].[Test Plan State ID].Children,
+				Exists([Test Plan].[Test Plan State].[Test Plan State], [Test Plan].[Test Plan State ID].CurrentMember),
+				StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+				StrToSet(@AreaParam),
+				StrToSet(@IterationParam),
+				StrToSet(@TestPlanParam)
+				),
+			[Measures].[Point Count Trend]
+		),
+		[Test Plan].[Test Plan State ID], [Test Plan].[Test Plan State]
+	)
+} ON ROWS
+FROM [Team System]</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>6B8880E8-1A08-4027-8504-CFE732DF49EC</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AllNoFilter</Name><DefaultValues><DefaultValue>All (No Filter)</DefaultValue></DefaultValues><Caption>AllNoFilter</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>TestPlanParam</Name><DefaultValues><DefaultValue>[Test Plan].[Test Plan ID].[All]</DefaultValue></DefaultValues><Caption>TestPlanParam</Caption><HierarchyUniqueName>[Test Plan].[Test Plan ID]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Test Plan].[Test Plan ID].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Test Plan].[Test Plan ID].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Test Plan].[Test Plan ID].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Test Plan].[Test Plan ID].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>AreaParam</Name><DefaultValues><DefaultValue>[Test Case].[Area Hierarchy].[All]</DefaultValue></DefaultValues><Caption>AreaParam</Caption><HierarchyUniqueName>[Test Case].[Area Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Test Case].[Area Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Test Case].[Area Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Test Case].[Area Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Test Case].[Area Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>IterationParam</Name><DefaultValues><DefaultValue>[Test Plan].[Iteration Hierarchy].[All]</DefaultValue></DefaultValues><Caption>IterationParam</Caption><HierarchyUniqueName>[Test Plan].[Iteration Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Test Plan].[Iteration Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Test Plan].[Iteration Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Test Plan].[Iteration Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Test Plan].[Iteration Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
+        <rd:SuppressAutoUpdate>true</rd:SuppressAutoUpdate>
+      </Query>
+    </DataSet>
+    <DataSet Name="dsTestData">
+      <Fields>
+        <Field Name="Date">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Level" UniqueName="[Date].[Date].[Date]" /&gt;</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Name">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Level" UniqueName="[Test Plan].[Test Plan Name].[Test Plan Name]" /&gt;</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Outcome">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Level" UniqueName="[Test Result].[Outcome].[Outcome]" /&gt;</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="DateValue">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[DateValue]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="Outcome_Id">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Level" UniqueName="[Test Result].[Outcome Id].[Outcome Id]" /&gt;</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="Cumulative_Result_Count">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[Point Count Trend]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="Passed_Cumulative_Count">
+          <Value>=IIF(Val(Fields!Outcome_Id.Value) = 2, Fields!Cumulative_Result_Count.Value, Nothing)</Value>
+        </Field>
+        <Field Name="Failed_Cumulative_Count">
+          <Value>=IIF(Val(Fields!Outcome_Id.Value) = 3, Fields!Cumulative_Result_Count.Value, Nothing)</Value>
+        </Field>
+        <Field Name="Other_Cumulative_Count">
+          <Value>=IIF(Val(Fields!Outcome_Id.Value) = 2 OrElse Val(Fields!Outcome_Id.Value) = 3 OrElse Val(Fields!Outcome_Id.Value) = 7 OrElse Val(Fields!Outcome_Id.Value) = 255, Nothing, Fields!Cumulative_Result_Count.Value)</Value>
+        </Field>
+        <Field Name="Blocked_Cumulative_Count">
+          <Value>=IIF(Val(Fields!Outcome_Id.Value) = 7, Fields!Cumulative_Result_Count.Value, Nothing)</Value>
+        </Field>
+        <Field Name="NeverRun_Cumulative_Count">
+          <Value>=IIF(Val(Fields!Outcome_Id.Value) = 255, Fields!Cumulative_Result_Count.Value, Nothing)</Value>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>TfsOlapReportDS</DataSourceName>
+        <CommandText>WITH
+MEMBER [Measures].[DateValue] AS
+	[Date].[Date].CurrentMember.Member_Value
+
+SET [Date Range] AS
+	Filter(
+		[Date].[Date].[Date],
+		[Date].[Date].CurrentMember.Member_Value &gt;= CDate(@StartDateParam) AND
+		[Date].[Date].CurrentMember.Member_Value &lt;= CDate(@EndDateParam)
+	)
+
+SELECT
+{
+	[Measures].[DateValue],
+	[Measures].[Point Count Trend]
+} ON COLUMNS,
+{
+	//
+	// This first CrossJoin is to make sure this query returns a single record with a null
+	// count on days when there is no data.
+	//
+	CrossJoin(
+		[Date Range],
+		[Test Plan].[Test Plan Name].[Test Plan Name],
+		[Test Result].[Outcome].[Outcome],
+		[Test Result].[Outcome Id].[All].FirstChild
+	) +
+	//
+	// Retrieve the results on a specific date. The date must be inside the NonEmpty so that
+	// the non-empty test will be applied for results on the historical date. If [Date Range]
+	// Isn't inside the NonEmpty, it uses [Date].[All] to evaluate [Measures].[Work Item Count].
+	//
+	NonEmpty(
+		CrossJoin(
+			[Date Range],
+			[Test Plan].[Test Plan Name].[Test Plan Name],
+			[Test Result].[Outcome].[Outcome],
+			[Test Result].[Outcome Id].[Outcome Id]
+		),
+		[Measures].[Point Count Trend]
+	)
+} ON ROWS
+FROM
+(
+	SELECT
+		CrossJoin(
+			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToSet(@StateParam),
+			StrToSet(@AreaParam),
+			StrToSet(@IterationParam),
+			StrToSet(@TestPlanParam)
+		)
+	ON COLUMNS FROM [Team System]
+)</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="ProjectGuid">
+            <Value>=Parameters!ProjectGuid.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="AreaParam">
+            <Value>=Parameters!AreaParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="IterationParam">
+            <Value>=Parameters!IterationParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="StateParam">
+            <Value>=Parameters!StateParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="TestPlanParam">
+            <Value>=Parameters!TestPlanParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="StartDateParam">
+            <Value>=Parameters!StartDateParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="EndDateParam">
+            <Value>=Parameters!EndDateParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="OtherName">
+            <Value>=Parameters!OtherName.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Level"><DimensionName>Date</DimensionName><HierarchyName>Date</HierarchyName><HierarchyUniqueName>[Date].[Date]</HierarchyUniqueName><LevelName>Date</LevelName><UniqueName>[Date].[Date].[Date]</UniqueName></ID><ItemCaption>Date</ItemCaption></Item><Item><ID xsi:type="Level"><DimensionName>Test Plan</DimensionName><HierarchyName>Test Plan Name</HierarchyName><HierarchyUniqueName>[Test Plan].[Test Plan Name]</HierarchyUniqueName><LevelName>Test Plan Name</LevelName><UniqueName>[Test Plan].[Test Plan Name].[Test Plan Name]</UniqueName></ID><ItemCaption>Test Plan Name</ItemCaption></Item><Item><ID xsi:type="Level"><DimensionName>Test Result</DimensionName><HierarchyName>Outcome</HierarchyName><HierarchyUniqueName>[Test Result].[Outcome]</HierarchyUniqueName><LevelName>Outcome</LevelName><UniqueName>[Test Result].[Outcome].[Outcome]</UniqueName></ID><ItemCaption>Outcome</ItemCaption></Item><Item><ID xsi:type="Level"><DimensionName>Test Result</DimensionName><HierarchyName>Outcome Id</HierarchyName><HierarchyUniqueName>[Test Result].[Outcome Id]</HierarchyUniqueName><LevelName>Outcome Id</LevelName><UniqueName>[Test Result].[Outcome Id].[Outcome Id]</UniqueName></ID><ItemCaption>Outcome Id</ItemCaption></Item><Item><ID xsi:type="Measure"><MeasureName>DateValue</MeasureName><UniqueName>[Measures].[DateValue]</UniqueName></ID><ItemCaption>DateValue</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Point Count Trend</MeasureName><UniqueName>[Measures].[Point Count Trend]</UniqueName></ID><ItemCaption>Point Count Trend</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>WITH
+MEMBER [Measures].[DateValue] AS
+	[Date].[Date].CurrentMember.Member_Value
+
+SET [Date Range] AS
+	Filter(
+		[Date].[Date].[Date],
+		[Date].[Date].CurrentMember.Member_Value &gt;= CDate(@StartDateParam) AND
+		[Date].[Date].CurrentMember.Member_Value &lt;= CDate(@EndDateParam)
+	)
+
+SELECT
+{
+	[Measures].[DateValue],
+	[Measures].[Point Count Trend]
+} ON COLUMNS,
+{
+	//
+	// This first CrossJoin is to make sure this query returns a single record with a null
+	// count on days when there is no data.
+	//
+	CrossJoin(
+		[Date Range],
+		[Test Plan].[Test Plan Name].[Test Plan Name],
+		[Test Result].[Outcome].[Outcome],
+		[Test Result].[Outcome Id].[All].FirstChild
+	) +
+	//
+	// Retrieve the results on a specific date. The date must be inside the NonEmpty so that
+	// the non-empty test will be applied for results on the historical date. If [Date Range]
+	// Isn't inside the NonEmpty, it uses [Date].[All] to evaluate [Measures].[Work Item Count].
+	//
+	NonEmpty(
+		CrossJoin(
+			[Date Range],
+			[Test Plan].[Test Plan Name].[Test Plan Name],
+			[Test Result].[Outcome].[Outcome],
+			[Test Result].[Outcome Id].[Outcome Id]
+		),
+		[Measures].[Point Count Trend]
+	)
+} ON ROWS
+FROM
+(
+	SELECT
+		CrossJoin(
+			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToSet(@StateParam),
+			StrToSet(@AreaParam),
+			StrToSet(@IterationParam),
+			StrToSet(@TestPlanParam)
+		)
+	ON COLUMNS FROM [Team System]
+)</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>6B8880E8-1A08-4027-8504-CFE732DF49EC</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AreaParam</Name><DefaultValues><DefaultValue>[Test Case].[Area Hierarchy].[All]</DefaultValue></DefaultValues><Caption>AreaParam</Caption><HierarchyUniqueName>[Test Case].[Area Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Test Case].[Area Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Test Case].[Area Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Test Case].[Area Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Test Case].[Area Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>IterationParam</Name><DefaultValues><DefaultValue>[Test Plan].[Iteration Hierarchy].[All]</DefaultValue></DefaultValues><Caption>IterationParam</Caption><HierarchyUniqueName>[Test Plan].[Iteration Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Test Plan].[Iteration Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Test Plan].[Iteration Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Test Plan].[Iteration Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Test Plan].[Iteration Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>StateParam</Name><DefaultValues><DefaultValue>[Test Plan].[Test Plan State ID].[All]</DefaultValue></DefaultValues><Caption>StateParam</Caption><HierarchyUniqueName>[Test Plan].[Test Plan State ID]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Test Plan].[Test Plan State ID].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Test Plan].[Test Plan State ID].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Test Plan].[Test Plan State ID].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Test Plan].[Test Plan State ID].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>TestPlanParam</Name><DefaultValues><DefaultValue>[Test Plan].[Test Plan ID].[All]</DefaultValue></DefaultValues><Caption>TestPlanParam</Caption><HierarchyUniqueName>[Test Plan].[Test Plan ID]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Test Plan].[Test Plan ID].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Test Plan].[Test Plan ID].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Test Plan].[Test Plan ID].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Test Plan].[Test Plan ID].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>StartDateParam</Name><DefaultValues><DefaultValue>1/1/2010</DefaultValue></DefaultValues><Caption>StartDateParam
+</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>EndDateParam</Name><DefaultValues><DefaultValue>2/24/2010</DefaultValue></DefaultValues><Caption>EndDateParam</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>OtherName</Name><DefaultValues><DefaultValue>Other</DefaultValue></DefaultValues><Caption>OtherName</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
+        <rd:SuppressAutoUpdate>true</rd:SuppressAutoUpdate>
+      </Query>
+    </DataSet>
+    <DataSet Name="dsTestPlans">
+      <Fields>
+        <Field Name="Cumulative_Result_Count">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[Point Count Trend]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="ParameterValue">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[ParameterValue]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="ParameterCaption">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[ParameterCaption]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>TfsOlapReportDS</DataSourceName>
+        <CommandText>WITH
+MEMBER [Measures].[ParameterCaption] AS
+	IIF([Test Plan].[Test Plan Name].CURRENTMEMBER IS [Test Plan].[Test Plan Name].[All],
+		@AllNoFilter,
+		[Test Plan].[Test Plan Name].CurrentMember.Member_Caption
+	)
+
+MEMBER [Measures].[ParameterValue] AS
+	[Test Plan].[Test Plan ID].CurrentMember.UniqueName
+
+SELECT
+{
+	[Measures].[Point Count Trend],
+	[Measures].[ParameterValue],
+	[Measures].[ParameterCaption]
+} ON COLUMNS,
+{
+	([Test Plan].[Test Plan ID].[All], [Test Plan].[Test Plan Name].[All]) +
+	Extract(
+		(
+			[Test Plan].[Test Plan ID].[All],
+			[Test Plan].[Test Plan Name].[All],
+			[Team Project].[Project Node GUID].[All],
+			[Test Case].[Area Hierarchy].[All],
+			[Test Plan].[Iteration Hierarchy].[All]
+		) +
+		Filter(
+			CrossJoin(
+				[Test Plan].[Test Plan ID].[Test Plan ID],
+				[Test Plan].[Test Plan Name].[Test Plan Name],
+				StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+				StrToSet(@AreaParam),
+				StrToSet(@IterationParam)
+			),
+			[Measures].[Point Count Trend]
+		),
+		[Test Plan].[Test Plan ID], [Test Plan].[Test Plan Name]
+	)
+} ON ROWS
+FROM [Team System]</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="ProjectGuid">
+            <Value>=Parameters!ProjectGuid.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="AllNoFilter">
+            <Value>=Parameters!AllNoFilter.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="AreaParam">
+            <Value>=Parameters!AreaParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="IterationParam">
+            <Value>=Parameters!IterationParam.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Level"><DimensionName>Test Plan</DimensionName><HierarchyName>Test Plan ID</HierarchyName><HierarchyUniqueName>[Test Plan].[Test Plan ID]</HierarchyUniqueName><LevelName>Test Plan ID</LevelName><UniqueName>[Test Plan].[Test Plan ID].[Test Plan ID]</UniqueName></ID><ItemCaption>Test Plan Id</ItemCaption></Item><Item><ID xsi:type="Level"><DimensionName>Test Plan</DimensionName><HierarchyName>Test Plan Name</HierarchyName><HierarchyUniqueName>[Test Plan].[Test Plan Name]</HierarchyUniqueName><LevelName>Test Plan Name</LevelName><UniqueName>[Test Plan].[Test Plan Name].[Test Plan Name]</UniqueName></ID><ItemCaption>Test Plan Name</ItemCaption></Item><Item><ID xsi:type="Measure"><MeasureName>Point Count Trend</MeasureName><UniqueName>[Measures].[Point Count Trend]</UniqueName></ID><ItemCaption>Point Count Trend</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>ParameterValue</MeasureName><UniqueName>[Measures].[ParameterValue]</UniqueName></ID><ItemCaption>ParameterValue</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>ParameterCaption</MeasureName><UniqueName>[Measures].[ParameterCaption]</UniqueName></ID><ItemCaption>ParameterCaption</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>WITH
+MEMBER [Measures].[ParameterCaption] AS
+	IIF([Test Plan].[Test Plan Name].CURRENTMEMBER IS [Test Plan].[Test Plan Name].[All],
+		@AllNoFilter,
+		[Test Plan].[Test Plan Name].CurrentMember.Member_Caption
+	)
+
+MEMBER [Measures].[ParameterValue] AS
+	[Test Plan].[Test Plan ID].CurrentMember.UniqueName
+
+SELECT
+{
+	[Measures].[Point Count Trend],
+	[Measures].[ParameterValue],
+	[Measures].[ParameterCaption]
+} ON COLUMNS,
+{
+	([Test Plan].[Test Plan ID].[All], [Test Plan].[Test Plan Name].[All]) +
+	Extract(
+		(
+			[Test Plan].[Test Plan ID].[All],
+			[Test Plan].[Test Plan Name].[All],
+			[Team Project].[Project Node GUID].[All],
+			[Test Case].[Area Hierarchy].[All],
+			[Test Plan].[Iteration Hierarchy].[All]
+		) +
+		Filter(
+			CrossJoin(
+				[Test Plan].[Test Plan ID].[Test Plan ID],
+				[Test Plan].[Test Plan Name].[Test Plan Name],
+				StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+				StrToSet(@AreaParam),
+				StrToSet(@IterationParam)
+			),
+			[Measures].[Point Count Trend]
+		),
+		[Test Plan].[Test Plan ID], [Test Plan].[Test Plan Name]
+	)
+} ON ROWS
+FROM [Team System]</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>6B8880E8-1A08-4027-8504-CFE732DF49EC</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AllNoFilter</Name><DefaultValues><DefaultValue>All (No Filter)</DefaultValue></DefaultValues><Caption>AllNoFilter</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AreaParam</Name><DefaultValues><DefaultValue>[Test Case].[Area Hierarchy].[All]</DefaultValue></DefaultValues><Caption>AreaParam</Caption><HierarchyUniqueName>[Test Case].[Area Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Test Case].[Area Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Test Case].[Area Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Test Case].[Area Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Test Case].[Area Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>IterationParam</Name><DefaultValues><DefaultValue>[Test Plan].[Iteration Hierarchy].[All]</DefaultValue></DefaultValues><Caption>IterationParam</Caption><HierarchyUniqueName>[Test Plan].[Iteration Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Test Plan].[Iteration Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Test Plan].[Iteration Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Test Plan].[Iteration Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Test Plan].[Iteration Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
+        <rd:SuppressAutoUpdate>true</rd:SuppressAutoUpdate>
+      </Query>
+    </DataSet>
+    <DataSet Name="dsProjectGuid">
+      <Fields>
+        <Field Name="ProjectNodeGUID">
+          <DataField>ProjectNodeGUID</DataField>
+          <rd:TypeName>System.Guid</rd:TypeName>
+        </Field>
+        <Field Name="ProjectNodeName">
+          <DataField>ProjectNodeName</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>TfsReportDS</DataSourceName>
+        <CommandText>SELECT TOP 1 p.ProjectNodeGUID, p.ProjectNodeName FROM
+(
+    SELECT ProjectNodeGUID, ProjectNodeName, 1 AS RowRank FROM GetProjectNodeInfoFromReportFolder(@ReportPath)
+    UNION
+    SELECT '00000000-0000-0000-0000-000000000000' AS ProjectNodeGUID, 'missing' AS ProjectNodeName, 0 AS RowRank
+) p ORDER BY p.RowRank DESC</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@ReportPath">
+            <Value>=Parameters!ReportPath.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+    </DataSet>
+    <DataSet Name="dsAreaSQL">
+      <Fields>
+        <Field Name="AreaSK">
+          <DataField>AreaSK</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="AreaName">
+          <DataField>AreaName</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>TfsReportDS</DataSourceName>
+        <CommandText>;WITH AreaKey(AreaSK, AreaName, Depth, AreaKey) AS
+(
+	SELECT AreaSK, AreaName, Depth,
+		'.&amp;[' +
+			CONVERT(nvarchar, CONVERT(bigint, SUBSTRING(CONVERT(binary(16), CONVERT(uniqueidentifier, AreaGUID)), 1, 8))) +
+			']&amp;[' +
+			CONVERT(nvarchar, CONVERT(bigint, SUBSTRING(CONVERT(binary(16), CONVERT(uniqueidentifier, AreaGUID)), 9, 8))) +
+		']'
+	  FROM DimArea
+)
+
+SELECT '*' AS AreaSK, 'All' AS AreaName
+WHERE '[Test Case].[Area Hierarchy].[All]' IN (@AreaParam)
+
+UNION
+
+SELECT DISTINCT 
+	CASE WHEN Depth = 0 THEN '*' ELSE CAST(AreaSK AS NVARCHAR(255)) END AS AreaSK, 
+	CASE WHEN Depth = 0 THEN 'All' ELSE AreaName END
+  FROM AreaKey
+ WHERE
+	'[Test Case].[Area Hierarchy].[Area' + CONVERT(varchar, Depth) + ']' + AreaKey IN (@AreaParam)
+    OR	
+	'[Test Case].[Area Hierarchy].[Area' + CONVERT(varchar, Depth + 1) + ']' + AreaKey IN (@AreaParam)</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@AreaParam">
+            <Value>=Parameters!AreaParam.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+    </DataSet>
+    <DataSet Name="dsIterationStartEndDates">
+      <Fields>
+        <Field Name="IterationStartDate">
+          <DataField>IterationStartDate</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+        <Field Name="IterationFinishDate">
+          <DataField>IterationFinishDate</DataField>
+          <rd:TypeName>System.DateTime</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>TfsReportDS</DataSourceName>
+        <CommandText>DECLARE @StartDate DATETIME, @EndDate DATETIME
+DECLARE @SelectAll INT
+
+-- Determine if we're selecting all iterations
+SELECT @SelectAll = COUNT(*)
+WHERE '[Test Plan].[Iteration Hierarchy].[All]' IN (@IterationParam)
+
+IF @SelectAll &gt; 0
+  -- Get global min/max for all iteration dates
+  SELECT
+    @StartDate = MIN(StartDate),
+    @EndDate = MAX(FinishDate)
+  FROM DimIteration
+  WHERE ProjectGUID = CAST(@ProjectGuid AS NVARCHAR(256))
+
+ELSE BEGIN
+  -- Get min/max for selected iteration dates
+  SELECT
+    @StartDate = MIN(StartDate),
+    @EndDate = MAX(FinishDate)
+  FROM DimIteration
+  WHERE ProjectGUID = CAST(@ProjectGuid AS NVARCHAR(256))
+  AND (
+    '[Test Plan].[Iteration Hierarchy].[Iteration' + CONVERT(varchar, Depth) + '].&amp;[' + 
+      CONVERT(nvarchar, CONVERT(bigint, SUBSTRING(CONVERT(binary(16), CONVERT(uniqueidentifier, IterationGUID)), 1, 8))) +
+      ']&amp;[' +
+      CONVERT(nvarchar, CONVERT(bigint, SUBSTRING(CONVERT(binary(16), CONVERT(uniqueidentifier, IterationGUID)), 9, 8))) +
+      ']' IN (@IterationParam)
+    OR
+    '[Test Plan].[Iteration Hierarchy].[Iteration' + CONVERT(varchar, Depth + 1) + '].&amp;[' + 
+      CONVERT(nvarchar, CONVERT(bigint, SUBSTRING(CONVERT(binary(16), CONVERT(uniqueidentifier, IterationGUID)), 1, 8))) +
+      ']&amp;[' +
+      CONVERT(nvarchar, CONVERT(bigint, SUBSTRING(CONVERT(binary(16), CONVERT(uniqueidentifier, IterationGUID)), 9, 8))) +
+      ']' IN (@IterationParam)
+  )
+END
+
+-- Handle iterations without dates by defaulting to a moving 30 days window
+SELECT
+  @StartDate = COALESCE(@StartDate, DATEADD(MONTH,-1,GETDATE())),
+  @EndDate = COALESCE(@EndDate, GETDATE())
+
+-- Return the dates and their text version
+SELECT
+  CAST(@StartDate AS DATE) AS IterationStartDate,
+  CAST(@EndDate AS DATE) AS IterationFinishDate</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@ProjectGuid">
+            <Value>=Parameters!ProjectGuid.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@IterationParam">
+            <Value>=Parameters!IterationParam.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+    </DataSet>
+    <DataSet Name="dsDefaultIteration">
+      <Fields>
+        <Field Name="IterationName">
+          <DataField>IterationName</DataField>
+          <rd:TypeName>System.Object</rd:TypeName>
+        </Field>
+        <Field Name="ParameterValue">
+          <DataField>ParameterValue</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>TfsReportDS</DataSourceName>
+        <CommandText>DECLARE @theDate DATE
+SET @theDate = GETDATE()
+
+DECLARE @Results TABLE (
+	IterationSK INT,
+	StartDate DATE,
+	FinishDate DATE,
+	IterationPath NVARCHAR(4000)
+)
+DECLARE @IterationSK INT
+
+-- Get all iterations with dates (excluding the root since that's not
+-- available as an iteration to select in IterationParam anyway)
+INSERT @Results
+	SELECT
+		IterationSK,
+		StartDate, 
+		FinishDate,
+		IterationPath
+	FROM DimIteration
+	WHERE StartDate IS NOT NULL
+	AND FinishDate IS NOT NULL
+	AND Depth &gt; 0
+	AND ProjectGUID = @ProjectGuid
+
+-- select iterations where we are within start-end dates
+SELECT TOP 1 @IterationSK = IterationSK
+FROM @Results
+WHERE @theDate BETWEEN StartDate AND FinishDate
+ORDER BY StartDate, FinishDate, IterationPath
+
+-- if not found, find the most recently completed iteration
+IF @IterationSK IS NULL BEGIN
+	SELECT TOP 1 @IterationSK = IterationSK
+	FROM @Results
+	WHERE FinishDate &lt;= @theDate
+	ORDER BY FinishDate DESC, StartDate, IterationPath
+END
+
+-- if not found, find the first iteration in the future
+-- or the first (alphabetical) iteration if no iteration dates are set
+IF @IterationSK IS NULL BEGIN
+	SELECT TOP 1 @IterationSK = IterationSK
+	FROM @Results
+	ORDER BY COALESCE(StartDate,'9999-12-31'), FinishDate, IterationPath
+END
+
+--
+-- Return the results with the correct formatting
+--
+IF @IterationSK IS NULL
+	SELECT @AllNoFilter AS IterationName, '[Test Plan].[Iteration Hierarchy].[All]' AS ParameterValue
+ELSE
+	SELECT IterationName,
+	       dbo.GetClassificationKey('Test Plan', 'Iteration', Depth, IterationGUID) AS ParameterValue
+	FROM DimIteration
+	WHERE IterationSK = @IterationSK</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="@ProjectGuid">
+            <Value>=Parameters!ProjectGuid.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="@AllNoFilter">
+            <Value>=Parameters!AllNoFilter.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
+      </Query>
+    </DataSet>
+  </DataSets>
+  <Body>
+    <ReportItems>
+      <Chart Name="dundasChartControl1">
+        <ChartCategoryHierarchy>
+          <ChartMembers>
+            <ChartMember>
+              <Group Name="dundasChartControl1_DCG_Date1">
+                <GroupExpressions>
+                  <GroupExpression>=Fields!DateValue.Value</GroupExpression>
+                </GroupExpressions>
+              </Group>
+              <Label>=CDate(Fields!DateValue.Value).ToString(Code.GetShortDayMonthAbbrev())</Label>
+            </ChartMember>
+          </ChartMembers>
+        </ChartCategoryHierarchy>
+        <ChartSeriesHierarchy>
+          <ChartMembers>
+            <ChartMember>
+              <Label>Passed</Label>
+            </ChartMember>
+            <ChartMember>
+              <Label>Failed</Label>
+            </ChartMember>
+            <ChartMember>
+              <Label>Blocked</Label>
+            </ChartMember>
+            <ChartMember>
+              <Label>Never Run</Label>
+            </ChartMember>
+            <ChartMember>
+              <Label>Other</Label>
+            </ChartMember>
+          </ChartMembers>
+        </ChartSeriesHierarchy>
+        <ChartData>
+          <ChartSeriesCollection>
+            <ChartSeries Name="Series1">
+              <ChartDataPoints>
+                <ChartDataPoint>
+                  <ChartDataPointValues>
+                    <Y>=Sum(Fields!Passed_Cumulative_Count.Value)</Y>
+                  </ChartDataPointValues>
+                  <ChartDataLabel>
+                    <Style>
+                      <FontFamily>Microsoft Sans Serif</FontFamily>
+                      <FontSize>8pt</FontSize>
+                      <Color>#5b8007</Color>
+                    </Style>
+                    <Label>=Code.GetModulatedDataLabel(First(Fields!DateValue.Value, "dsTestData"), Fields!DateValue.Value, IIF(Sum(Fields!Passed_Cumulative_Count.Value)&gt;0,Sum(Fields!Passed_Cumulative_Count.Value),""))</Label>
+                    <Visible>true</Visible>
+                  </ChartDataLabel>
+                  <Style>
+                    <Border>
+                      <Color>#add64a</Color>
+                      <Width>0.75pt</Width>
+                    </Border>
+                    <Color>#809bdb01</Color>
+                    <BackgroundGradientType>TopBottom</BackgroundGradientType>
+                    <BackgroundGradientEndColor>#80aadc41</BackgroundGradientEndColor>
+                  </Style>
+                  <ChartMarker>
+                    <Style />
+                  </ChartMarker>
+                  <CustomProperties>
+                    <CustomProperty>
+                      <Name>LabelStyle</Name>
+                      <Value>Top</Value>
+                    </CustomProperty>
+                  </CustomProperties>
+                </ChartDataPoint>
+              </ChartDataPoints>
+              <Type>Area</Type>
+              <Subtype>Stacked</Subtype>
+              <Style />
+              <ChartEmptyPoints>
+                <Style>
+                  <Border>
+                    <Color>#add64a</Color>
+                    <Width>0.75pt</Width>
+                  </Border>
+                  <Color>#809bdb01</Color>
+                  <BackgroundGradientType>TopBottom</BackgroundGradientType>
+                  <BackgroundGradientEndColor>#80aadc41</BackgroundGradientEndColor>
+                </Style>
+                <ChartMarker>
+                  <Style />
+                </ChartMarker>
+                <ChartDataLabel>
+                  <Style />
+                </ChartDataLabel>
+              </ChartEmptyPoints>
+              <LegendName>Default</LegendName>
+              <ChartAreaName>Default</ChartAreaName>
+              <ValueAxisName>Primary</ValueAxisName>
+              <CategoryAxisName>Primary</CategoryAxisName>
+              <ChartSmartLabel>
+                <Disabled>true</Disabled>
+                <MaxMovingDistance>22.5pt</MaxMovingDistance>
+              </ChartSmartLabel>
+            </ChartSeries>
+            <ChartSeries Name="Series2">
+              <ChartDataPoints>
+                <ChartDataPoint>
+                  <ChartDataPointValues>
+                    <Y>=Sum(Fields!Failed_Cumulative_Count.Value)</Y>
+                  </ChartDataPointValues>
+                  <ChartDataLabel>
+                    <Style>
+                      <FontFamily>Microsoft Sans Serif</FontFamily>
+                      <FontSize>8pt</FontSize>
+                      <Color>#9e000e</Color>
+                    </Style>
+                    <Label>=Code.GetModulatedDataLabel(First(Fields!DateValue.Value, "dsTestData"), Fields!DateValue.Value, IIF(Sum(Fields!Failed_Cumulative_Count.Value)&gt;0,Sum(Fields!Failed_Cumulative_Count.Value),""))</Label>
+                    <Visible>true</Visible>
+                  </ChartDataLabel>
+                  <Style>
+                    <Border>
+                      <Color>#d8707a</Color>
+                      <Width>0.75pt</Width>
+                    </Border>
+                    <Color>#80c90113</Color>
+                    <BackgroundGradientType>TopBottom</BackgroundGradientType>
+                    <BackgroundGradientEndColor>#80c21f2f</BackgroundGradientEndColor>
+                  </Style>
+                  <ChartMarker>
+                    <Style />
+                  </ChartMarker>
+                  <CustomProperties>
+                    <CustomProperty>
+                      <Name>LabelStyle</Name>
+                      <Value>Top</Value>
+                    </CustomProperty>
+                  </CustomProperties>
+                </ChartDataPoint>
+              </ChartDataPoints>
+              <Type>Area</Type>
+              <Subtype>Stacked</Subtype>
+              <Style />
+              <ChartEmptyPoints>
+                <Style>
+                  <Border>
+                    <Color>#d8707a</Color>
+                    <Width>0.75pt</Width>
+                  </Border>
+                  <Color>#80c90113</Color>
+                  <BackgroundGradientType>TopBottom</BackgroundGradientType>
+                  <BackgroundGradientEndColor>#80c21f2f</BackgroundGradientEndColor>
+                </Style>
+                <ChartMarker>
+                  <Style />
+                </ChartMarker>
+                <ChartDataLabel>
+                  <Style />
+                </ChartDataLabel>
+              </ChartEmptyPoints>
+              <LegendName>Default</LegendName>
+              <ChartAreaName>Default</ChartAreaName>
+              <ValueAxisName>Primary</ValueAxisName>
+              <CategoryAxisName>Primary</CategoryAxisName>
+              <ChartSmartLabel>
+                <Disabled>true</Disabled>
+                <MaxMovingDistance>22.5pt</MaxMovingDistance>
+              </ChartSmartLabel>
+            </ChartSeries>
+            <ChartSeries Name="Series3">
+              <ChartDataPoints>
+                <ChartDataPoint>
+                  <ChartDataPointValues>
+                    <Y>=Sum(Fields!Blocked_Cumulative_Count.Value)</Y>
+                  </ChartDataPointValues>
+                  <ChartDataLabel>
+                    <Style>
+                      <FontFamily>Microsoft Sans Serif</FontFamily>
+                      <FontSize>8pt</FontSize>
+                      <Color>#6b225b</Color>
+                    </Style>
+                    <Label>=Code.GetModulatedDataLabel(First(Fields!DateValue.Value, "dsTestData"), Fields!DateValue.Value, IIF(Sum(Fields!Blocked_Cumulative_Count.Value)&gt;0, Sum(Fields!Blocked_Cumulative_Count.Value), ""))</Label>
+                    <Visible>true</Visible>
+                  </ChartDataLabel>
+                  <Style>
+                    <Border>
+                      <Color>#d299b9</Color>
+                      <Width>0.75pt</Width>
+                    </Border>
+                    <Color>#80b56d98</Color>
+                    <BackgroundGradientType>TopBottom</BackgroundGradientType>
+                    <BackgroundGradientEndColor>#80d48eb6</BackgroundGradientEndColor>
+                  </Style>
+                  <ChartMarker>
+                    <Style />
+                  </ChartMarker>
+                  <CustomProperties>
+                    <CustomProperty>
+                      <Name>LabelStyle</Name>
+                      <Value>Top</Value>
+                    </CustomProperty>
+                  </CustomProperties>
+                </ChartDataPoint>
+              </ChartDataPoints>
+              <Type>Area</Type>
+              <Subtype>Stacked</Subtype>
+              <Style />
+              <ChartEmptyPoints>
+                <Style>
+                  <Border>
+                    <Color>#d299b9</Color>
+                    <Width>0.75pt</Width>
+                  </Border>
+                  <Color>#80b56d98</Color>
+                  <BackgroundGradientType>TopBottom</BackgroundGradientType>
+                  <BackgroundGradientEndColor>#80d48eb6</BackgroundGradientEndColor>
+                </Style>
+                <ChartMarker>
+                  <Style />
+                </ChartMarker>
+                <ChartDataLabel>
+                  <Style />
+                </ChartDataLabel>
+              </ChartEmptyPoints>
+              <LegendName>Default</LegendName>
+              <ChartAreaName>Default</ChartAreaName>
+              <ValueAxisName>Primary</ValueAxisName>
+              <CategoryAxisName>Primary</CategoryAxisName>
+              <ChartSmartLabel>
+                <Disabled>true</Disabled>
+                <MaxMovingDistance>22.5pt</MaxMovingDistance>
+              </ChartSmartLabel>
+            </ChartSeries>
+            <ChartSeries Name="Series4">
+              <ChartDataPoints>
+                <ChartDataPoint>
+                  <ChartDataPointValues>
+                    <Y>=Sum(Fields!NeverRun_Cumulative_Count.Value)</Y>
+                  </ChartDataPointValues>
+                  <ChartDataLabel>
+                    <Style>
+                      <FontFamily>Microsoft Sans Serif</FontFamily>
+                      <FontSize>8pt</FontSize>
+                      <Color>#262626</Color>
+                    </Style>
+                    <Label>=Code.GetModulatedDataLabel(First(Fields!DateValue.Value, "dsTestData"), Fields!DateValue.Value, IIF(Sum(Fields!NeverRun_Cumulative_Count.Value)&gt;0,Sum(Fields!NeverRun_Cumulative_Count.Value),""))</Label>
+                    <Visible>true</Visible>
+                  </ChartDataLabel>
+                  <Style>
+                    <Border>
+                      <Color>#666666</Color>
+                      <Width>0.75pt</Width>
+                    </Border>
+                    <Color>#80000000</Color>
+                    <BackgroundGradientType>TopBottom</BackgroundGradientType>
+                    <BackgroundGradientEndColor>#80252525</BackgroundGradientEndColor>
+                  </Style>
+                  <ChartMarker>
+                    <Style />
+                  </ChartMarker>
+                  <CustomProperties>
+                    <CustomProperty>
+                      <Name>LabelStyle</Name>
+                      <Value>Top</Value>
+                    </CustomProperty>
+                  </CustomProperties>
+                </ChartDataPoint>
+              </ChartDataPoints>
+              <Type>Area</Type>
+              <Subtype>Stacked</Subtype>
+              <Style />
+              <ChartEmptyPoints>
+                <Style>
+                  <Border>
+                    <Color>#666666</Color>
+                    <Width>0.75pt</Width>
+                  </Border>
+                  <Color>#80000000</Color>
+                  <BackgroundGradientType>TopBottom</BackgroundGradientType>
+                  <BackgroundGradientEndColor>#80252525</BackgroundGradientEndColor>
+                </Style>
+                <ChartMarker>
+                  <Style />
+                </ChartMarker>
+                <ChartDataLabel>
+                  <Style />
+                </ChartDataLabel>
+              </ChartEmptyPoints>
+              <LegendName>Default</LegendName>
+              <ChartAreaName>Default</ChartAreaName>
+              <ValueAxisName>Primary</ValueAxisName>
+              <CategoryAxisName>Primary</CategoryAxisName>
+              <ChartSmartLabel>
+                <Disabled>true</Disabled>
+                <MaxMovingDistance>22.5pt</MaxMovingDistance>
+              </ChartSmartLabel>
+            </ChartSeries>
+            <ChartSeries Name="Series5">
+              <ChartDataPoints>
+                <ChartDataPoint>
+                  <ChartDataPointValues>
+                    <Y>=Sum(Fields!Other_Cumulative_Count.Value)</Y>
+                  </ChartDataPointValues>
+                  <ChartDataLabel>
+                    <Style>
+                      <FontFamily>Microsoft Sans Serif</FontFamily>
+                      <FontSize>8pt</FontSize>
+                      <Color>#13577c</Color>
+                    </Style>
+                    <Label>=Code.GetModulatedDataLabel(First(Fields!DateValue.Value, "dsTestData"), Fields!DateValue.Value, IIF(Sum(Fields!Other_Cumulative_Count.Value)&gt;0,Sum(Fields!Other_Cumulative_Count.Value),""))</Label>
+                    <Visible>true</Visible>
+                  </ChartDataLabel>
+                  <Style>
+                    <Border>
+                      <Color>#a2bbd2</Color>
+                      <Width>0.75pt</Width>
+                    </Border>
+                    <Color>#80789bb7</Color>
+                    <BackgroundGradientType>TopBottom</BackgroundGradientType>
+                    <BackgroundGradientEndColor>#809eb8d5</BackgroundGradientEndColor>
+                  </Style>
+                  <ChartMarker>
+                    <Style />
+                  </ChartMarker>
+                  <CustomProperties>
+                    <CustomProperty>
+                      <Name>LabelStyle</Name>
+                      <Value>Top</Value>
+                    </CustomProperty>
+                  </CustomProperties>
+                </ChartDataPoint>
+              </ChartDataPoints>
+              <Type>Area</Type>
+              <Subtype>Stacked</Subtype>
+              <Style />
+              <ChartEmptyPoints>
+                <Style>
+                  <Border>
+                    <Color>#a2bbd2</Color>
+                    <Width>0.75pt</Width>
+                  </Border>
+                  <Color>#80789bb7</Color>
+                  <BackgroundGradientType>TopBottom</BackgroundGradientType>
+                  <BackgroundGradientEndColor>#809eb8d5</BackgroundGradientEndColor>
+                </Style>
+                <ChartMarker>
+                  <Style />
+                </ChartMarker>
+                <ChartDataLabel>
+                  <Style />
+                </ChartDataLabel>
+              </ChartEmptyPoints>
+              <LegendName>Default</LegendName>
+              <ChartAreaName>Default</ChartAreaName>
+              <ValueAxisName>Primary</ValueAxisName>
+              <CategoryAxisName>Primary</CategoryAxisName>
+              <ChartSmartLabel>
+                <Disabled>true</Disabled>
+                <MaxMovingDistance>22.5pt</MaxMovingDistance>
+              </ChartSmartLabel>
+            </ChartSeries>
+          </ChartSeriesCollection>
+        </ChartData>
+        <ChartAreas>
+          <ChartArea Name="Default">
+            <ChartCategoryAxes>
+              <ChartAxis Name="Primary">
+                <Style>
+                  <Border>
+                    <Color>#333333</Color>
+                    <Style>Solid</Style>
+                    <Width>0.75pt</Width>
+                  </Border>
+                  <FontFamily>tahoma</FontFamily>
+                  <FontSize>8pt</FontSize>
+                  <Format>MMM dd</Format>
+                  <Color>#666666</Color>
+                </Style>
+                <ChartAxisTitle>
+                  <Caption />
+                  <Style>
+                    <FontFamily>Microsoft Sans Serif</FontFamily>
+                    <FontSize>8pt</FontSize>
+                  </Style>
+                </ChartAxisTitle>
+                <Margin>False</Margin>
+                <LabelInterval>7</LabelInterval>
+                <ChartMajorGridLines>
+                  <Enabled>True</Enabled>
+                  <Style>
+                    <Border>
+                      <Color>#b2b2b2</Color>
+                      <Style>Solid</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                  </Style>
+                  <Interval>7</Interval>
+                  <IntervalOffset>NaN</IntervalOffset>
+                </ChartMajorGridLines>
+                <ChartMinorGridLines>
+                  <Enabled>True</Enabled>
+                  <Style>
+                    <Border>
+                      <Color>#d8d8d8</Color>
+                      <Style>Solid</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                  </Style>
+                  <Interval>1</Interval>
+                  <IntervalOffset>NaN</IntervalOffset>
+                </ChartMinorGridLines>
+                <ChartMajorTickMarks>
+                  <Enabled>False</Enabled>
+                  <Type>None</Type>
+                  <Style>
+                    <Border>
+                      <Color>#b2b2b2</Color>
+                      <Style>Solid</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                  </Style>
+                  <Interval>7</Interval>
+                </ChartMajorTickMarks>
+                <ChartMinorTickMarks>
+                  <Enabled>False</Enabled>
+                  <Type>None</Type>
+                  <Style>
+                    <Border>
+                      <Color>#d8d8d8</Color>
+                      <Style>Solid</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                  </Style>
+                  <Interval>1</Interval>
+                </ChartMinorTickMarks>
+                <Angle>-45</Angle>
+                <PreventFontGrow>true</PreventFontGrow>
+                <PreventLabelOffset>true</PreventLabelOffset>
+                <PreventWordWrap>true</PreventWordWrap>
+                <LabelsAutoFitDisabled>true</LabelsAutoFitDisabled>
+              </ChartAxis>
+              <ChartAxis Name="Secondary">
+                <Style>
+                  <FontFamily>Microsoft Sans Serif</FontFamily>
+                  <FontSize>8pt</FontSize>
+                </Style>
+                <ChartAxisTitle>
+                  <Caption />
+                  <Style>
+                    <FontFamily>Microsoft Sans Serif</FontFamily>
+                    <FontSize>8pt</FontSize>
+                  </Style>
+                </ChartAxisTitle>
+                <Margin>True</Margin>
+                <ChartMajorGridLines>
+                  <Enabled>False</Enabled>
+                  <Style>
+                    <Border>
+                      <Color>Silver</Color>
+                      <Style>Solid</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                  </Style>
+                  <IntervalOffset>NaN</IntervalOffset>
+                </ChartMajorGridLines>
+                <ChartMinorGridLines>
+                  <Enabled>False</Enabled>
+                  <Style>
+                    <Border>
+                      <Color>Silver</Color>
+                      <Style>Solid</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                  </Style>
+                  <IntervalOffset>NaN</IntervalOffset>
+                </ChartMinorGridLines>
+                <ChartMajorTickMarks>
+                  <Enabled>False</Enabled>
+                </ChartMajorTickMarks>
+                <Location>Opposite</Location>
+                <AllowLabelRotation>Rotate30</AllowLabelRotation>
+              </ChartAxis>
+            </ChartCategoryAxes>
+            <ChartValueAxes>
+              <ChartAxis Name="Primary">
+                <Style>
+                  <Border>
+                    <Color>#333333</Color>
+                    <Style>Solid</Style>
+                    <Width>0.75pt</Width>
+                  </Border>
+                  <FontFamily>tahoma</FontFamily>
+                  <FontSize>8pt</FontSize>
+                  <Color>#666666</Color>
+                </Style>
+                <ChartAxisTitle>
+                  <Caption>Test Points</Caption>
+                  <Style>
+                    <FontSize>8pt</FontSize>
+                    <FontWeight>Bold</FontWeight>
+                    <Color>#333333</Color>
+                  </Style>
+                </ChartAxisTitle>
+                <Margin>True</Margin>
+                <ChartMajorGridLines>
+                  <Enabled>True</Enabled>
+                  <Style>
+                    <Border>
+                      <Color>#b2b2b2</Color>
+                      <Style>Solid</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                  </Style>
+                  <IntervalOffset>NaN</IntervalOffset>
+                </ChartMajorGridLines>
+                <ChartMinorGridLines>
+                  <Enabled>True</Enabled>
+                  <Style>
+                    <Border>
+                      <Color>#d8d8d8</Color>
+                      <Style>Solid</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                  </Style>
+                  <IntervalOffset>NaN</IntervalOffset>
+                </ChartMinorGridLines>
+                <ChartMajorTickMarks>
+                  <Enabled>False</Enabled>
+                  <Type>None</Type>
+                  <Style>
+                    <Border>
+                      <Color>#b2b2b2</Color>
+                      <Style>Solid</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                  </Style>
+                </ChartMajorTickMarks>
+                <ChartMinorTickMarks>
+                  <Enabled>False</Enabled>
+                  <Type>None</Type>
+                  <Style>
+                    <Border>
+                      <Color>#d8d8d8</Color>
+                      <Style>Solid</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                  </Style>
+                </ChartMinorTickMarks>
+                <Minimum>0</Minimum>
+                <PreventFontGrow>true</PreventFontGrow>
+                <AllowLabelRotation>Rotate30</AllowLabelRotation>
+              </ChartAxis>
+              <ChartAxis Name="Secondary">
+                <Style>
+                  <FontFamily>Microsoft Sans Serif</FontFamily>
+                  <FontSize>8pt</FontSize>
+                </Style>
+                <ChartAxisTitle>
+                  <Caption />
+                  <Style>
+                    <FontFamily>Microsoft Sans Serif</FontFamily>
+                    <FontSize>8pt</FontSize>
+                  </Style>
+                </ChartAxisTitle>
+                <Margin>True</Margin>
+                <ChartMajorGridLines>
+                  <Enabled>False</Enabled>
+                  <Style>
+                    <Border>
+                      <Color>Silver</Color>
+                      <Style>Solid</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                  </Style>
+                  <IntervalOffset>NaN</IntervalOffset>
+                </ChartMajorGridLines>
+                <ChartMinorGridLines>
+                  <Enabled>False</Enabled>
+                  <Style>
+                    <Border>
+                      <Color>Silver</Color>
+                      <Style>Solid</Style>
+                      <Width>0.75pt</Width>
+                    </Border>
+                  </Style>
+                  <IntervalOffset>NaN</IntervalOffset>
+                </ChartMinorGridLines>
+                <ChartMajorTickMarks>
+                  <Enabled>False</Enabled>
+                </ChartMajorTickMarks>
+                <Location>Opposite</Location>
+                <AllowLabelRotation>Rotate30</AllowLabelRotation>
+              </ChartAxis>
+            </ChartValueAxes>
+            <ChartThreeDProperties>
+              <Shading>Simple</Shading>
+              <WallThickness>4</WallThickness>
+              <Clustered>true</Clustered>
+            </ChartThreeDProperties>
+            <Style>
+              <Border>
+                <Color>#1a3b69</Color>
+                <Style>None</Style>
+              </Border>
+              <BackgroundColor>White</BackgroundColor>
+            </Style>
+            <AlignOrientation>Vertical</AlignOrientation>
+          </ChartArea>
+        </ChartAreas>
+        <ChartLegends>
+          <ChartLegend Name="Default">
+            <Style>
+              <Border>
+                <Color>#1a3b69</Color>
+                <Style>None</Style>
+                <Width>0.75pt</Width>
+              </Border>
+              <BackgroundColor>White</BackgroundColor>
+              <FontFamily>Microsoft Sans Serif</FontFamily>
+              <FontSize>8pt</FontSize>
+              <ShadowColor>White</ShadowColor>
+            </Style>
+            <Position>TopRight</Position>
+            <Layout>Row</Layout>
+            <DockToChartArea>Default</DockToChartArea>
+            <DockOutsideChartArea>true</DockOutsideChartArea>
+            <ChartLegendTitle>
+              <Caption />
+              <Style>
+                <FontFamily>tahoma</FontFamily>
+                <FontSize>8pt</FontSize>
+                <FontWeight>Bold</FontWeight>
+              </Style>
+            </ChartLegendTitle>
+            <AutoFitTextDisabled>true</AutoFitTextDisabled>
+            <Reversed>False</Reversed>
+          </ChartLegend>
+          <ChartLegend Name="Legend1">
+            <Style>
+              <Border>
+                <Style>Solid</Style>
+                <Width>0.75pt</Width>
+              </Border>
+              <FontFamily>tahoma</FontFamily>
+              <FontSize>8pt</FontSize>
+            </Style>
+            <ChartLegendTitle>
+              <Caption />
+              <Style>
+                <FontFamily>Microsoft Sans Serif</FontFamily>
+                <FontSize>8pt</FontSize>
+                <FontWeight>Bold</FontWeight>
+              </Style>
+            </ChartLegendTitle>
+          </ChartLegend>
+        </ChartLegends>
+        <Palette>BrightPastel</Palette>
+        <DynamicHeight>=IIF(Parameters!IsDashboard.Value, Parameters!Height.Value, Nothing)</DynamicHeight>
+        <DynamicWidth>=IIF(Parameters!IsDashboard.Value, Parameters!Width.Value, Nothing)</DynamicWidth>
+        <ChartBorderSkin>
+          <Style>
+            <BackgroundColor>CornflowerBlue</BackgroundColor>
+            <BackgroundGradientEndColor>CornflowerBlue</BackgroundGradientEndColor>
+            <Color>White</Color>
+          </Style>
+        </ChartBorderSkin>
+        <ChartNoDataMessage Name="NoDataMessageTitle">
+          <Caption>No Data Available</Caption>
+          <Hidden>true</Hidden>
+          <Style>
+            <FontFamily>Microsoft Sans Serif</FontFamily>
+            <FontSize>8pt</FontSize>
+          </Style>
+        </ChartNoDataMessage>
+        <DataSetName>dsTestData</DataSetName>
+        <Top>1.5in</Top>
+        <Height>5.5in</Height>
+        <Width>7.75in</Width>
+        <Style>
+          <Border>
+            <Color>#1a3b69</Color>
+            <Style>None</Style>
+          </Border>
+          <BackgroundColor>White</BackgroundColor>
+        </Style>
+      </Chart>
+      <Textbox Name="textbox9">
+        <CanGrow>true</CanGrow>
+        <KeepTogether>true</KeepTogether>
+        <Paragraphs>
+          <Paragraph>
+            <TextRuns>
+              <TextRun>
+                <Value>=IIF(DateDiff("d", CDate(Parameters!EndDateParam.Value), CDate(Parameters!StartDateParam.Value)) &gt; 0, "The From (Date) parameter must be earlier than the To (Date).", "There are no results matching the parameters. Try choosing more general parameter values.")</Value>
+                <Style>
+                  <FontFamily>tahoma</FontFamily>
+                  <FontSize>8pt</FontSize>
+                </Style>
+              </TextRun>
+            </TextRuns>
+            <Style />
+          </Paragraph>
+        </Paragraphs>
+        <rd:DefaultName>textbox9</rd:DefaultName>
+        <Top>1.13403in</Top>
+        <Left>0.25in</Left>
+        <Height>0.36597in</Height>
+        <Width>7.25in</Width>
+        <ZIndex>1</ZIndex>
+        <Visibility>
+          <Hidden>=Sum(Fields!Cumulative_Result_Count.Value, "dsTestData") &gt; 0</Hidden>
+        </Visibility>
+        <DataElementOutput>NoOutput</DataElementOutput>
+        <Style>
+          <VerticalAlign>Middle</VerticalAlign>
+          <PaddingLeft>2pt</PaddingLeft>
+          <PaddingRight>2pt</PaddingRight>
+          <PaddingTop>2pt</PaddingTop>
+          <PaddingBottom>2pt</PaddingBottom>
+        </Style>
+      </Textbox>
+      <Tablix Name="Header">
+        <TablixBody>
+          <TablixColumns>
+            <TablixColumn>
+              <Width>3in</Width>
+            </TablixColumn>
+            <TablixColumn>
+              <Width>2.25in</Width>
+            </TablixColumn>
+            <TablixColumn>
+              <Width>2.25in</Width>
+            </TablixColumn>
+          </TablixColumns>
+          <TablixRows>
+            <TablixRow>
+              <Height>0.25in</Height>
+              <TablixCells>
+                <TablixCell>
+                  <CellContents>
+                    <Textbox Name="TitleTextBox">
+                      <CanGrow>true</CanGrow>
+                      <KeepTogether>true</KeepTogether>
+                      <Paragraphs>
+                        <Paragraph>
+                          <TextRuns>
+                            <TextRun>
+                              <Value>=Globals!ReportName</Value>
+                              <Style>
+                                <FontFamily>Arial</FontFamily>
+                                <FontSize>12pt</FontSize>
+                                <FontWeight>Bold</FontWeight>
+                                <Color>#444444</Color>
+                              </Style>
+                            </TextRun>
+                          </TextRuns>
+                          <Style />
+                        </Paragraph>
+                      </Paragraphs>
+                      <Style>
+                        <Border>
+                          <Color>LightGrey</Color>
+                          <Style>None</Style>
+                        </Border>
+                        <RightBorder>
+                          <Style>Solid</Style>
+                        </RightBorder>
+                      </Style>
+                    </Textbox>
+                  </CellContents>
+                </TablixCell>
+                <TablixCell>
+                  <CellContents>
+                    <Textbox Name="RelatedReportsTextBox">
+                      <CanGrow>true</CanGrow>
+                      <KeepTogether>true</KeepTogether>
+                      <Paragraphs>
+                        <Paragraph>
+                          <TextRuns>
+                            <TextRun>
+                              <Value>Related Reports</Value>
+                              <Style>
+                                <FontFamily>Arial</FontFamily>
+                                <FontSize>8pt</FontSize>
+                                <FontWeight>Bold</FontWeight>
+                                <Color>#333333</Color>
+                              </Style>
+                            </TextRun>
+                          </TextRuns>
+                          <Style />
+                        </Paragraph>
+                      </Paragraphs>
+                      <ZIndex>4</ZIndex>
+                      <Style>
+                        <PaddingLeft>10pt</PaddingLeft>
+                        <PaddingTop>10pt</PaddingTop>
+                      </Style>
+                    </Textbox>
+                  </CellContents>
+                </TablixCell>
+                <TablixCell>
+                  <CellContents>
+                    <Textbox Name="Textbox22">
+                      <CanGrow>true</CanGrow>
+                      <KeepTogether>true</KeepTogether>
+                      <Paragraphs>
+                        <Paragraph>
+                          <TextRuns>
+                            <TextRun>
+                              <Value />
+                              <Style>
+                                <FontFamily>Arial</FontFamily>
+                                <FontSize>12pt</FontSize>
+                                <FontWeight>Bold</FontWeight>
+                                <Color>#444444</Color>
+                              </Style>
+                            </TextRun>
+                          </TextRuns>
+                          <Style />
+                        </Paragraph>
+                      </Paragraphs>
+                      <rd:DefaultName>Textbox22</rd:DefaultName>
+                      <Style />
+                    </Textbox>
+                  </CellContents>
+                </TablixCell>
+              </TablixCells>
+            </TablixRow>
+            <TablixRow>
+              <Height>0.6875in</Height>
+              <TablixCells>
+                <TablixCell>
+                  <CellContents>
+                    <Textbox Name="DescriptionTextBox">
+                      <CanGrow>true</CanGrow>
+                      <KeepTogether>true</KeepTogether>
+                      <Paragraphs>
+                        <Paragraph>
+                          <TextRuns>
+                            <TextRun>
+                              <Value>Helps you track the progress of your test plans. Shows the results of running the tests over time.</Value>
+                              <Style>
+                                <FontFamily>tahoma</FontFamily>
+                                <FontSize>8pt</FontSize>
+                                <Color>DimGray</Color>
+                              </Style>
+                            </TextRun>
+                          </TextRuns>
+                          <Style />
+                        </Paragraph>
+                      </Paragraphs>
+                      <Style>
+                        <Border>
+                          <Color>LightGrey</Color>
+                          <Style>None</Style>
+                        </Border>
+                        <BottomBorder>
+                          <Style>Solid</Style>
+                        </BottomBorder>
+                        <PaddingLeft>3pt</PaddingLeft>
+                        <PaddingRight>5pt</PaddingRight>
+                        <PaddingTop>5pt</PaddingTop>
+                        <PaddingBottom>5pt</PaddingBottom>
+                      </Style>
+                    </Textbox>
+                  </CellContents>
+                </TablixCell>
+                <TablixCell>
+                  <CellContents>
+                    <Rectangle Name="RelatedReports1Container">
+                      <ReportItems>
+                        <Textbox Name="Bullet1TextBox2">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>•</Value>
+                                  <Style>
+                                    <FontSize>12pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.065in</Top>
+                          <Left>0.055in</Left>
+                          <Height>0.125in</Height>
+                          <Width>0.125in</Width>
+                          <Style />
+                        </Textbox>
+                        <Textbox Name="RelatedLink1TextBox2">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>Bug Status</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#5791e4</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <ActionInfo>
+                            <Actions>
+                              <Action>
+                                <Drillthrough>
+                                  <ReportName>
+                                    =IIF(Parameters!IsRuntime.Value,
+                                    "../" + "Bugs" + "/"
+                                    + "Bug Status",
+                                    "Bug Status"
+                                    )
+                                  </ReportName>
+                                  <Parameters>
+                                    <Parameter Name="ExplicitProject">
+                                      <Value>=Parameters!ExplicitProject.Value</Value>
+                                      <Omit>=Parameters!IsRuntime.Value</Omit>
+                                    </Parameter>
+                                    <Parameter Name="IterationParam">
+                                      <Value>=Code.Wrap(Parameters!IterationParam.Value)</Value>
+                                    </Parameter>
+                                    <Parameter Name="AreaParam">
+                                      <Value>=Code.Wrap(Parameters!AreaParam.Value)</Value>
+                                    </Parameter>
+                                    <Parameter Name="StartDateParam">
+                                      <Value>=Parameters!StartDateParam.Value</Value>
+                                    </Parameter>
+                                    <Parameter Name="EndDateParam">
+                                      <Value>=Parameters!EndDateParam.Value</Value>
+                                    </Parameter>
+                                  </Parameters>
+                                </Drillthrough>
+                              </Action>
+                            </Actions>
+                          </ActionInfo>
+                          <Top>0.065in</Top>
+                          <Left>0.18in</Left>
+                          <Height>0.18in</Height>
+                          <Width>2in</Width>
+                          <ZIndex>1</ZIndex>
+                          <Style>
+                            <Border />
+                            <PaddingTop>1pt</PaddingTop>
+                          </Style>
+                        </Textbox>
+                        <Textbox Name="Bullet2TextBox2">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>•</Value>
+                                  <Style>
+                                    <FontSize>12pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.255in</Top>
+                          <Left>0.055in</Left>
+                          <Height>0.125in</Height>
+                          <Width>0.125in</Width>
+                          <ZIndex>2</ZIndex>
+                          <Style />
+                        </Textbox>
+                        <Textbox Name="RelatedLink2TextBox2">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>Status on All Iterations</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#5791e4</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <ActionInfo>
+                            <Actions>
+                              <Action>
+                                <Drillthrough>
+                                  <ReportName>
+                                    =IIF(Parameters!IsRuntime.Value,
+                                    "../" + "Project Management" + "/"
+                                    + "Status on All Iterations",
+                                    "Status on All Iterations"
+                                    )
+                                  </ReportName>
+                                  <Parameters>
+                                    <Parameter Name="ExplicitProject">
+                                      <Value>=Parameters!ExplicitProject.Value</Value>
+                                      <Omit>=Parameters!IsRuntime.Value</Omit>
+                                    </Parameter>
+                                    <Parameter Name="AreaParam">
+                                      <Value>=Parameters!AreaParamSQL.Value</Value>
+                                    </Parameter>
+                                  </Parameters>
+                                </Drillthrough>
+                              </Action>
+                            </Actions>
+                          </ActionInfo>
+                          <Top>0.255in</Top>
+                          <Left>0.18in</Left>
+                          <Height>0.18in</Height>
+                          <Width>2in</Width>
+                          <ZIndex>3</ZIndex>
+                          <Style>
+                            <Border />
+                            <PaddingTop>1pt</PaddingTop>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                      <DataElementOutput>ContentsOnly</DataElementOutput>
+                      <ZIndex>1</ZIndex>
+                      <Style>
+                        <Border>
+                          <Color>LightGrey</Color>
+                          <Style>None</Style>
+                        </Border>
+                        <BottomBorder>
+                          <Style>Solid</Style>
+                        </BottomBorder>
+                        <LeftBorder>
+                          <Style>Solid</Style>
+                        </LeftBorder>
+                        <RightBorder>
+                          <Style>Solid</Style>
+                        </RightBorder>
+                      </Style>
+                    </Rectangle>
+                  </CellContents>
+                </TablixCell>
+                <TablixCell>
+                  <CellContents>
+                    <Rectangle Name="RelatedReports2Container">
+                      <ReportItems>
+                        <Textbox Name="Bullet3TextBox2">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>•</Value>
+                                  <Style>
+                                    <FontSize>12pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.065in</Top>
+                          <Left>0.055in</Left>
+                          <Height>0.125in</Height>
+                          <Width>0.125in</Width>
+                          <Style />
+                        </Textbox>
+                        <Textbox Name="RelatedLink3TextBox2">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>Test Case Readiness</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>#5791e4</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <ActionInfo>
+                            <Actions>
+                              <Action>
+                                <Drillthrough>
+                                  <ReportName>
+                                    =IIF(Parameters!IsRuntime.Value,
+                                    "../" + "Tests" + "/"
+                                    + "Test Case Readiness",
+                                    "Test Case Readiness"
+                                    )
+                                  </ReportName>
+                                  <Parameters>
+                                    <Parameter Name="ExplicitProject">
+                                      <Value>=Parameters!ExplicitProject.Value</Value>
+                                      <Omit>=Parameters!IsRuntime.Value</Omit>
+                                    </Parameter>
+                                    <Parameter Name="AreaParam">
+                                      <Value>=Code.Wrap(Parameters!AreaParam.Value)</Value>
+                                    </Parameter>
+                                    <Parameter Name="StartDateParam">
+                                      <Value>=Parameters!StartDateParam.Value</Value>
+                                    </Parameter>
+                                    <Parameter Name="EndDateParam">
+                                      <Value>=Parameters!EndDateParam.Value</Value>
+                                    </Parameter>
+                                  </Parameters>
+                                </Drillthrough>
+                              </Action>
+                            </Actions>
+                          </ActionInfo>
+                          <Top>0.065in</Top>
+                          <Left>0.18in</Left>
+                          <Height>0.18in</Height>
+                          <Width>2in</Width>
+                          <ZIndex>1</ZIndex>
+                          <Style>
+                            <Border />
+                            <PaddingTop>1pt</PaddingTop>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                      <DataElementOutput>ContentsOnly</DataElementOutput>
+                      <ZIndex>5</ZIndex>
+                      <Style>
+                        <Border>
+                          <Color>LightGrey</Color>
+                          <Style>None</Style>
+                        </Border>
+                        <BottomBorder>
+                          <Style>Solid</Style>
+                        </BottomBorder>
+                      </Style>
+                    </Rectangle>
+                  </CellContents>
+                </TablixCell>
+              </TablixCells>
+            </TablixRow>
+          </TablixRows>
+        </TablixBody>
+        <TablixColumnHierarchy>
+          <TablixMembers>
+            <TablixMember />
+            <TablixMember />
+            <TablixMember />
+          </TablixMembers>
+        </TablixColumnHierarchy>
+        <TablixRowHierarchy>
+          <TablixMembers>
+            <TablixMember />
+            <TablixMember />
+          </TablixMembers>
+        </TablixRowHierarchy>
+        <DataSetName>dsProjectGuid</DataSetName>
+        <Top>0.125in</Top>
+        <Left>0.25in</Left>
+        <Height>0.9375in</Height>
+        <Width>7.5in</Width>
+        <ZIndex>2</ZIndex>
+        <Visibility>
+          <Hidden>=Parameters!IsDashboard.Value</Hidden>
+        </Visibility>
+        <Style>
+          <Border>
+            <Style>None</Style>
+          </Border>
+        </Style>
+      </Tablix>
+      <Tablix Name="Footer">
+        <TablixBody>
+          <TablixColumns>
+            <TablixColumn>
+              <Width>3in</Width>
+            </TablixColumn>
+            <TablixColumn>
+              <Width>2.25in</Width>
+            </TablixColumn>
+            <TablixColumn>
+              <Width>2.25in</Width>
+            </TablixColumn>
+          </TablixColumns>
+          <TablixRows>
+            <TablixRow>
+              <Height>1.85417in</Height>
+              <TablixCells>
+                <TablixCell>
+                  <CellContents>
+                    <Rectangle Name="SupportContainer">
+                      <ReportItems>
+                        <Textbox Name="QuestionsTextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>Questions This Report Helps Answer</Value>
+                                  <Style>
+                                    <FontFamily>Arial</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>#333333</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.15625in</Top>
+                          <Left>0.1375in</Left>
+                          <Height>0.18in</Height>
+                          <Width>2.7in</Width>
+                          <Style />
+                        </Textbox>
+                        <Textbox Name="textbox18">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>•</Value>
+                                  <Style>
+                                    <FontSize>12pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.33625in</Top>
+                          <Left>0.1375in</Left>
+                          <Height>0.125in</Height>
+                          <Width>0.125in</Width>
+                          <ZIndex>1</ZIndex>
+                          <Style />
+                        </Textbox>
+                        <Textbox Name="textbox16">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>•</Value>
+                                  <Style>
+                                    <FontSize>12pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.52625in</Top>
+                          <Left>0.1375in</Left>
+                          <Height>0.125in</Height>
+                          <Width>0.125in</Width>
+                          <ZIndex>2</ZIndex>
+                          <Style />
+                        </Textbox>
+                        <Textbox Name="textbox5">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>•</Value>
+                                  <Style>
+                                    <FontSize>12pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.72625in</Top>
+                          <Left>0.1375in</Left>
+                          <Height>0.125in</Height>
+                          <Width>0.125in</Width>
+                          <ZIndex>3</ZIndex>
+                          <Style />
+                        </Textbox>
+                        <Textbox Name="textbox7">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>•</Value>
+                                  <Style>
+                                    <FontSize>12pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.91625in</Top>
+                          <Left>0.1375in</Left>
+                          <Height>0.125in</Height>
+                          <Width>0.125in</Width>
+                          <ZIndex>4</ZIndex>
+                          <Style />
+                        </Textbox>
+                        <Textbox Name="textbox8">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>•</Value>
+                                  <Style>
+                                    <FontSize>12pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>1.10625in</Top>
+                          <Left>0.1375in</Left>
+                          <Height>0.125in</Height>
+                          <Width>0.125in</Width>
+                          <ZIndex>5</ZIndex>
+                          <Style />
+                        </Textbox>
+                        <Textbox Name="textbox10">
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>•</Value>
+                                  <Style>
+                                    <FontSize>12pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>1.29625in</Top>
+                          <Left>0.1375in</Left>
+                          <Height>0.125in</Height>
+                          <Width>0.125in</Width>
+                          <ZIndex>6</ZIndex>
+                          <Style />
+                        </Textbox>
+                        <Textbox Name="Question1TextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>How much testing has been completed?</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>DimGray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.34625in</Top>
+                          <Left>0.2625in</Left>
+                          <Height>0.18in</Height>
+                          <Width>2.6in</Width>
+                          <ZIndex>7</ZIndex>
+                          <Style>
+                            <PaddingTop>1.2pt</PaddingTop>
+                          </Style>
+                        </Textbox>
+                        <Textbox Name="Question2TextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>Is it likely the team will finish the testing on time?</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>DimGray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.53625in</Top>
+                          <Left>0.2625in</Left>
+                          <Height>0.18in</Height>
+                          <Width>2.6in</Width>
+                          <ZIndex>8</ZIndex>
+                          <Style>
+                            <PaddingTop>1.2pt</PaddingTop>
+                          </Style>
+                        </Textbox>
+                        <Textbox Name="Question3TextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>How many tests are left to be run?</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>DimGray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.72625in</Top>
+                          <Left>0.2625in</Left>
+                          <Height>0.18in</Height>
+                          <Width>2.6in</Width>
+                          <ZIndex>9</ZIndex>
+                          <Style>
+                            <PaddingTop>1.2pt</PaddingTop>
+                          </Style>
+                        </Textbox>
+                        <Textbox Name="Question4TextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>How many tests are passing?</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>DimGray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.91625in</Top>
+                          <Left>0.2625in</Left>
+                          <Height>0.18in</Height>
+                          <Width>2.6in</Width>
+                          <ZIndex>10</ZIndex>
+                          <Style>
+                            <PaddingTop>1.2pt</PaddingTop>
+                          </Style>
+                        </Textbox>
+                        <Textbox Name="Question5TextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>How many tests are failing?</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>DimGray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>1.10625in</Top>
+                          <Left>0.2625in</Left>
+                          <Height>0.18in</Height>
+                          <Width>2.6in</Width>
+                          <ZIndex>11</ZIndex>
+                          <Style>
+                            <PaddingTop>1.2pt</PaddingTop>
+                          </Style>
+                        </Textbox>
+                        <Textbox Name="Question6TextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>How many tests are blocked?</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <Color>DimGray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>1.29625in</Top>
+                          <Left>0.2625in</Left>
+                          <Height>0.18in</Height>
+                          <Width>2.6in</Width>
+                          <ZIndex>12</ZIndex>
+                          <Style>
+                            <PaddingTop>1.2pt</PaddingTop>
+                          </Style>
+                        </Textbox>
+                        <Textbox Name="ProcessGuidanceLink1TextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>How to Use This Report</Value>
+                                  <Style>
+                                    <FontFamily>Arial</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>#5791e4</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <ActionInfo>
+                            <Actions>
+                              <Action>
+                                <Hyperlink>http://go.microsoft.com/fwlink/?LinkId=145643</Hyperlink>
+                              </Action>
+                            </Actions>
+                          </ActionInfo>
+                          <Top>1.53125in</Top>
+                          <Left>0.1375in</Left>
+                          <Height>0.16667in</Height>
+                          <Width>2.6875in</Width>
+                          <ZIndex>13</ZIndex>
+                          <Style />
+                        </Textbox>
+                      </ReportItems>
+                      <DataElementOutput>ContentsOnly</DataElementOutput>
+                      <ZIndex>4</ZIndex>
+                      <Style>
+                        <Border>
+                          <Color>LightGrey</Color>
+                          <Style>None</Style>
+                        </Border>
+                        <TopBorder>
+                          <Style>Solid</Style>
+                        </TopBorder>
+                      </Style>
+                    </Rectangle>
+                  </CellContents>
+                </TablixCell>
+                <TablixCell>
+                  <CellContents>
+                    <Rectangle Name="ParameterContainer">
+                      <ReportItems>
+                        <Textbox Name="ParametersTextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>Parameter Values</Value>
+                                  <Style>
+                                    <FontFamily>Arial</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                    <Color>#333333</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.15625in</Top>
+                          <Height>0.18in</Height>
+                          <Width>2.25in</Width>
+                          <Style>
+                            <PaddingLeft>6pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                        <Textbox Name="Param1TextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>From (Date):</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>7pt</FontSize>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.34625in</Top>
+                          <Left>0.015in</Left>
+                          <Height>0.125in</Height>
+                          <Width>0.9in</Width>
+                          <ZIndex>1</ZIndex>
+                          <Style>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                        <Textbox Name="Param2TextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>To (Date):</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>7pt</FontSize>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.53625in</Top>
+                          <Left>0.015in</Left>
+                          <Height>0.125in</Height>
+                          <Width>0.9in</Width>
+                          <ZIndex>2</ZIndex>
+                          <Style>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                        <Textbox Name="Param3TextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>Iteration:</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>7pt</FontSize>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.72625in</Top>
+                          <Left>0.015in</Left>
+                          <Height>0.125in</Height>
+                          <Width>0.9in</Width>
+                          <ZIndex>3</ZIndex>
+                          <Style>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                        <Textbox Name="Param4TextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>Area:</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>7pt</FontSize>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.91625in</Top>
+                          <Left>0.00458in</Left>
+                          <Height>0.125in</Height>
+                          <Width>0.9in</Width>
+                          <ZIndex>4</ZIndex>
+                          <Style>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                        <Textbox Name="Param5TextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>Test Plan:</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>7pt</FontSize>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>1.10625in</Top>
+                          <Left>0.00458in</Left>
+                          <Height>0.125in</Height>
+                          <Width>0.9in</Width>
+                          <ZIndex>5</ZIndex>
+                          <Style>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                        <Textbox Name="Param7TextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>Test Plan State:</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>7pt</FontSize>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>1.30917in</Top>
+                          <Left>0.00458in</Left>
+                          <Height>0.125in</Height>
+                          <Width>0.9in</Width>
+                          <ZIndex>6</ZIndex>
+                          <Style>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                        <Textbox Name="ParamValue1TextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=CDate(Parameters!StartDateParam.Value)</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>7pt</FontSize>
+                                    <Format>d</Format>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.35667in</Top>
+                          <Left>0.90458in</Left>
+                          <Height>0.125in</Height>
+                          <Width>1.32in</Width>
+                          <ZIndex>7</ZIndex>
+                          <Style>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                        <Textbox Name="ParamValue2TextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=CDate(Parameters!EndDateParam.Value)</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>7pt</FontSize>
+                                    <Format>d</Format>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.54667in</Top>
+                          <Left>0.90458in</Left>
+                          <Height>0.125in</Height>
+                          <Width>1.32in</Width>
+                          <ZIndex>8</ZIndex>
+                          <Style>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                        <Textbox Name="ParamValue3TextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Code.ParametersToString(Parameters!IterationParam.Label)</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>7pt</FontSize>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.73667in</Top>
+                          <Left>0.90458in</Left>
+                          <Height>0.125in</Height>
+                          <Width>1.32in</Width>
+                          <ZIndex>9</ZIndex>
+                          <Style>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                        <Textbox Name="ParamValue4TextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Code.ParametersToString(Parameters!AreaParam.Label)</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>7pt</FontSize>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.92667in</Top>
+                          <Left>0.90458in</Left>
+                          <Height>0.125in</Height>
+                          <Width>1.32in</Width>
+                          <ZIndex>10</ZIndex>
+                          <Style>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                        <Textbox Name="ParamValue5TextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Join(Parameters!TestPlanParam.Label, ",")</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>7pt</FontSize>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>1.11667in</Top>
+                          <Left>0.90458in</Left>
+                          <Height>0.125in</Height>
+                          <Width>1.32in</Width>
+                          <ZIndex>11</ZIndex>
+                          <Style>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                        <Textbox Name="ParamValue7TextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Join(Parameters!StateParam.Label, ",")</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>7pt</FontSize>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>1.30917in</Top>
+                          <Left>0.90458in</Left>
+                          <Height>0.125in</Height>
+                          <Width>1.32in</Width>
+                          <ZIndex>12</ZIndex>
+                          <Style>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                      <DataElementOutput>ContentsOnly</DataElementOutput>
+                      <ZIndex>6</ZIndex>
+                      <Style>
+                        <Border>
+                          <Color>LightGrey</Color>
+                          <Style>None</Style>
+                        </Border>
+                        <TopBorder>
+                          <Style>Solid</Style>
+                        </TopBorder>
+                        <LeftBorder>
+                          <Style>Solid</Style>
+                        </LeftBorder>
+                        <RightBorder>
+                          <Style>Solid</Style>
+                        </RightBorder>
+                      </Style>
+                    </Rectangle>
+                  </CellContents>
+                </TablixCell>
+                <TablixCell>
+                  <CellContents>
+                    <Rectangle Name="GenerationContainer">
+                      <ReportItems>
+                        <Textbox Name="WarehouseUpdateTextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>="Data Updated:" + " " + CDate(First(Fields!LastProcessedTime.Value, "dsLastProcessedTime")).ToLocalTime()</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>7pt</FontSize>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.505in</Top>
+                          <Left>0.0425in</Left>
+                          <Height>0.125in</Height>
+                          <Width>2.125in</Width>
+                          <Style>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                        <Textbox Name="GeneratedByTextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>="By: " + User!UserID</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>7pt</FontSize>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.315in</Top>
+                          <Left>0.0425in</Left>
+                          <Height>0.125in</Height>
+                          <Width>2.125in</Width>
+                          <ZIndex>1</ZIndex>
+                          <Style>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                        <Textbox Name="GeneratedTextBox">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>="Generated: " + Globals!ExecutionTime</Value>
+                                  <Style>
+                                    <FontFamily>tahoma</FontFamily>
+                                    <FontSize>7pt</FontSize>
+                                    <Color>Gray</Color>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style />
+                            </Paragraph>
+                          </Paragraphs>
+                          <Top>0.125in</Top>
+                          <Left>0.0425in</Left>
+                          <Height>0.125in</Height>
+                          <Width>2.125in</Width>
+                          <ZIndex>2</ZIndex>
+                          <Style>
+                            <PaddingLeft>2pt</PaddingLeft>
+                            <PaddingRight>2pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                      </ReportItems>
+                      <DataElementOutput>ContentsOnly</DataElementOutput>
+                      <ZIndex>5</ZIndex>
+                      <Style>
+                        <Border>
+                          <Color>LightGrey</Color>
+                          <Style>None</Style>
+                        </Border>
+                        <TopBorder>
+                          <Style>Solid</Style>
+                        </TopBorder>
+                      </Style>
+                    </Rectangle>
+                  </CellContents>
+                </TablixCell>
+              </TablixCells>
+            </TablixRow>
+          </TablixRows>
+        </TablixBody>
+        <TablixColumnHierarchy>
+          <TablixMembers>
+            <TablixMember />
+            <TablixMember />
+            <TablixMember />
+          </TablixMembers>
+        </TablixColumnHierarchy>
+        <TablixRowHierarchy>
+          <TablixMembers>
+            <TablixMember />
+          </TablixMembers>
+        </TablixRowHierarchy>
+        <DataSetName>dsProjectGuid</DataSetName>
+        <Top>7.04167in</Top>
+        <Left>0.25in</Left>
+        <Height>1.85417in</Height>
+        <Width>7.5in</Width>
+        <ZIndex>3</ZIndex>
+        <Visibility>
+          <Hidden>=Parameters!IsDashboard.Value</Hidden>
+        </Visibility>
+        <Style>
+          <Border>
+            <Style>None</Style>
+          </Border>
+        </Style>
+      </Tablix>
+    </ReportItems>
+    <Height>9in</Height>
+    <Style />
+  </Body>
+  <ReportParameters>
+    <ReportParameter Name="ExplicitProject">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>/TfsReports/DefaultCollection/Agile01</Value>
+        </Values>
+      </DefaultValue>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>ExplicitProject</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="ReportPath">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>
+            =IIF(LEN(Globals!ReportFolder) &gt; 0,
+            Globals!ReportFolder,
+            Parameters!ExplicitProject.Value
+            )
+          </Value>
+        </Values>
+      </DefaultValue>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+    <ReportParameter Name="ProjectGuid">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <DataSetReference>
+          <DataSetName>dsProjectGuid</DataSetName>
+          <ValueField>ProjectNodeGUID</ValueField>
+        </DataSetReference>
+      </DefaultValue>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+    <ReportParameter Name="ProjectName">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <DataSetReference>
+          <DataSetName>dsProjectGuid</DataSetName>
+          <ValueField>ProjectNodeName</ValueField>
+        </DataSetReference>
+      </DefaultValue>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+    <ReportParameter Name="IsRuntime">
+      <DataType>Boolean</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>=IIF(LEN(Globals!ReportFolder) &gt; 0, True, False)</Value>
+        </Values>
+      </DefaultValue>
+      <AllowBlank>true</AllowBlank>
+    </ReportParameter>
+    <ReportParameter Name="AllNoFilter">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>All (No Filter)</Value>
+        </Values>
+      </DefaultValue>
+    </ReportParameter>
+    <ReportParameter Name="OtherName">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Other</Value>
+        </Values>
+      </DefaultValue>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+    <ReportParameter Name="TestCase">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Test Case</Value>
+        </Values>
+      </DefaultValue>
+    </ReportParameter>
+    <ReportParameter Name="DateMode">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>Iteration</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Date Mode</Prompt>
+      <Hidden>true</Hidden>
+      <ValidValues>
+        <ParameterValues>
+          <ParameterValue>
+            <Value>Iteration</Value>
+            <Label>Iteration Dates</Label>
+          </ParameterValue>
+          <ParameterValue>
+            <Value>Custom</Value>
+            <Label>Custom Dates</Label>
+          </ParameterValue>
+        </ParameterValues>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="IterationParam">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <DataSetReference>
+          <DataSetName>dsDefaultIteration</DataSetName>
+          <ValueField>ParameterValue</ValueField>
+        </DataSetReference>
+      </DefaultValue>
+      <Prompt>Iteration</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dsIteration</DataSetName>
+          <ValueField>ParameterValue</ValueField>
+          <LabelField>ParameterCaption</LabelField>
+        </DataSetReference>
+      </ValidValues>
+      <MultiValue>true</MultiValue>
+    </ReportParameter>
+    <ReportParameter Name="AreaParam">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>[Test Case].[Area Hierarchy].[All]</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Area</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dsArea</DataSetName>
+          <ValueField>ParameterValue</ValueField>
+          <LabelField>ParameterCaption</LabelField>
+        </DataSetReference>
+      </ValidValues>
+      <MultiValue>true</MultiValue>
+    </ReportParameter>
+    <ReportParameter Name="AreaParamSQL">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <DataSetReference>
+          <DataSetName>dsAreaSQL</DataSetName>
+          <ValueField>AreaSK</ValueField>
+        </DataSetReference>
+      </DefaultValue>
+      <Hidden>true</Hidden>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dsAreaSQL</DataSetName>
+          <ValueField>AreaSK</ValueField>
+          <LabelField>AreaName</LabelField>
+        </DataSetReference>
+      </ValidValues>
+      <MultiValue>true</MultiValue>
+    </ReportParameter>
+    <ReportParameter Name="IterationStartDateParam">
+      <DataType>DateTime</DataType>
+      <DefaultValue>
+        <DataSetReference>
+          <DataSetName>dsIterationStartEndDates</DataSetName>
+          <ValueField>IterationStartDate</ValueField>
+        </DataSetReference>
+      </DefaultValue>
+      <Hidden>true</Hidden>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dsIterationStartEndDates</DataSetName>
+          <ValueField>IterationStartDate</ValueField>
+          <LabelField>IterationStartDate</LabelField>
+        </DataSetReference>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="IterationEndDateParam">
+      <DataType>DateTime</DataType>
+      <DefaultValue>
+        <DataSetReference>
+          <DataSetName>dsIterationStartEndDates</DataSetName>
+          <ValueField>IterationFinishDate</ValueField>
+        </DataSetReference>
+      </DefaultValue>
+      <Hidden>true</Hidden>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dsIterationStartEndDates</DataSetName>
+          <ValueField>IterationFinishDate</ValueField>
+          <LabelField>IterationFinishDate</LabelField>
+        </DataSetReference>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="CustomStartDateParam">
+      <DataType>DateTime</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>=DateAdd("m", -1, Today)</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>From (Date)</Prompt>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+    <ReportParameter Name="CustomEndDateParam">
+      <DataType>DateTime</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>=Today</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>To (Date)</Prompt>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+    <ReportParameter Name="StartDateParam">
+      <DataType>DateTime</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>=IIf(Parameters!DateMode.Value = "Iteration", Parameters!IterationStartDateParam.Value, Parameters!CustomStartDateParam.Value)</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>From (Date)</Prompt>
+      <ValidValues>
+        <ParameterValues>
+          <ParameterValue>
+            <Value>=IIf(Parameters!DateMode.Value = "Iteration", Parameters!IterationStartDateParam.Value, Parameters!CustomStartDateParam.Value)</Value>
+            <Label>=IIf(Parameters!DateMode.Value = "Iteration", Format(Parameters!IterationStartDateParam.Value, "d"), Format(Parameters!CustomStartDateParam.Value, "d"))</Label>
+          </ParameterValue>
+        </ParameterValues>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="EndDateParam">
+      <DataType>DateTime</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>=IIf(Parameters!DateMode.Value = "Iteration", Parameters!IterationEndDateParam.Value, Parameters!CustomEndDateParam.Value)</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>To (Date)</Prompt>
+      <ValidValues>
+        <ParameterValues>
+          <ParameterValue>
+            <Value>=IIf(Parameters!DateMode.Value = "Iteration", Parameters!IterationEndDateParam.Value, Parameters!CustomEndDateParam.Value)</Value>
+            <Label>=IIf(Parameters!DateMode.Value = "Iteration", Format(Parameters!IterationEndDateParam.Value, "d"), Format(Parameters!CustomEndDateParam.Value, "d"))</Label>
+          </ParameterValue>
+        </ParameterValues>
+      </ValidValues>
+    </ReportParameter>
+    <ReportParameter Name="TestPlanParam">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>[Test Plan].[Test Plan ID].[All]</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Test Plan</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dsTestPlans</DataSetName>
+          <ValueField>ParameterValue</ValueField>
+          <LabelField>ParameterCaption</LabelField>
+        </DataSetReference>
+      </ValidValues>
+      <MultiValue>true</MultiValue>
+    </ReportParameter>
+    <ReportParameter Name="StateParam">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>[Test Plan].[Test Plan State ID].[All]</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>Test Plan State</Prompt>
+      <ValidValues>
+        <DataSetReference>
+          <DataSetName>dsStates</DataSetName>
+          <ValueField>ParameterValue</ValueField>
+          <LabelField>ParameterCaption</LabelField>
+        </DataSetReference>
+      </ValidValues>
+      <MultiValue>true</MultiValue>
+    </ReportParameter>
+    <ReportParameter Name="Width">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+    <ReportParameter Name="Height">
+      <DataType>String</DataType>
+      <Nullable>true</Nullable>
+      <AllowBlank>true</AllowBlank>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+    <ReportParameter Name="IsDashboard">
+      <DataType>Boolean</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>False</Value>
+        </Values>
+      </DefaultValue>
+      <Hidden>true</Hidden>
+    </ReportParameter>
+  </ReportParameters>
+  <Code>
+	' Used to convert parameters from MDX to SQL query conventions
+	Function UnWrap(ByVal values As Object) As String()
+		Dim newValues(values.Length - 1) As String
+
+		For i As Integer = 0 To values.Length - 1
+			If values(i).EndsWith("[All]") Then
+				newValues(i) = "*"
+			Else
+				Dim startIndex As Integer = values(i).LastIndexOf("[") + 1
+				Dim endIndex As Integer = values(i).LastIndexOf("]")
+				newValues(i) = values(i).Substring(startIndex, endIndex - startIndex)
+			End If
+		Next
+		Return newValues
+	End Function
+
+	Function Wrap(ByVal StringArray () as Object) as String()
+		Dim ConvertedParameters (StringArray.Length-1) as String
+		For i as Integer = 0 To StringArray.Length - 1
+			ConvertedParameters(i) = Replace(CStr(StringArray(i)), "[Test Case].[", "[Work Item].[")
+			ConvertedParameters(i) = Replace(ConvertedParameters(i), "[Test Plan].[", "[Work Item].[")
+		Next
+		Return ConvertedParameters
+	End Function
+
+	Public Function GetShortDayMonthAbbrev() As String
+		Dim info As System.Globalization.DateTimeFormatInfo = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat
+		Return info.MonthDayPattern.Replace("MMMM", "MMM")
+	End Function
+
+	Public Function GetModulatedDataLabel(ByVal startDate As Date, ByVal currentDate As Date, ByVal label As String, Optional ByVal modulus As Integer = 7) As String
+		If (startDate.Equals(currentDate)) Then
+			Return ""
+		End If
+		If (DateDiff("d", startDate, currentDate) Mod modulus) = 0 Then
+			Return label
+		End If
+		Return ""
+	End Function
+
+	Function ParametersToString(ByVal values As Object()) As String
+		Dim str As System.Text.StringBuilder = New System.Text.StringBuilder()
+
+		For i As Integer = 0 To values.Length - 1
+			If i &gt; 0 Then str.Append(", ")
+			str.Append(Trim(values(i).ToString))
+		Next
+		Return str.ToString
+	End Function
+
+</Code>
+  <Width>7.75in</Width>
+  <Page>
+    <InteractiveHeight>0in</InteractiveHeight>
+    <InteractiveWidth>0in</InteractiveWidth>
+    <LeftMargin>0.25in</LeftMargin>
+    <RightMargin>0.25in</RightMargin>
+    <TopMargin>0.25in</TopMargin>
+    <BottomMargin>0.25in</BottomMargin>
+    <Style />
+  </Page>
+  <Language>=User!Language</Language>
+  <ConsumeContainerWhitespace>true</ConsumeContainerWhitespace>
+  <rd:ReportID>f569c542-3c77-4a49-a332-991b13cc9509</rd:ReportID>
+  <rd:ReportUnitType>Inch</rd:ReportUnitType>
+</Report>

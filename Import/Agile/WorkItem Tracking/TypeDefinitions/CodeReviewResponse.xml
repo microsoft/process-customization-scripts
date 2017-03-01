@@ -27,7 +27,7 @@
       </FIELD>
       <FIELD name="State" refname="System.State" type="String" reportable="dimension"/>
       <FIELD name="Reason" refname="System.Reason" type="String" reportable="dimension"/>
-      <FIELD name="Reviewed By" refname="Microsoft.VSTS.Common.ReviewedBy" type="String" reportable="dimension" syncnamechanges="false">
+      <FIELD name="Reviewed By" refname="Microsoft.VSTS.Common.ReviewedBy" type="String" reportable="dimension" syncnamechanges="true">
         <ALLOWEXISTINGVALUE/>
         <VALIDUSER/>
       </FIELD>

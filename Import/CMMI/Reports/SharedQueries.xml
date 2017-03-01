@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SharedQueries>
+  <SharedQuery Name="dsArea">
+    <Report>Bug Status.rdl</Report>
+    <Report>Bug Trends.rdl</Report>
+  </SharedQuery>
+</SharedQueries>

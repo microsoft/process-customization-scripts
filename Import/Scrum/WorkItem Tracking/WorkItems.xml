@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<tasks>
+  <task id="LinkTypes" name="LinkType definitions" plugin="Microsoft.ProjectCreationWizard.WorkItemTracking" completionMessage="Work item link types created">
+    <taskXml>
+      <LINKTYPES>
+        <LINKTYPE fileName="WorkItem Tracking\LinkTypes\SharedStep.xml" />
+        <LINKTYPE fileName="WorkItem Tracking\LinkTypes\TestedBy.xml" />
+        <LINKTYPE fileName="WorkItem Tracking\LinkTypes\SharedParameterLink.xml" />
+      </LINKTYPES>
+    </taskXml>
+  </task>
+  <task id="WITs" name="WorkItemType definitions" plugin="Microsoft.ProjectCreationWizard.WorkItemTracking" completionMessage="Work item types created">
+    <dependencies>
+      <dependency taskId="LinkTypes" />
+    </dependencies>
+    <taskXml>
+      <WORKITEMTYPES>
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\Task.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\Bug.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\CodeReviewRequest.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\CodeReviewResponse.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\Epic.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\Feature.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\FeedbackRequest.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\FeedbackResponse.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\Impediment.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\ProductBacklogItem.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\SharedStep.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\SharedParameter.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\TestCase.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\TestPlan.xml" />
+        <WORKITEMTYPE fileName="WorkItem Tracking\TypeDefinitions\TestSuite.xml" />
+      </WORKITEMTYPES>
+    </taskXml>
+  </task>
+  <task id="Queries" name="Stored Query Definitions" plugin="Microsoft.ProjectCreationWizard.WorkItemTracking" completionMessage="Work item queries uploaded">
+    <dependencies>
+      <dependency taskId="WITs" />
+    </dependencies>
+    <taskXml>
+      <QUERIES>
+        <Permission allow="Read, Contribute, Delete, ManagePermissions, FullControl" identity="[SERVER]\$$PROJECTCOLLECTIONADMINGROUP$$" />
+        <Permission allow="Read, Contribute, Delete, ManagePermissions, FullControl" identity="[$$PROJECTNAME$$]\$$PROJECTADMINGROUP$$" />
+        <Permission allow="Read" identity="[$$PROJECTNAME$$]\Readers" />
+        <Permission allow="Read" identity="[$$PROJECTNAME$$]\Contributors" />
+        <Permission allow="Read" identity="[$$PROJECTNAME$$]\Build Administrators" />
+        <QueryFolder name="Current Sprint">
+          <Query name="Open Impediments" fileName="WorkItem Tracking\Queries\OpenImpediments.wiq" />
+          <Query name="Blocked Tasks" fileName="WorkItem Tracking\Queries\BlockedTasks.wiq" />
+          <Query name="Work in Progress" fileName="WorkItem Tracking\Queries\WorkInProgress.wiq" />
+          <Query name="Unfinished Work" fileName="WorkItem Tracking\Queries\UnfinishedWork.wiq" />
+          <Query name="Test Cases" fileName="WorkItem Tracking\Queries\TestCases.wiq" />
+        </QueryFolder>
+        <Query name="Feedback" fileName="WorkItem Tracking\Queries\Feedback.wiq" />
+      </QUERIES>
+    </taskXml>
+  </task>
+  <task id="Categories" name="Categories definitions" plugin="Microsoft.ProjectCreationWizard.WorkItemTracking" completionMessage="Work item type categories created">
+    <dependencies>
+      <dependency taskId="WITs" />
+    </dependencies>
+    <taskXml>
+      <CATEGORIES fileName="WorkItem Tracking\Categories.xml" />
+    </taskXml>
+  </task>
+  <task id="ProcessConfiguration" name="Process Configuration" plugin="Microsoft.ProjectCreationWizard.WorkItemTracking" completionMessage="Process configuration uploaded">
+    <dependencies>
+      <dependency taskId="WITs" />
+      <dependency taskId="Categories" />
+    </dependencies>
+    <taskXml>
+      <PROCESSCONFIGURATION>
+        <ProjectConfiguration fileName="WorkItem Tracking\Process\ProcessConfiguration.xml"/>
+      </PROCESSCONFIGURATION>
+    </taskXml>
+  </task>
+</tasks>

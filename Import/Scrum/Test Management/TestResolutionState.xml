@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<TestResolutionStates>
+    <TestResolutionState name="Needs investigation" />
+    <TestResolutionState name="Test issue" />
+    <TestResolutionState name="Product issue" />
+    <TestResolutionState name="Configuration issue" />
+</TestResolutionStates>

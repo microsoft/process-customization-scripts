@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestSettings name="Local Test Run" id="0c8dfb62-36ce-4137-b91a-4355cc65d352" enableDefaultDataCollectors="true" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+    <Description>This is a default test settings for a local test run.</Description>
+    <Execution>
+        <TestTypeSpecific />
+        <AgentRule name="Local">
+            <SelectionCriteria>
+                <AgentProperty name="__Test Environment" value="__Placeholder_TestEnvironmentName" />
+                <AgentProperty name="__Machine Role" value="Local" />
+            </SelectionCriteria>
+            <DataCollectors />
+        </AgentRule>
+    </Execution>
+</TestSettings>

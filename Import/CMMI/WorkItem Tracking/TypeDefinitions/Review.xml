@@ -1,0 +1,496 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<witd:WITD application="Work item type editor" version="1.0" xmlns:witd="http://schemas.microsoft.com/VisualStudio/2008/workitemtracking/typedef">
+  <WORKITEMTYPE name="Review" refname="Microsoft.VSTS.WorkItemTypes.Review">
+    <DESCRIPTION>This work item tracks reviews and the results.</DESCRIPTION>
+    <FIELDS>
+      <FIELD name="Id" refname="System.Id" type="Integer" reportable="dimension"/>
+      <FIELD name="Title" refname="System.Title" type="String" reportable="dimension">
+        <REQUIRED />
+        <HELPTEXT>Short description of the review used to differentiate it in a list or report</HELPTEXT>
+      </FIELD>
+      <FIELD name="Assigned To" refname="System.AssignedTo" type="String" reportable="dimension" syncnamechanges="true">
+        <HELPTEXT>The person currently working on this review</HELPTEXT>
+        <ALLOWEXISTINGVALUE />
+        <VALIDUSER/>
+      </FIELD>
+      <FIELD name="History" refname="System.History" type="History">
+        <HELPTEXT>Discussion thread and other historical information</HELPTEXT>
+      </FIELD>
+      <FIELD name="Area Path" refname="System.AreaPath" type="TreePath" reportable="dimension">
+        <HELPTEXT>The area of the product with which this review is associated</HELPTEXT>
+      </FIELD>
+      <FIELD name="Iteration Path" refname="System.IterationPath" type="TreePath" reportable="dimension">
+        <HELPTEXT>The iteration of the product with which this review is associated</HELPTEXT>
+      </FIELD>
+      <FIELD name="State" refname="System.State" type="String" reportable="dimension">
+        <HELPTEXT>The workflow state of the review</HELPTEXT>
+      </FIELD>
+      <FIELD name="Reason" refname="System.Reason" type="String" reportable="dimension">
+        <HELPTEXT>The reason why the review is in the current state</HELPTEXT>
+      </FIELD>
+      <FIELD name="Changed Date" refname="System.ChangedDate" type="DateTime" reportable="dimension" />
+      <FIELD name="Changed By" refname="System.ChangedBy" type="String" reportable="dimension" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Created Date" refname="System.CreatedDate" type="DateTime" reportable="dimension" />
+      <FIELD name="Created By" refname="System.CreatedBy" type="String" reportable="dimension" syncnamechanges="true" />
+      <!-- *************** Common Fields ****************   -->
+      <FIELD name="State Change Date" refname="Microsoft.VSTS.Common.StateChangeDate" type="DateTime">
+        <WHENCHANGED field="System.State">
+          <SERVERDEFAULT from="clock" />
+        </WHENCHANGED>
+        <WHENNOTCHANGED field="System.State">
+          <READONLY />
+        </WHENNOTCHANGED>
+      </FIELD>
+      <FIELD name="Activated Date" refname="Microsoft.VSTS.Common.ActivatedDate" type="DateTime" reportable="dimension">
+        <WHENNOTCHANGED field="System.State">
+          <READONLY />
+        </WHENNOTCHANGED>
+      </FIELD>
+      <FIELD name="Activated By" refname="Microsoft.VSTS.Common.ActivatedBy" type="String" syncnamechanges="true" reportable="dimension">
+        <WHENNOTCHANGED field="System.State">
+          <READONLY />
+        </WHENNOTCHANGED>
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Resolved Date" refname="Microsoft.VSTS.Common.ResolvedDate" type="DateTime" reportable="dimension">
+        <WHENNOTCHANGED field="System.State">
+          <READONLY />
+        </WHENNOTCHANGED>
+      </FIELD>
+      <FIELD name="Resolved By" refname="Microsoft.VSTS.Common.ResolvedBy" type="String" syncnamechanges="true" reportable="dimension">
+        <WHENNOTCHANGED field="System.State">
+          <READONLY />
+        </WHENNOTCHANGED>
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Resolved Reason" refname="Microsoft.VSTS.Common.ResolvedReason" type="String" reportable="dimension" />
+      <FIELD name="Closed Date" refname="Microsoft.VSTS.Common.ClosedDate" type="DateTime" reportable="dimension">
+        <WHENNOTCHANGED field="System.State">
+          <READONLY />
+        </WHENNOTCHANGED>
+      </FIELD>
+      <FIELD name="Closed By" refname="Microsoft.VSTS.Common.ClosedBy" type="String" syncnamechanges="true" reportable="dimension">
+        <WHENNOTCHANGED field="System.State">
+          <READONLY />
+        </WHENNOTCHANGED>
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <!-- **************** Build Integration Fields *******************************************  -->
+      <FIELD name="Integration Build" refname="Microsoft.VSTS.Build.IntegrationBuild" type="String" reportable="dimension">
+        <SUGGESTEDVALUES>
+          <LISTITEM value="&lt;None&gt;" />
+        </SUGGESTEDVALUES>
+        <HELPTEXT>The build in which the review was completed</HELPTEXT>
+      </FIELD>
+      <!-- *************** MSF for CMMI PI Fields ****************   -->
+      <FIELD name="Purpose" refname="Microsoft.VSTS.CMMI.Purpose" type="HTML">
+        <REQUIRED />
+        <HELPTEXT>The purpose of the review</HELPTEXT>
+      </FIELD>
+      <FIELD name="Comments" refname="Microsoft.VSTS.CMMI.Comments" type="HTML">
+        <HELPTEXT>Comments for the review</HELPTEXT>
+      </FIELD>
+      <FIELD name="Minutes" refname="Microsoft.VSTS.CMMI.Minutes" type="HTML">
+        <HELPTEXT>The minutes of the review meeting</HELPTEXT>
+      </FIELD>
+      <FIELD name="Meeting Type" refname="Microsoft.VSTS.CMMI.MeetingType" type="String">
+        <ALLOWEDVALUES>
+          <LISTITEM value="Meeting" />
+          <LISTITEM value="Offline" />
+        </ALLOWEDVALUES>
+        <DEFAULT from="value" value="Offline" />
+        <HELPTEXT>The type of the review meeting</HELPTEXT>
+      </FIELD>
+      <FIELD name="Called Date" refname="Microsoft.VSTS.CMMI.CalledDate" type="DateTime">
+        <HELPTEXT>The date and time the review was called</HELPTEXT>
+      </FIELD>
+      <FIELD name="Called By" refname="Microsoft.VSTS.CMMI.CalledBy" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+        <HELPTEXT>The person who called the review</HELPTEXT>
+      </FIELD>
+      <FIELD name="Required Attendee 1" refname="Microsoft.VSTS.CMMI.RequiredAttendee1" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Required Attendee 2" refname="Microsoft.VSTS.CMMI.RequiredAttendee2" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Required Attendee 3" refname="Microsoft.VSTS.CMMI.RequiredAttendee3" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Required Attendee 4" refname="Microsoft.VSTS.CMMI.RequiredAttendee4" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Required Attendee 5" refname="Microsoft.VSTS.CMMI.RequiredAttendee5" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Required Attendee 6" refname="Microsoft.VSTS.CMMI.RequiredAttendee6" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Required Attendee 7" refname="Microsoft.VSTS.CMMI.RequiredAttendee7" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Required Attendee 8" refname="Microsoft.VSTS.CMMI.RequiredAttendee8" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Optional Attendee 1" refname="Microsoft.VSTS.CMMI.OptionalAttendee1" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Optional Attendee 2" refname="Microsoft.VSTS.CMMI.OptionalAttendee2" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Optional Attendee 3" refname="Microsoft.VSTS.CMMI.OptionalAttendee3" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Optional Attendee 4" refname="Microsoft.VSTS.CMMI.OptionalAttendee4" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Optional Attendee 5" refname="Microsoft.VSTS.CMMI.OptionalAttendee5" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Optional Attendee 6" refname="Microsoft.VSTS.CMMI.OptionalAttendee6" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Optional Attendee 7" refname="Microsoft.VSTS.CMMI.OptionalAttendee7" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Optional Attendee 8" refname="Microsoft.VSTS.CMMI.OptionalAttendee8" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Actual Attendee 1" refname="Microsoft.VSTS.CMMI.ActualAttendee1" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Actual Attendee 2" refname="Microsoft.VSTS.CMMI.ActualAttendee2" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Actual Attendee 3" refname="Microsoft.VSTS.CMMI.ActualAttendee3" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Actual Attendee 4" refname="Microsoft.VSTS.CMMI.ActualAttendee4" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Actual Attendee 5" refname="Microsoft.VSTS.CMMI.ActualAttendee5" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Actual Attendee 6" refname="Microsoft.VSTS.CMMI.ActualAttendee6" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Actual Attendee 7" refname="Microsoft.VSTS.CMMI.ActualAttendee7" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Actual Attendee 8" refname="Microsoft.VSTS.CMMI.ActualAttendee8" type="String" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+    </FIELDS>
+    <WORKFLOW>
+      <STATES>
+        <STATE value="Active">
+          <FIELDS>
+            <FIELD refname="Microsoft.VSTS.Common.ResolvedDate">
+              <EMPTY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ResolvedBy">
+              <EMPTY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+              <EMPTY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
+              <EMPTY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <EMPTY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
+              <REQUIRED />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
+              <REQUIRED />
+            </FIELD>
+          </FIELDS>
+        </STATE>
+        <STATE value="Resolved">
+          <FIELDS>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
+              <EMPTY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <EMPTY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+              <COPY from="field" field="System.Reason" />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ResolvedDate">
+              <REQUIRED />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ResolvedBy">
+              <REQUIRED />
+            </FIELD>
+            <FIELD refname="System.AssignedTo">
+              <REQUIRED />
+            </FIELD>
+          </FIELDS>
+        </STATE>
+        <STATE value="Closed">
+          <FIELDS>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <REQUIRED />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
+              <REQUIRED />
+            </FIELD>
+          </FIELDS>
+        </STATE>
+      </STATES>
+      <TRANSITIONS>
+        <TRANSITION from="" to="Active">
+          <REASONS>
+            <DEFAULTREASON value="New" />
+          </REASONS>
+          <FIELDS>
+            <FIELD refname="Microsoft.VSTS.CMMI.CalledBy">
+              <COPY from="currentuser" />
+              <VALIDUSER />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.CMMI.CalledDate">
+              <SERVERDEFAULT from="clock" />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
+              <SERVERDEFAULT from="clock" />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
+              <COPY from="currentuser" />
+              <VALIDUSER />
+            </FIELD>
+            <FIELD refname="System.AssignedTo">
+              <DEFAULT from="currentuser" />
+            </FIELD>
+          </FIELDS>
+        </TRANSITION>
+        <TRANSITION from="Active" to="Resolved">
+          <REASONS>
+            <REASON value="Accepted with Major Changes" />
+            <DEFAULTREASON value="Accepted with Minor Changes" />
+          </REASONS>
+          <FIELDS>
+            <FIELD refname="Microsoft.VSTS.Common.ResolvedDate">
+              <SERVERDEFAULT from="clock" />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ResolvedBy">
+              <COPY from="currentuser" />
+              <VALIDUSER />
+            </FIELD>
+          </FIELDS>
+        </TRANSITION>
+        <TRANSITION from="Resolved" to="Closed">
+          <REASONS>
+            <DEFAULTREASON value="Minor Changes Complete" />
+          </REASONS>
+          <FIELDS>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
+              <SERVERDEFAULT from="clock" />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <COPY from="currentuser" />
+              <VALIDUSER />
+            </FIELD>
+          </FIELDS>
+        </TRANSITION>
+        <TRANSITION from="Active" to="Closed">
+          <REASONS>
+            <DEFAULTREASON value="Accepted (as is)" />
+          </REASONS>
+          <FIELDS>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
+              <SERVERDEFAULT from="clock" />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <COPY from="currentuser" />
+              <VALIDUSER />
+            </FIELD>
+          </FIELDS>
+        </TRANSITION>
+        <TRANSITION from="Closed" to="Active">
+          <REASONS>
+            <DEFAULTREASON value="Closed in Error" />
+          </REASONS>
+          <FIELDS>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
+              <SERVERDEFAULT from="clock" />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
+              <COPY from="currentuser" />
+              <VALIDUSER />
+            </FIELD>
+            <FIELD refname="System.AssignedTo">
+              <COPY from="field" field="Microsoft.VSTS.Common.ClosedBy" />
+            </FIELD>
+          </FIELDS>
+        </TRANSITION>
+        <TRANSITION from="Resolved" to="Active">
+          <REASONS>
+            <DEFAULTREASON value="Major Changes Complete" />
+          </REASONS>
+          <FIELDS>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
+              <SERVERDEFAULT from="clock" />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
+              <COPY from="currentuser" />
+              <VALIDUSER />
+            </FIELD>
+          </FIELDS>
+        </TRANSITION>
+      </TRANSITIONS>
+    </WORKFLOW>
+    <FORM>
+      <Layout HideReadOnlyEmptyFields="true" HideControlBorders="true">
+        <Group Margin="(4,0,0,0)">
+          <Column PercentWidth="90">
+            <Control Type="FieldControl" FieldName="System.Title" ControlFontSize="large" EmptyText="&lt;Enter title here&gt;" />
+          </Column>
+          <Column PercentWidth="10">
+            <Control FieldName="System.ID" Type="FieldControl" ControlFontSize="large" />
+          </Column>
+        </Group>
+        <Group Margin="(10,0,0,0)">
+          <Column PercentWidth="50">
+            <Group Label="Status">
+              <Column PercentWidth="100">
+                <Control Type="FieldControl" FieldName="System.AssignedTo" Label="Assi&amp;gned To" LabelPosition="Left" />
+                <Control Type="FieldControl" FieldName="System.State" Label="Stat&amp;e" LabelPosition="Left" />
+                <Control Type="FieldControl" FieldName="System.Reason" Label="Reason" LabelPosition="Left" />
+              </Column>
+            </Group>
+          </Column>
+          <Column PercentWidth="50">
+            <Group Label="Meeting">
+              <Column PercentWidth="100">
+                <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.CalledBy" Label="Called By" LabelPosition="Left" />
+                <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.CalledDate" Label="Called Date" LabelPosition="Left" />
+                <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.MeetingType" Label="Meeting Type" LabelPosition="Left" />
+              </Column>
+            </Group>
+          </Column>
+        </Group>
+        <Group>
+          <Column PercentWidth="50">
+            <TabGroup>
+              <Tab Label="Purpose">
+                <Control Type="HtmlFieldControl" FieldName="Microsoft.VSTS.CMMI.Purpose" Dock="Fill" />
+              </Tab>
+              <Tab Label="Minutes">
+                <Control Type="HtmlFieldControl" FieldName="Microsoft.VSTS.CMMI.Minutes" Dock="Fill" />
+              </Tab>
+              <Tab Label="Comments">
+                <Control Type="HtmlFieldControl" FieldName="Microsoft.VSTS.CMMI.Comments" Dock="Fill" />
+              </Tab>
+              <Tab Label="Attendees">
+                <Group>
+                  <Column PercentWidth="50">
+                    <Group Label="Required">
+                      <Column PercentWidth="100">
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee1" Label="Required attendee 1" LabelPosition="Left" />
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee2" Label="Required attendee 2" LabelPosition="Left" />
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee3" Label="Required attendee 3" LabelPosition="Left" />
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee4" Label="Required attendee 4" LabelPosition="Left" />
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee5" Label="Required attendee 5" LabelPosition="Left" />
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee6" Label="Required attendee 6" LabelPosition="Left" />
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee7" Label="Required attendee 7" LabelPosition="Left" />
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee8" Label="Required attendee 8" LabelPosition="Left" />
+                      </Column>
+                    </Group>
+                  </Column>
+                  <Column PercentWidth="50">
+                    <Group Label="Actual">
+                      <Column PercentWidth="100">
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee1" Label="Actual attendee 1" LabelPosition="Left" />
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee2" Label="Actual attendee 2" LabelPosition="Left" />
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee3" Label="Actual attendee 3" LabelPosition="Left" />
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee4" Label="Actual attendee 4" LabelPosition="Left" />
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee5" Label="Actual attendee 5" LabelPosition="Left" />
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee6" Label="Actual attendee 6" LabelPosition="Left" />
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee7" Label="Actual attendee 7" LabelPosition="Left" />
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee8" Label="Actual attendee 8" LabelPosition="Left" />
+                      </Column>
+                    </Group>
+                  </Column>
+                </Group>
+                <Group>
+                  <Column PercentWidth="100">
+                    <Group Label="Optional">
+                      <Column PercentWidth="100">
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee1" Label="Optional attendee 1" LabelPosition="Left" />
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee2" Label="Optional attendee 2" LabelPosition="Left" />
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee3" Label="Optional attendee 3" LabelPosition="Left" />
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee4" Label="Optional attendee 4" LabelPosition="Left" />
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee5" Label="Optional attendee 5" LabelPosition="Left" />
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee6" Label="Optional attendee 6" LabelPosition="Left" />
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee7" Label="Optional attendee 7" LabelPosition="Left" />
+                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee8" Label="Optional attendee 8" LabelPosition="Left" />
+                      </Column>
+                    </Group>
+                  </Column>
+                </Group>
+              </Tab>
+            </TabGroup>
+          </Column>
+          <Column PercentWidth="50">
+            <TabGroup Margin="(5,0,0,0)">
+              <Tab Label="History">
+                <Control Type="WorkItemLogControl" FieldName="System.History" Dock="Fill" />
+              </Tab>
+              <Tab Label="Attachments">
+                <Control Type="AttachmentsControl" LabelPosition="Top" />
+              </Tab>
+              <Tab Label="All Links">
+                <Control Type="LinksControl" LabelPosition="Top">
+                  <LinksControlOptions>
+                    <LinkColumns>
+                      <LinkColumn RefName="System.ID" />
+                      <LinkColumn RefName="System.WorkItemType" />
+                      <LinkColumn RefName="System.Title" />
+                      <LinkColumn RefName="System.AssignedTo" />
+                      <LinkColumn RefName="System.State" />
+                      <LinkColumn LinkAttribute="System.Links.Comment" />
+                    </LinkColumns>
+                    <WorkItemLinkFilters FilterType="includeAll" />
+                    <ExternalLinkFilters FilterType="includeAll" />
+                    <WorkItemTypeFilters FilterType="includeAll" />
+                  </LinksControlOptions>
+                </Control>
+              </Tab>
+            </TabGroup>
+          </Column>
+        </Group>
+      </Layout>
+    </FORM>
+  </WORKITEMTYPE>
+</witd:WITD>
