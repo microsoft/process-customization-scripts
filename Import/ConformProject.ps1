@@ -18,7 +18,7 @@ param
     [Parameter(Mandatory=$true,HelpMessage="CollectionURL is required. Usage Example: .\ExportProjectTemplatesFromCSV.ps1 https://myServer:8080/tfs/DefaultCollection")] [string] $CollectionURL,
     [Parameter(Mandatory=$true,HelpMessage="Project name is required. Usage Example: .\ExportProjectTemplate.ps1 http://myServer:8080/tfs/DefaultCollection myProject")] [string] $ProjectName,
     [Parameter(Mandatory=$true,HelpMessage="Template path is required")] [string] $global:templatePath,
-    [Parameter(Mandatory=$false, HelpMessage="Set to false if you only want to see what changes will be made")] [switch] $ValidateOnly = $false
+    [Parameter(Mandatory=$false, HelpMessage="Set to true if you only want to see what changes will be made")] [switch] $ValidateOnly = $false
 )
 
 $scriptFolder = Split-Path -Path $MyInvocation.MyCommand.Path
