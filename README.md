@@ -1,13 +1,6 @@
 Process Customization Scripts
 ===================
 
-If  you are using these script to help you with [TFS Data Import](https://aka.ms/TFSDataImport), we suggest you use the tfsMigrator validate .. /saveprocesses command to export your processes.
-
-Example
-```
-tfsMigrator validate "http://myServer/tfs/DefaultCollection" /saveprocesses
-```
-
 These scripts are designed to automate the exporting and importing of your TFS process templates.
 
 ----------
@@ -15,6 +8,13 @@ These scripts are designed to automate the exporting and importing of your TFS p
 
 Export
 -------------
+
+If  you are using these script to help you with [TFS Data Import](https://aka.ms/TFSDataImport), we suggest you use the tfsMigrator validate .. /saveprocesses command to export your processes.
+
+Example
+```
+tfsMigrator validate "http://myServer/tfs/DefaultCollection" /saveprocesses
+```
 
 The ExportProjectsTemplate.ps1 will connect to your TFS or VSTS project and extract the process template.
 > **Folder Structure**
