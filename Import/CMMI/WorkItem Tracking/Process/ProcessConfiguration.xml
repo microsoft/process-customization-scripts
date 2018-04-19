@@ -135,22 +135,23 @@
     <WorkItemColor primary="FFFF7B00" secondary="FFFFD7B5" name="Epic" />
     <WorkItemColor primary="FFF2CB1D" secondary="FFF6F5D2" name="Task" />
     <WorkItemColor primary="FFCC293D" secondary="FFFAEAE5" name="Bug" />
-    <WorkItemColor primary="FFFF9D00" secondary="FFFCEECF" name="Change Request" />
-    <WorkItemColor primary="FFFF9D00" secondary="FFFCEECF" name="Code Review Request" />
-    <WorkItemColor primary="FFFF9D00" secondary="FFFCEECF" name="Code Review Response" />
-    <WorkItemColor primary="FFFF9D00" secondary="FFFCEECF" name="Feedback Request" />
-    <WorkItemColor primary="FFFF9D00" secondary="FFFCEECF" name="Feedback Response" />
-    <WorkItemColor primary="FFFF9D00" secondary="FFFCEECF" name="Issue" />
-    <WorkItemColor primary="FFFF9D00" secondary="FFFCEECF" name="Review" />
-    <WorkItemColor primary="FFFF9D00" secondary="FFFCEECF" name="Risk" />
-    <WorkItemColor primary="FFFF9D00" secondary="FFFCEECF" name="Shared Steps" />
-    <WorkItemColor primary="FFFF9D00" secondary="FFFCEECF" name="Test Case" />
-    <WorkItemColor primary="FFFF9D00" secondary="FFFCEECF" name="Test Plan" />
-    <WorkItemColor primary="FFFF9D00" secondary="FFFCEECF" name="Test Suite" />
-    <WorkItemColor primary="FFFF9D00" secondary="FFFCEECF" name="Shared Parameter" />
+    <WorkItemColor primary="FFB4009E" secondary="FFFCEECF" name="Change Request" />
+    <WorkItemColor primary="FFB4009E" secondary="FFFCEECF" name="Code Review Request" />
+    <WorkItemColor primary="FFB4009E" secondary="FFFCEECF" name="Code Review Response" />
+    <WorkItemColor primary="FF004B50" secondary="FFFCEECF" name="Feedback Request" />
+    <WorkItemColor primary="FF004B50" secondary="FFFCEECF" name="Feedback Response" />
+    <WorkItemColor primary="FFB4009E" secondary="FFFCEECF" name="Issue" />
+    <WorkItemColor primary="FFB4009E" secondary="FFFCEECF" name="Review" />
+    <WorkItemColor primary="FFB4009E" secondary="FFFCEECF" name="Risk" />
+    <WorkItemColor primary="FF004B50" secondary="FFFCEECF" name="Shared Steps" />
+    <WorkItemColor primary="FF004B50" secondary="FFFCEECF" name="Test Case" />
+    <WorkItemColor primary="FF004B50" secondary="FFFCEECF" name="Test Plan" />
+    <WorkItemColor primary="FF004B50" secondary="FFFCEECF" name="Test Suite" />
+    <WorkItemColor primary="FF004B50" secondary="FFFCEECF" name="Shared Parameter" />
   </WorkItemColors>
   <Properties>
     <Property name="BugsBehavior" value="AsTasks" />
     <Property name="HiddenBacklogs" value="Microsoft.EpicCategory" />
+    <Property name="WorkItemTypeIcons" value="Requirement=icon_sticky_note,Feature=icon_trophy,Epic=icon_crown,Task=icon_clipboard,Bug=icon_insect,Change Request=icon_megaphone,Code Review Request=icon_code_review,Code Review Response=icon_code_response,Feedback Request=icon_review,Feedback Response=icon_response,Issue=icon_traffic_cone,Review=icon_chat_bubble,Risk=icon_flame,Shared Steps=icon_test_step,Test Case=icon_test_case,Test Plan=icon_test_plan,Test Suite=icon_test_suite,Shared Parameter=icon_test_parameter" />
   </Properties>
 </ProjectProcessConfiguration>

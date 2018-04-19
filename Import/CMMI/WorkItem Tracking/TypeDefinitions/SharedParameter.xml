@@ -132,7 +132,7 @@
                   <LinkColumn LinkAttribute="System.Links.Comment" />
                 </LinkColumns>
                 <WorkItemLinkFilters FilterType="include">
-                  <Filter LinkType="Microsoft.VSTS.TestCase.SharedParameterReferencedBy" FilterOn="forwardname"/>
+                  <Filter LinkType="Microsoft.VSTS.TestCase.SharedParameterReferencedBy" FilterOn="forwardname" />
                 </WorkItemLinkFilters>
                 <WorkItemTypeFilters FilterType="include">
                   <Filter WorkItemType="Test Case" />
@@ -163,6 +163,45 @@
           </Tab>
         </TabGroup>
       </Layout>
+      <WebLayout>
+        <SystemControls>
+          <Control Type="FieldControl" FieldName="System.Title" EmptyText="Enter title" />
+          <Control Label="Assi&amp;gned To" Type="FieldControl" FieldName="System.AssignedTo" />
+          <Control Label="Stat&amp;e" Type="FieldControl" FieldName="System.State" />
+          <Control Label="Reason" Type="FieldControl" FieldName="System.Reason" />
+          <Control Label="&amp;Area" Type="WorkItemClassificationControl" FieldName="System.AreaPath" />
+          <Control Label="Ite&amp;ration" Type="WorkItemClassificationControl" FieldName="System.IterationPath" />
+          <Control Label="History" Type="WorkItemLogControl" FieldName="System.History" />
+          <Control Label="Links" Type="LinksControl" Name="Links" />
+          <Control Label="Attachments" Type="AttachmentsControl" Name="Attachments" />
+        </SystemControls>
+        <Page Label="Summary" LayoutMode="FirstColumnWide">
+          <Section>
+            <Group Label="Description">
+              <Control Label="Description" Type="HtmlFieldControl" FieldName="System.Description" />
+            </Group>
+          </Section>
+          <Section>
+            <Group Label="Test Cases">
+              <Control Type="LinksControl" Name="Test Cases">
+                <LinksControlOptions>
+                  <LinkFilters>
+                    <WorkItemLinkFilter Type="Microsoft.VSTS.TestCase.SharedParameterReferencedBy" />
+                  </LinkFilters>
+                  <WorkItemTypeFilters>
+                    <Filter WorkItemType="Test Case" />
+                  </WorkItemTypeFilters>
+                  <Columns>
+                    <Column Name="System.State" />
+                    <Column Name="System.ChangedDate" />
+                    <Column Name="System.Links.Comment" />
+                  </Columns>
+                </LinksControlOptions>
+              </Control>
+            </Group>
+          </Section>
+        </Page>
+      </WebLayout>
     </FORM>
   </WORKITEMTYPE>
 </witd:WITD>

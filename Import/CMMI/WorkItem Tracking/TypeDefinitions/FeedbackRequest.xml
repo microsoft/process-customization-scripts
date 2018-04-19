@@ -13,8 +13,8 @@
         <HELPTEXT>Guidance on what areas of the product that feedback should be scoped to</HELPTEXT>
       </FIELD>
       <FIELD name="Assigned To" refname="System.AssignedTo" type="String" reportable="dimension" syncnamechanges="true">
-        <ALLOWEXISTINGVALUE/>
-        <VALIDUSER/>
+        <ALLOWEXISTINGVALUE />
+        <VALIDUSER />
         <HELPTEXT>The person requesting feedback</HELPTEXT>
       </FIELD>
       <FIELD name="Closed Date" refname="Microsoft.VSTS.Common.ClosedDate" type="DateTime" reportable="dimension">
@@ -68,7 +68,6 @@
         <HELPTEXT>The build in which the feedback was requested</HELPTEXT>
       </FIELD>
     </FIELDS>
-
     <!-- *************** Workflow ****************   -->
     <WORKFLOW>
       <STATES>
@@ -85,7 +84,6 @@
             </FIELD>
           </FIELDS>
         </STATE>
-
         <STATE value="Closed">
           <FIELDS>
             <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
@@ -96,10 +94,8 @@
             </FIELD>
           </FIELDS>
         </STATE>
-
         <STATE value="Removed" />
       </STATES>
-
       <TRANSITIONS>
         <TRANSITION from="" to="Active">
           <REASONS>
@@ -112,7 +108,6 @@
             </FIELD>
           </FIELDS>
         </TRANSITION>
-
         <TRANSITION from="Active" to="Closed">
           <REASONS>
             <DEFAULTREASON value="Closed" />
@@ -133,7 +128,6 @@
             </FIELD>
           </FIELDS>
         </TRANSITION>
-
         <TRANSITION from="Closed" to="Active">
           <REASONS>
             <DEFAULTREASON value="Reactivated" />
@@ -144,7 +138,6 @@
             </FIELD>
           </FIELDS>
         </TRANSITION>
-
         <TRANSITION from="Active" to="Removed">
           <REASONS>
             <DEFAULTREASON value="Cancelled Feedback Request" />
@@ -152,7 +145,6 @@
         </TRANSITION>
       </TRANSITIONS>
     </WORKFLOW>
-
     <FORM>
       <Layout HideReadOnlyEmptyFields="true" HideControlBorders="true">
         <Group Margin="(0,0,0,5)">
@@ -174,7 +166,7 @@
                   <Column PercentWidth="100">
                     <Control FieldName="Microsoft.VSTS.Feedback.ApplicationType" Type="FieldControl" Label="Type" LabelPosition="Left" />
                     <Control FieldName="Microsoft.VSTS.Feedback.ApplicationStartInformation" Type="FieldControl" Label="Start Information" LabelPosition="Left" />
-                    <Control FieldName="Microsoft.VSTS.Feedback.ApplicationLaunchInstructions" Type="HtmlFieldControl" Label="Launch Instructions" LabelPosition="Left" Dock="Fill"/>
+                    <Control FieldName="Microsoft.VSTS.Feedback.ApplicationLaunchInstructions" Type="HtmlFieldControl" Label="Launch Instructions" LabelPosition="Left" Dock="Fill" />
                   </Column>
                 </Group>
               </Tab>
@@ -220,6 +212,35 @@
           </Column>
         </Group>
       </Layout>
+      <WebLayout>
+        <SystemControls>
+          <Control Type="FieldControl" FieldName="System.Title" EmptyText="Enter title" />
+          <Control Label="Assi&amp;gned To" Type="FieldControl" FieldName="System.AssignedTo" />
+          <Control Label="Stat&amp;e" Type="FieldControl" FieldName="System.State" />
+          <Control Label="Reason" Type="FieldControl" FieldName="System.Reason" />
+          <Control Label="&amp;Area" Type="WorkItemClassificationControl" FieldName="System.AreaPath" />
+          <Control Label="Ite&amp;ration" Type="WorkItemClassificationControl" FieldName="System.IterationPath" />
+          <Control Label="History" Type="WorkItemLogControl" FieldName="System.History" />
+          <Control Label="Links" Type="LinksControl" Name="Links" />
+          <Control Label="Attachments" Type="AttachmentsControl" Name="Attachments" />
+        </SystemControls>
+        <Page Label="Details" LayoutMode="FirstColumnWide">
+          <Section>
+            <Group Label="Description">
+              <Control Label="Description" Type="HtmlFieldControl" FieldName="System.Description" />
+            </Group>
+            <Group Label="Launch Instructions">
+              <Control Label="Launch Instructions" Type="HtmlFieldControl" FieldName="Microsoft.VSTS.Feedback.ApplicationLaunchInstructions" />
+            </Group>
+          </Section>
+          <Section>
+            <Group Label="Application">
+              <Control Label="Type" Type="FieldControl" FieldName="Microsoft.VSTS.Feedback.ApplicationType" />
+              <Control Label="Start Information" Type="FieldControl" FieldName="Microsoft.VSTS.Feedback.ApplicationStartInformation" />
+            </Group>
+          </Section>
+        </Page>
+      </WebLayout>
     </FORM>
   </WORKITEMTYPE>
 </witd:WITD>

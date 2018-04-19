@@ -70,7 +70,6 @@
       <FIELD name="Changed Date" refname="System.ChangedDate" type="DateTime" reportable="dimension" />
       <FIELD name="Id" refname="System.Id" type="Integer" reportable="dimension" />
       <FIELD name="Area ID" refname="System.AreaId" type="Integer" />
-      <FIELD name="Authorized As" refname="System.AuthorizedAs" type="String" />
       <FIELD name="Automated Test Name" refname="Microsoft.VSTS.TCM.AutomatedTestName" type="String" />
       <FIELD name="Automated Test Storage" refname="Microsoft.VSTS.TCM.AutomatedTestStorage" type="String" />
       <FIELD name="Automated Test Id" refname="Microsoft.VSTS.TCM.AutomatedTestId" type="String" />
@@ -325,6 +324,91 @@
           </Tab>
         </TabGroup>
       </Layout>
+      <WebLayout>
+        <SystemControls>
+          <Control Type="FieldControl" FieldName="System.Title" EmptyText="Enter title" />
+          <Control Label="Assi&amp;gned To" Type="FieldControl" FieldName="System.AssignedTo" />
+          <Control Label="Stat&amp;e" Type="FieldControl" FieldName="System.State" />
+          <Control Label="Reason" Type="FieldControl" FieldName="System.Reason" />
+          <Control Label="&amp;Area" Type="WorkItemClassificationControl" FieldName="System.AreaPath" />
+          <Control Label="Ite&amp;ration" Type="WorkItemClassificationControl" FieldName="System.IterationPath" />
+          <Control Label="History" Type="WorkItemLogControl" FieldName="System.History" />
+          <Control Label="Links" Type="LinksControl" Name="Links" />
+          <Control Label="Attachments" Type="AttachmentsControl" Name="Attachments" />
+        </SystemControls>
+        <Page Label="Steps" LayoutMode="FirstColumnWide">
+          <Section>
+            <Group Label="Steps">
+              <Control Label="Steps" Type="TestStepsControl" FieldName="Microsoft.VSTS.TCM.Steps">
+                <CustomControlOptions />
+              </Control>
+            </Group>
+          </Section>
+          <Section>
+            <Group Label="Development">
+              <Control Type="LinksControl" Name="Development">
+                <LinksControlOptions ViewMode="Dynamic" ZeroDataExperience="Development" ShowCallToAction="true">
+                  <ListViewOptions GroupLinks="false">
+                  </ListViewOptions>
+                  <LinkFilters>
+                    <ExternalLinkFilter Type="Build" />
+                    <ExternalLinkFilter Type="Integrated in build" />
+                    <ExternalLinkFilter Type="Pull Request" />
+                    <ExternalLinkFilter Type="Branch" />
+                    <ExternalLinkFilter Type="Fixed in Commit" />
+                    <ExternalLinkFilter Type="Fixed in Changeset" />
+                    <ExternalLinkFilter Type="Source Code File" />
+                    <ExternalLinkFilter Type="Found in build" />
+                  </LinkFilters>
+                </LinksControlOptions>
+              </Control>
+            </Group>
+            <Group Label="Related Work">
+              <Control Type="LinksControl" Name="Related Work">
+                <LinksControlOptions>
+                  <LinkFilters>
+                    <WorkItemLinkFilter Type="System.LinkTypes.Duplicate-Reverse" />
+                    <WorkItemLinkFilter Type="System.LinkTypes.Hierarchy-Reverse" />
+                    <WorkItemLinkFilter Type="Microsoft.VSTS.Common.TestedBy-Forward" />
+                    <WorkItemLinkFilter Type="Microsoft.VSTS.Common.TestedBy-Reverse" />
+                    <WorkItemLinkFilter Type="Microsoft.VSTS.TestCase.SharedStepReferencedBy" />
+                    <WorkItemLinkFilter Type="Microsoft.VSTS.TestCase.SharedParameterReferencedBy" />
+                    <WorkItemLinkFilter Type="System.LinkTypes.Hierarchy-Forward" />
+                    <WorkItemLinkFilter Type="System.LinkTypes.Duplicate-Forward" />
+                    <WorkItemLinkFilter Type="System.LinkTypes.Dependency" />
+                    <WorkItemLinkFilter Type="System.LinkTypes.Related" />
+                  </LinkFilters>
+                  <Columns>
+                    <Column Name="System.State" />
+                    <Column Name="System.ChangedDate" />
+                    <Column Name="System.Links.Comment" />
+                  </Columns>
+                </LinksControlOptions>
+              </Control>
+            </Group>
+            <Group Label="Details">
+              <Control Label="Priority" Type="FieldControl" FieldName="Microsoft.VSTS.Common.Priority" />
+              <Control Label="Automation status" Type="FieldControl" FieldName="Microsoft.VSTS.TCM.AutomationStatus" />
+            </Group>
+          </Section>
+        </Page>
+        <Page Label="Summary" LayoutMode="FirstColumnWide">
+          <Section>
+            <Group Label="Description">
+              <Control Label="Description" Type="HtmlFieldControl" FieldName="System.Description" />
+            </Group>
+          </Section>
+        </Page>
+        <Page Label="Associated Automation" LayoutMode="FirstColumnWide">
+          <Section>
+            <Group Label="Associated Automation">
+              <Control Type="AssociatedAutomationControl" Name="AssociatedAutomation">
+                <CustomControlOptions />
+              </Control>
+            </Group>
+          </Section>
+        </Page>
+      </WebLayout>
     </FORM>
   </WORKITEMTYPE>
 </Witd:WITD>

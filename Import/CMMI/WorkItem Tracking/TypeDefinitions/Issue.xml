@@ -11,7 +11,7 @@
       <FIELD name="Assigned To" refname="System.AssignedTo" type="String" reportable="dimension" syncnamechanges="true">
         <HELPTEXT>The person currently working on this issue</HELPTEXT>
         <ALLOWEXISTINGVALUE />
-        <VALIDUSER/>
+        <VALIDUSER />
       </FIELD>
       <FIELD name="History" refname="System.History" type="History">
         <HELPTEXT>Discussion thread and other historical information</HELPTEXT>
@@ -184,9 +184,12 @@
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
               <REQUIRED />
+              <SERVERDEFAULT from="clock" />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
               <REQUIRED />
+              <COPY from="currentuser" />
+              <VALIDUSER />
             </FIELD>
             <FIELD refname="System.AssignedTo">
               <REQUIRED />
@@ -206,9 +209,12 @@
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ResolvedDate">
               <REQUIRED />
+              <SERVERDEFAULT from="clock" />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ResolvedBy">
               <REQUIRED />
+              <COPY from="currentuser" />
+              <VALIDUSER />
             </FIELD>
             <FIELD refname="System.AssignedTo">
               <REQUIRED />
@@ -219,9 +225,12 @@
           <FIELDS>
             <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
               <REQUIRED />
+              <COPY from="currentuser" />
+              <VALIDUSER />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
               <REQUIRED />
+              <SERVERDEFAULT from="clock" />
             </FIELD>
           </FIELDS>
         </STATE>
@@ -242,15 +251,6 @@
             <REASON value="Investigate" />
             <DEFAULTREASON value="Accepted" />
           </REASONS>
-          <FIELDS>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
-              <SERVERDEFAULT from="clock" />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
-              <COPY from="currentuser" />
-              <VALIDUSER />
-            </FIELD>
-          </FIELDS>
         </TRANSITION>
         <TRANSITION from="Active" to="Proposed">
           <REASONS>
@@ -261,15 +261,6 @@
           <REASONS>
             <DEFAULTREASON value="Resolved" />
           </REASONS>
-          <FIELDS>
-            <FIELD refname="Microsoft.VSTS.Common.ResolvedDate">
-              <SERVERDEFAULT from="clock" />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ResolvedBy">
-              <COPY from="currentuser" />
-              <VALIDUSER />
-            </FIELD>
-          </FIELDS>
           <ACTIONS>
             <ACTION value="Microsoft.VSTS.Actions.Checkin" />
           </ACTIONS>
@@ -278,57 +269,21 @@
           <REASONS>
             <DEFAULTREASON value="Overtaken by Events" />
           </REASONS>
-          <FIELDS>
-            <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
-              <SERVERDEFAULT from="clock" />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
-              <COPY from="currentuser" />
-              <VALIDUSER />
-            </FIELD>
-          </FIELDS>
         </TRANSITION>
         <TRANSITION from="Resolved" to="Active">
           <REASONS>
             <DEFAULTREASON value="Rework" />
           </REASONS>
-          <FIELDS>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
-              <COPY from="currentuser" />
-              <VALIDUSER />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
-              <SERVERDEFAULT from="clock" />
-            </FIELD>
-          </FIELDS>
         </TRANSITION>
         <TRANSITION from="Resolved" to="Closed">
           <REASONS>
             <DEFAULTREASON value="Resolution Verified and Accepted" />
           </REASONS>
-          <FIELDS>
-            <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
-              <SERVERDEFAULT from="clock" />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
-              <COPY from="currentuser" />
-              <VALIDUSER />
-            </FIELD>
-          </FIELDS>
         </TRANSITION>
         <TRANSITION from="Proposed" to="Closed">
           <REASONS>
             <DEFAULTREASON value="Rejected (not an issue)" />
           </REASONS>
-          <FIELDS>
-            <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
-              <SERVERDEFAULT from="clock" />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
-              <COPY from="currentuser" />
-              <VALIDUSER />
-            </FIELD>
-          </FIELDS>
         </TRANSITION>
         <TRANSITION from="Closed" to="Active">
           <REASONS>
@@ -337,13 +292,6 @@
             <DEFAULTREASON value="Closed in Error" />
           </REASONS>
           <FIELDS>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
-              <COPY from="currentuser" />
-              <VALIDUSER />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
-              <SERVERDEFAULT from="clock" />
-            </FIELD>
             <FIELD refname="System.AssignedTo">
               <COPY from="field" field="Microsoft.VSTS.Common.ClosedBy" />
             </FIELD>
@@ -408,8 +356,8 @@
                   <Column PercentWidth="50">
                     <Group Label="Schedule">
                       <Column PercentWidth="100">
-                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.TargetResolveDate" Label="Target Resolve Date" LabelPosition="Left" />
-                        <Control Type="FieldControl" FieldName="Microsoft.VSTS.Common.ResolvedDate" Label="Actual Resolve Date" LabelPosition="Left" />
+                        <Control Type="DateTimeControl" FieldName="Microsoft.VSTS.CMMI.TargetResolveDate" Label="Target Resolve Date" LabelPosition="Left" />
+                        <Control Type="DateTimeControl" FieldName="Microsoft.VSTS.Common.ResolvedDate" Label="Actual Resolve Date" LabelPosition="Left" />
                       </Column>
                     </Group>
                   </Column>
@@ -453,6 +401,94 @@
           </Column>
         </Group>
       </Layout>
+      <WebLayout>
+        <SystemControls>
+          <Control Type="FieldControl" FieldName="System.Title" EmptyText="Enter title" />
+          <Control Label="Assi&amp;gned To" Type="FieldControl" FieldName="System.AssignedTo" />
+          <Control Label="Stat&amp;e" Type="FieldControl" FieldName="System.State" />
+          <Control Label="Reason" Type="FieldControl" FieldName="System.Reason" />
+          <Control Label="&amp;Area" Type="WorkItemClassificationControl" FieldName="System.AreaPath" />
+          <Control Label="Ite&amp;ration" Type="WorkItemClassificationControl" FieldName="System.IterationPath" />
+          <Control Label="History" Type="WorkItemLogControl" FieldName="System.History" />
+          <Control Label="Links" Type="LinksControl" Name="Links" />
+          <Control Label="Attachments" Type="AttachmentsControl" Name="Attachments" />
+        </SystemControls>
+        <Page Label="Details" LayoutMode="FirstColumnWide">
+          <Section>
+            <Group Label="Description">
+              <Control Label="Description" Type="HtmlFieldControl" FieldName="System.Description" />
+            </Group>
+            <Group Label="Analysis">
+              <Control Type="HtmlFieldControl" FieldName="Microsoft.VSTS.CMMI.Analysis" />
+            </Group>
+            <Group Label="Plan">
+              <Control Label="Plan" Type="HtmlFieldControl" FieldName="Microsoft.VSTS.CMMI.CorrectiveActionPlan" />
+            </Group>
+            <Group Label="Actual Resolution">
+              <Control Label="Actual Resolution" Type="HtmlFieldControl" FieldName="Microsoft.VSTS.CMMI.CorrectiveActionActualResolution" />
+            </Group>
+          </Section>
+          <Section>
+            <Group Label="Planning">
+              <Control Label="Priority" Type="FieldControl" FieldName="Microsoft.VSTS.Common.Priority" />
+              <Control Label="Triage" Type="FieldControl" FieldName="Microsoft.VSTS.Common.Triage" />
+              <Control Label="Escalate" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.Escalate" />
+            </Group>
+            <Group Label="Effort (Hours)">
+              <Control Label="Original Estimate" Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.OriginalEstimate" />
+            </Group>
+            <Group Label="Schedule">
+              <Control Label="Target Resolve Date" Type="DateTimeControl" FieldName="Microsoft.VSTS.CMMI.TargetResolveDate" />
+              <Control Label="Actual Resolve Date" Type="DateTimeControl" FieldName="Microsoft.VSTS.Common.ResolvedDate" />
+            </Group>
+          </Section>
+          <Section>
+            <Group Label="Development">
+              <Control Type="LinksControl" Name="Development">
+                <LinksControlOptions ViewMode="Dynamic" ZeroDataExperience="Development" ShowCallToAction="true">
+                  <ListViewOptions GroupLinks="false">
+                  </ListViewOptions>
+                  <LinkFilters>
+                    <ExternalLinkFilter Type="Build" />
+                    <ExternalLinkFilter Type="Integrated in build" />
+                    <ExternalLinkFilter Type="Pull Request" />
+                    <ExternalLinkFilter Type="Branch" />
+                    <ExternalLinkFilter Type="Fixed in Commit" />
+                    <ExternalLinkFilter Type="Fixed in Changeset" />
+                    <ExternalLinkFilter Type="Source Code File" />
+                    <ExternalLinkFilter Type="Found in build" />
+                  </LinkFilters>
+                </LinksControlOptions>
+              </Control>
+            </Group>
+            <Group Label="Related Work">
+              <Control Type="LinksControl" Name="Related Work">
+                <LinksControlOptions>
+                  <LinkFilters>
+                    <WorkItemLinkFilter Type="System.LinkTypes.Duplicate-Reverse" />
+                    <WorkItemLinkFilter Type="System.LinkTypes.Hierarchy-Reverse" />
+                    <WorkItemLinkFilter Type="Microsoft.VSTS.Common.TestedBy-Reverse" />
+                    <WorkItemLinkFilter Type="Microsoft.VSTS.Common.TestedBy-Forward" />
+                    <WorkItemLinkFilter Type="System.LinkTypes.Hierarchy-Forward" />
+                    <WorkItemLinkFilter Type="System.LinkTypes.Duplicate-Forward" />
+                    <WorkItemLinkFilter Type="Microsoft.VSTS.Common.Affects" />
+                    <WorkItemLinkFilter Type="System.LinkTypes.Dependency" />
+                    <WorkItemLinkFilter Type="System.LinkTypes.Related" />
+                  </LinkFilters>
+                  <Columns>
+                    <Column Name="System.State" />
+                    <Column Name="System.ChangedDate" />
+                    <Column Name="System.Links.Comment" />
+                  </Columns>
+                </LinksControlOptions>
+              </Control>
+            </Group>
+            <Group Label="Analysis">
+              <Control Label="Impact on project promise" Type="FieldControl" FieldName="Microsoft.VSTS.Common.Severity" />
+            </Group>
+          </Section>
+        </Page>
+      </WebLayout>
     </FORM>
   </WORKITEMTYPE>
 </witd:WITD>

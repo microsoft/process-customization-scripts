@@ -3,11 +3,10 @@
   <metadata>
     <name>Scrum</name>
     <description>This template is for teams who follow the Scrum framework.</description>
-    <version type="6B724908-EF14-45CF-84F8-768B5384DA45" major="14" minor="5" />
+    <version type="6B724908-EF14-45CF-84F8-768B5384DA45" major="16" minor="1" />
     <plugins>
       <plugin name="Microsoft.ProjectCreationWizard.Classification" wizardPage="false" />
       <plugin name="Microsoft.ProjectCreationWizard.Reporting" wizardPage="false" />
-      <plugin name="Microsoft.ProjectCreationWizard.Portal" wizardPage="true" />
       <plugin name="Microsoft.ProjectCreationWizard.Groups" wizardPage="false" />
       <plugin name="Microsoft.ProjectCreationWizard.WorkItemTracking" wizardPage="false" />
       <plugin name="Microsoft.ProjectCreationWizard.VersionControl" wizardPage="true" />
@@ -18,8 +17,7 @@
   </metadata>
   <groups>
     <group id="Classification" description="Structure definition for the project." completionMessage="Project Structure uploaded.">
-      <dependencies>
-      </dependencies>
+      <dependencies></dependencies>
       <taskList filename="Classification\Classification.xml" />
     </group>
     <group id="Groups" description="Create Groups and assign Permissions." completionMessage="Groups created and Permissions assigned.">
@@ -74,13 +72,6 @@
         <dependency groupId="VersionControl" />
       </dependencies>
       <taskList filename="Reports\ReportsTasks.xml" />
-    </group>
-    <group id="Portal" description="Creating project portal site" completionMessage="Project portal tasks completed.">
-      <dependencies>
-        <dependency groupId="Classification" />
-        <dependency groupId="Reporting" />
-      </dependencies>
-      <taskList filename="Windows SharePoint Services\WssTasks.xml" />
     </group>
   </groups>
 </ProcessTemplate>
