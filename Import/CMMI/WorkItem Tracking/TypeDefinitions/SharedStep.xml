@@ -94,7 +94,6 @@
       <FIELD name="Changed Date" refname="System.ChangedDate" type="DateTime" reportable="dimension" />
       <FIELD name="Id" refname="System.Id" type="Integer" reportable="dimension" />
       <FIELD name="Area ID" refname="System.AreaId" type="Integer" />
-      <FIELD name="Authorized As" refname="System.AuthorizedAs" type="String" />
       <FIELD name="Parameters" refname="Microsoft.VSTS.TCM.Parameters" type="HTML" />
       <!-- **************** Team Build Integration Fields **************  -->
       <FIELD name="Integration Build" refname="Microsoft.VSTS.Build.IntegrationBuild" type="String" reportable="dimension">
@@ -242,6 +241,55 @@
           </Tab>
         </TabGroup>
       </Layout>
+      <WebLayout>
+        <SystemControls>
+          <Control Type="FieldControl" FieldName="System.Title" EmptyText="Enter title" />
+          <Control Label="Assi&amp;gned To" Type="FieldControl" FieldName="System.AssignedTo" />
+          <Control Label="Stat&amp;e" Type="FieldControl" FieldName="System.State" />
+          <Control Label="Reason" Type="FieldControl" FieldName="System.Reason" />
+          <Control Label="&amp;Area" Type="WorkItemClassificationControl" FieldName="System.AreaPath" />
+          <Control Label="Ite&amp;ration" Type="WorkItemClassificationControl" FieldName="System.IterationPath" />
+          <Control Label="History" Type="WorkItemLogControl" FieldName="System.History" />
+          <Control Label="Links" Type="LinksControl" Name="Links" />
+          <Control Label="Attachments" Type="AttachmentsControl" Name="Attachments" />
+        </SystemControls>
+        <Page Label="Steps" LayoutMode="FirstColumnWide">
+          <Section>
+            <Group Label="Steps">
+              <Control Label="Steps" Type="TestStepsControl" FieldName="Microsoft.VSTS.TCM.Steps" />
+            </Group>
+          </Section>
+          <Section>
+            <Group Label="Status">
+              <Control Label="Priority" Type="FieldControl" FieldName="Microsoft.VSTS.Common.Priority" />
+            </Group>
+            <Group Label="Test Cases">
+              <Control Type="LinksControl" Name="Test Cases">
+                <LinksControlOptions>
+                  <LinkFilters>
+                    <WorkItemLinkFilter Type="Microsoft.VSTS.TestCase.SharedStepReferencedBy" />
+                  </LinkFilters>
+                  <WorkItemTypeFilters>
+                    <Filter WorkItemType="Test Case" />
+                  </WorkItemTypeFilters>
+                  <Columns>
+                    <Column Name="System.State" />
+                    <Column Name="System.ChangedDate" />
+                    <Column Name="System.Links.Comment" />
+                  </Columns>
+                </LinksControlOptions>
+              </Control>
+            </Group>
+          </Section>
+        </Page>
+        <Page Label="Summary" LayoutMode="FirstColumnWide">
+          <Section>
+            <Group Label="Description">
+              <Control Label="Description" Type="HtmlFieldControl" FieldName="System.Description" />
+            </Group>
+          </Section>
+        </Page>
+      </WebLayout>
     </FORM>
   </WORKITEMTYPE>
 </witd:WITD>

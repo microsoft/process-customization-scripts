@@ -3,11 +3,10 @@
   <metadata>
     <name>CMMI</name>
     <description>This template is for more formal projects requiring a framework for process improvement and an auditable record of decisions.</description>
-    <version type="27450541-8E31-4150-9947-DC59F998FC01" major="14" minor="5" />
+    <version type="27450541-8E31-4150-9947-DC59F998FC01" major="16" minor="1" />
     <plugins>
       <plugin name="Microsoft.ProjectCreationWizard.Classification" wizardPage="false" />
       <plugin name="Microsoft.ProjectCreationWizard.Reporting" wizardPage="false" />
-      <plugin name="Microsoft.ProjectCreationWizard.Portal" wizardPage="true" />
       <plugin name="Microsoft.ProjectCreationWizard.Groups" wizardPage="false" />
       <plugin name="Microsoft.ProjectCreationWizard.WorkItemTracking" wizardPage="false" />
       <plugin name="Microsoft.ProjectCreationWizard.VersionControl" wizardPage="true" />
@@ -18,8 +17,7 @@
   </metadata>
   <groups>
     <group id="Classification" description="Structure definition for the project." completionMessage="Project Structure uploaded.">
-      <dependencies>
-      </dependencies>
+      <dependencies></dependencies>
       <taskList filename="Classification\Classification.xml" />
     </group>
     <group id="Groups" description="Create Groups and assign Permissions." completionMessage="Groups created and Permissions assigned.">
@@ -27,15 +25,6 @@
         <dependency groupId="Classification" />
       </dependencies>
       <taskList filename="Groups and Permissions\GroupsandPermissions.xml" />
-    </group>
-    <group id="Portal" description="Creating project portal site" completionMessage="Project portal tasks completed.">
-      <dependencies>
-        <dependency groupId="Classification" />
-        <dependency groupId="WorkItemTracking" />
-        <dependency groupId="VersionControl" />
-        <dependency groupId="Reporting" />
-      </dependencies>
-      <taskList filename="Windows SharePoint Services\WssTasks.xml" />
     </group>
     <group id="Reporting" description="Project reports uploading." completionMessage="Project reporting tasks completed.">
       <dependencies>
