@@ -1,13 +1,11 @@
 ################################################################################################################
-# ExportProjectTemplatesFromCSV.ps1
-# This script exports the process template for a list of projects based on a csv file that contains a Project and Template column
+# ConformFromCSV.ps1
+# This script runs the ConformProject.ps1 script for a list of projects based on a .csv file that contains a Project column
 #
-# This script is dependent on having .\ExportVSOProjectTemplate.ps1 is the same directory
+# This script is dependent on having .\ConformProject.ps1 is the same directory
 #
-# You can then zip this exported template and upload to your custimization
-# enabled VSO account. 
 #
-# Usage: .\ExportProjectTemplatesFromCSV.ps1 "https://1eson-test1.visualstudio.com/DefaultCollection" "C:\Users\dahellem\Desktop\Temp\vsoprojectlist.csv"
+# Usage: .\ConformFromCSV.ps1 "http://myServer:8080/tfs/DefaultCollection" "c:\temp\vsoprojectlist.csv" "c:\temp\agile"
 #
 #
 ################################################################################################################
