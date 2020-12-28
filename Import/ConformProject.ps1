@@ -114,7 +114,7 @@ function ValidateWorkItems()
 	$ErrorFound = $false
 	$workItemTypesInProject = @()
 
-    Invoke-Expression "& $WitAdminExe listwitd /collection:$CollectionURL /p:`"$projectName`"" | % {
+    Invoke-Expression "& $WitAdminExe listwitd /collection:`"$CollectionURL`" /p:`"$projectName`"" | % {
 		$workItemTypesInProject += "$_.xml".replace(' ', '')
 	}
 
@@ -163,7 +163,7 @@ Get-ChildItem "$global:templatePath\WorkItem Tracking\LinkTypes" -Filter "*.xml"
     Write-Host "Importing Link Type: "$_.Name -ForegroundColor Yellow
     $lt = $_.FullName #full path not being found if adding $_.FullName to witadminexe expression
 
-    Invoke-Expression "& $WitAdminExe importlinktype /collection:$CollectionUrl /f:`"$lt`""
+    Invoke-Expression "& $WitAdminExe importlinktype /collection:`"$CollectionUrl`" /f:`"$lt`""
 }
 
 Write-Host "Step 3: Complete" -ForegroundColor Green
@@ -175,16 +175,16 @@ Get-ChildItem "$global:templatePath\WorkItem Tracking\TypeDefinitions" -Filter "
 	Write-Host "Importing Work Item Type: "$_.Name -ForegroundColor Yellow
 	$wit = $_.FullName #full path not being found if adding $_.FullName to witadminexe expression
 
-    Invoke-Expression "& $WitAdminExe importwitd /collection:$CollectionUrl /p:`"$projectName`" /f:`"$wit`""
+    Invoke-Expression "& $WitAdminExe importwitd /collection:`"$CollectionUrl`" /p:`"$projectName`" /f:`"$wit`""
 }
 Write-Host "Step 4: Complete" -ForegroundColor Green
 
 Write-Host "Step 5: Conform project - Categories" -ForegroundColor Yellow
-Invoke-Expression "& $WitAdminExe importcategories /collection:$CollectionUrl /p:`"$projectName`" /f:`"$global:templatePath\WorkItem Tracking\Categories.xml`""
+Invoke-Expression "& $WitAdminExe importcategories /collection:`"$CollectionUrl`" /p:`"$projectName`" /f:`"$global:templatePath\WorkItem Tracking\Categories.xml`""
 Write-Host "Step 5: Complete" -ForegroundColor Green
 
 Write-Host "Step 6: Conform project - Process Configuration" -ForegroundColor Yellow
-Invoke-Expression "& $WitAdminExe importprocessconfig /collection:$CollectionUrl /p:`"$projectName`" /f:`"$global:templatePath\WorkItem Tracking\Process\ProcessConfiguration.xml`""
+Invoke-Expression "& $WitAdminExe importprocessconfig /collection:`"$CollectionUrl`" /p:`"$projectName`" /f:`"$global:templatePath\WorkItem Tracking\Process\ProcessConfiguration.xml`""
 Write-Host "Step 6: Complete" -ForegroundColor Green
 
 Write-Host "Project '$projectName' conforms to the template" -ForegroundColor Green
