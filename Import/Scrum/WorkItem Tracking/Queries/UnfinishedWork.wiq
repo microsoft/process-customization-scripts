@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>SELECT [System.Id], [System.Title], [Microsoft.VSTS.Common.BacklogPriority], [System.AssignedTo], [System.State], [Microsoft.VSTS.Scheduling.RemainingWork], [Microsoft.VSTS.CMMI.Blocked], [System.WorkItemType]
+FROM WorkItemLinks
+WHERE [Source].[System.TeamProject] = @project
+AND [Source].[System.IterationPath] UNDER '$$PROJECTNAME$$\Sprint 1'
+AND ([Source].[System.WorkItemType] IN GROUP 'Microsoft.RequirementCategory' OR [Source].[System.WorkItemType] IN GROUP 'Microsoft.TaskCategory')
+AND  [Source].[System.State] &lt;&gt; 'Removed'
+AND  [Source].[System.State] &lt;&gt; 'Done'
+AND [System.Links.LinkType] = 'System.LinkTypes.Hierarchy-Forward'
+AND [Target].[System.WorkItemType] IN GROUP 'Microsoft.TaskCategory'
+AND [Target].[System.State] &lt;&gt; 'Done'
+AND  [Target].[System.State] &lt;&gt; 'Removed'
+ORDER BY [Microsoft.VSTS.Common.BacklogPriority], [Microsoft.VSTS.Scheduling.Effort], [Microsoft.VSTS.Scheduling.RemainingWork], [System.Id] mode(Recursive)</Wiql>
+</WorkItemQuery>

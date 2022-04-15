@@ -88,11 +88,13 @@ SELECT
 						//
 						CrossJoin(
 							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							StrToMember("[Work Item].[System_IsDeleted].[All]"),
 							[Work Item].[Area Hierarchy].[All]
 						),
 						NonEmpty(
 							CrossJoin(
 								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 								[Work Item].[Area Hierarchy].[Area0]
 							),
 							[Measures].[Work Item Count]
@@ -147,11 +149,13 @@ SELECT
 						//
 						CrossJoin(
 							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							StrToMember("[Work Item].[System_IsDeleted].[All]"),
 							[Work Item].[Area Hierarchy].[All]
 						),
 						NonEmpty(
 							CrossJoin(
 								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 								[Work Item].[Area Hierarchy].[Area0]
 							),
 							[Measures].[Work Item Count]
@@ -164,8 +168,7 @@ SELECT
 		)
 	)
 } ON ROWS
-FROM [Team System]
-</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>F0CB7644-85B2-4C21-A196-819F78FA890C</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AllNoFilter</Name><DefaultValues><DefaultValue>All (No Filter)</DefaultValue></DefaultValues><Caption>AllNoFilter</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
+FROM [Team System]</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>F0CB7644-85B2-4C21-A196-819F78FA890C</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AllNoFilter</Name><DefaultValues><DefaultValue>All (No Filter)</DefaultValue></DefaultValues><Caption>AllNoFilter</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
         <rd:SuppressAutoUpdate>true</rd:SuppressAutoUpdate>
       </Query>
       <Filters>
@@ -221,12 +224,14 @@ SELECT
 					CrossJoin(
 						[Work Item].[System_State].[All], 
 						[Team Project].[Project Node GUID].[All],
+						[Work Item].[System_IsDeleted].[All],
 						[Work Item].[System_WorkItemType].[All]
 					),
 					NonEmpty(
 						CrossJoin(
 							Descendants([Work Item].[System_State].[All]),
 							StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+							StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 							StrToMember("[Work Item].[System_WorkItemType].&amp;[" + @TestCase + "]")
 						),
 						[Measures].[State Change Count]
@@ -279,12 +284,14 @@ SELECT
 					CrossJoin(
 						[Work Item].[System_State].[All], 
 						[Team Project].[Project Node GUID].[All],
+						[Work Item].[System_IsDeleted].[All],
 						[Work Item].[System_WorkItemType].[All]
 					),
 					NonEmpty(
 						CrossJoin(
 							Descendants([Work Item].[System_State].[All]),
 							StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+							StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 							StrToMember("[Work Item].[System_WorkItemType].&amp;[" + @TestCase + "]")
 						),
 						[Measures].[State Change Count]
@@ -368,6 +375,7 @@ FROM
 	SELECT
 		CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToMember("[Work Item].[System_WorkItemType].[" + @Testcase + "]"),
 			StrToSet(@StateParam),
 			StrToSet(@AreaParam),
@@ -448,14 +456,14 @@ FROM
 	SELECT
 		CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToMember("[Work Item].[System_WorkItemType].[" + @Testcase + "]"),
 			StrToSet(@StateParam),
 			StrToSet(@AreaParam),
 			StrToSet(@PriorityParam)
 	) ON COLUMNS
 	FROM [Team System]
-)
-</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>DD77C90C-1FEC-489F-B61E-F4773E27C1C9</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>StartDateParam</Name><DefaultValues><DefaultValue>5/7/2008</DefaultValue></DefaultValues><Caption>StartDateParam</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>EndDateParam</Name><DefaultValues><DefaultValue>5/20/2009</DefaultValue></DefaultValues><Caption>EndDateParam</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AreaParam</Name><DefaultValues><DefaultValue>[Work Item].[Area Hierarchy].[All]</DefaultValue></DefaultValues><Caption>AreaParam</Caption><HierarchyUniqueName>[Work Item].[Area Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[Area Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>StateParam</Name><DefaultValues><DefaultValue>[Work Item].[System_State].[All]</DefaultValue></DefaultValues><Caption>StateParam</Caption><HierarchyUniqueName>[Work Item].[System_State]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_State].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_State].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_State].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_State].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>PriorityParam</Name><DefaultValues><DefaultValue>[Work Item].[Microsoft_VSTS_Common_Priority].[All]</DefaultValue></DefaultValues><Caption>PriorityParam</Caption><HierarchyUniqueName>[Work Item].[Microsoft_VSTS_Common_Priority]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[Microsoft_VSTS_Common_Priority].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[Microsoft_VSTS_Common_Priority].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[Microsoft_VSTS_Common_Priority].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[Microsoft_VSTS_Common_Priority].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>TestCase</Name><DefaultValues><DefaultValue>Test Case</DefaultValue></DefaultValues><Caption>TestCase</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>DeletedName</Name><DefaultValues><DefaultValue>Deleted</DefaultValue></DefaultValues><Caption>DeletedName</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
+)</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>DD77C90C-1FEC-489F-B61E-F4773E27C1C9</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>StartDateParam</Name><DefaultValues><DefaultValue>5/7/2008</DefaultValue></DefaultValues><Caption>StartDateParam</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>EndDateParam</Name><DefaultValues><DefaultValue>5/20/2009</DefaultValue></DefaultValues><Caption>EndDateParam</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AreaParam</Name><DefaultValues><DefaultValue>[Work Item].[Area Hierarchy].[All]</DefaultValue></DefaultValues><Caption>AreaParam</Caption><HierarchyUniqueName>[Work Item].[Area Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[Area Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>StateParam</Name><DefaultValues><DefaultValue>[Work Item].[System_State].[All]</DefaultValue></DefaultValues><Caption>StateParam</Caption><HierarchyUniqueName>[Work Item].[System_State]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_State].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_State].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_State].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_State].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>PriorityParam</Name><DefaultValues><DefaultValue>[Work Item].[Microsoft_VSTS_Common_Priority].[All]</DefaultValue></DefaultValues><Caption>PriorityParam</Caption><HierarchyUniqueName>[Work Item].[Microsoft_VSTS_Common_Priority]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[Microsoft_VSTS_Common_Priority].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[Microsoft_VSTS_Common_Priority].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[Microsoft_VSTS_Common_Priority].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[Microsoft_VSTS_Common_Priority].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>TestCase</Name><DefaultValues><DefaultValue>Test Case</DefaultValue></DefaultValues><Caption>TestCase</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>DeletedName</Name><DefaultValues><DefaultValue>Deleted</DefaultValue></DefaultValues><Caption>DeletedName</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
         <rd:SuppressAutoUpdate>true</rd:SuppressAutoUpdate>
       </Query>
     </DataSet>
@@ -493,12 +501,14 @@ SELECT
                 CrossJoin(
                     [Work Item].[Microsoft_VSTS_Common_Priority].[All],
                     [Team Project].[Project Node GUID].[All],
+                    [Work Item].[System_IsDeleted].[All],
                     [Work Item].[System_WorkItemType].[All]
                 ),
                 NonEmpty(
                     CrossJoin(
                         [Work Item].[Microsoft_VSTS_Common_Priority].AllMembers,
                         StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+                        StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
                         StrToMember("[Work Item].[System_WorkItemType].&amp;[" + @TestCase + "]")
                     ),
                     [Measures].[State Change Count]
@@ -542,12 +552,14 @@ SELECT
                 CrossJoin(
                     [Work Item].[Microsoft_VSTS_Common_Priority].[All],
                     [Team Project].[Project Node GUID].[All],
+                    [Work Item].[System_IsDeleted].[All],
                     [Work Item].[System_WorkItemType].[All]
                 ),
                 NonEmpty(
                     CrossJoin(
                         [Work Item].[Microsoft_VSTS_Common_Priority].AllMembers,
                         StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+                        StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
                         StrToMember("[Work Item].[System_WorkItemType].&amp;[" + @TestCase + "]")
                     ),
                     [Measures].[State Change Count]
@@ -1115,13 +1127,7 @@ SELECT DISTINCT
         <TablixBody>
           <TablixColumns>
             <TablixColumn>
-              <Width>3in</Width>
-            </TablixColumn>
-            <TablixColumn>
-              <Width>2.25in</Width>
-            </TablixColumn>
-            <TablixColumn>
-              <Width>2.25in</Width>
+              <Width>7.5in</Width>
             </TablixColumn>
           </TablixColumns>
           <TablixRows>
@@ -1150,70 +1156,10 @@ SELECT DISTINCT
                         </Paragraph>
                       </Paragraphs>
                       <Style>
-                        <Border>
-                          <Color>LightGrey</Color>
-                          <Style>None</Style>
-                        </Border>
-                        <RightBorder>
-                          <Style>Solid</Style>
-                        </RightBorder>
+                        <Border />
                       </Style>
                     </Textbox>
-                  </CellContents>
-                </TablixCell>
-                <TablixCell>
-                  <CellContents>
-                    <Textbox Name="RelatedReportsTextBox">
-                      <CanGrow>true</CanGrow>
-                      <KeepTogether>true</KeepTogether>
-                      <Paragraphs>
-                        <Paragraph>
-                          <TextRuns>
-                            <TextRun>
-                              <Value>Related Reports</Value>
-                              <Style>
-                                <FontFamily>Arial</FontFamily>
-                                <FontSize>8pt</FontSize>
-                                <FontWeight>Bold</FontWeight>
-                                <Color>#333333</Color>
-                              </Style>
-                            </TextRun>
-                          </TextRuns>
-                          <Style />
-                        </Paragraph>
-                      </Paragraphs>
-                      <ZIndex>4</ZIndex>
-                      <Style>
-                        <PaddingLeft>10pt</PaddingLeft>
-                        <PaddingTop>10pt</PaddingTop>
-                      </Style>
-                    </Textbox>
-                  </CellContents>
-                </TablixCell>
-                <TablixCell>
-                  <CellContents>
-                    <Textbox Name="Textbox22">
-                      <CanGrow>true</CanGrow>
-                      <KeepTogether>true</KeepTogether>
-                      <Paragraphs>
-                        <Paragraph>
-                          <TextRuns>
-                            <TextRun>
-                              <Value />
-                              <Style>
-                                <FontFamily>Arial</FontFamily>
-                                <FontSize>12pt</FontSize>
-                                <FontWeight>Bold</FontWeight>
-                                <Color>#444444</Color>
-                              </Style>
-                            </TextRun>
-                          </TextRuns>
-                          <Style />
-                        </Paragraph>
-                      </Paragraphs>
-                      <rd:DefaultName>Textbox22</rd:DefaultName>
-                      <Style />
-                    </Textbox>
+                    <rd:Selected>true</rd:Selected>
                   </CellContents>
                 </TablixCell>
               </TablixCells>
@@ -1257,299 +1203,12 @@ SELECT DISTINCT
                     </Textbox>
                   </CellContents>
                 </TablixCell>
-                <TablixCell>
-                  <CellContents>
-                    <Rectangle Name="RelatedReports1Container">
-                      <ReportItems>
-                        <Textbox Name="Bullet1TextBox2">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>•</Value>
-                                  <Style>
-                                    <FontSize>12pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                    <Color>Gray</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <Top>0.07875in</Top>
-                          <Left>0.0625in</Left>
-                          <Height>0.125in</Height>
-                          <Width>0.125in</Width>
-                          <Style />
-                        </Textbox>
-                        <Textbox Name="Bullet2TextBox2">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>•</Value>
-                                  <Style>
-                                    <FontSize>12pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                    <Color>Gray</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <Top>0.26875in</Top>
-                          <Left>0.0625in</Left>
-                          <Height>0.125in</Height>
-                          <Width>0.125in</Width>
-                          <ZIndex>1</ZIndex>
-                          <Style />
-                        </Textbox>
-                        <Textbox Name="RelatedLink1TextBox2">
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>Bug Status</Value>
-                                  <Style>
-                                    <FontFamily>tahoma</FontFamily>
-                                    <FontSize>8pt</FontSize>
-                                    <Color>#5791e4</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <ActionInfo>
-                            <Actions>
-                              <Action>
-                                <Drillthrough>
-                                  <ReportName>
-                                    =IIF(Parameters!IsRuntime.Value,
-                                    "../" + "Bugs" + "/"
-                                    + "Bug Status",
-                                    "Bug Status"
-                                    )
-                                  </ReportName>
-                                  <Parameters>
-                                    <Parameter Name="ExplicitProject">
-                                      <Value>=Parameters!ExplicitProject.Value</Value>
-                                      <Omit>=Parameters!IsRuntime.Value</Omit>
-                                    </Parameter>
-                                    <Parameter Name="AreaParam">
-                                      <Value>=Parameters!AreaParam.Value</Value>
-                                    </Parameter>
-                                    <Parameter Name="StartDateParam">
-                                      <Value>=Parameters!StartDateParam.Value</Value>
-                                    </Parameter>
-                                    <Parameter Name="EndDateParam">
-                                      <Value>=Parameters!EndDateParam.Value</Value>
-                                    </Parameter>
-                                    <Parameter Name="PriorityParam">
-                                      <Value>=Parameters!PriorityParam.Value</Value>
-                                    </Parameter>
-                                  </Parameters>
-                                </Drillthrough>
-                              </Action>
-                            </Actions>
-                          </ActionInfo>
-                          <Top>0.07875in</Top>
-                          <Left>0.1875in</Left>
-                          <Height>0.18in</Height>
-                          <Width>2in</Width>
-                          <ZIndex>2</ZIndex>
-                          <Style>
-                            <Border />
-                            <PaddingTop>1pt</PaddingTop>
-                          </Style>
-                        </Textbox>
-                        <Textbox Name="RelatedLink2TextBox2">
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>Status on All Iterations</Value>
-                                  <Style>
-                                    <FontFamily>tahoma</FontFamily>
-                                    <FontSize>8pt</FontSize>
-                                    <Color>#5791e4</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <ActionInfo>
-                            <Actions>
-                              <Action>
-                                <Drillthrough>
-                                  <ReportName>
-                                    =IIF(Parameters!IsRuntime.Value,
-                                    "../" + "Project Management" + "/"
-                                    + "Status on All Iterations",
-                                    "Status on All Iterations"
-                                    )
-                                  </ReportName>
-                                  <Parameters>
-                                    <Parameter Name="ExplicitProject">
-                                      <Value>=Parameters!ExplicitProject.Value</Value>
-                                      <Omit>=Parameters!IsRuntime.Value</Omit>
-                                    </Parameter>
-                                    <Parameter Name="AreaParam">
-                                      <Value>=Parameters!AreaParamSQL.Value</Value>
-                                    </Parameter>
-                                  </Parameters>
-                                </Drillthrough>
-                              </Action>
-                            </Actions>
-                          </ActionInfo>
-                          <Top>0.26875in</Top>
-                          <Left>0.1875in</Left>
-                          <Height>0.18in</Height>
-                          <Width>2in</Width>
-                          <ZIndex>3</ZIndex>
-                          <Style>
-                            <Border />
-                            <PaddingTop>1pt</PaddingTop>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                      <DataElementOutput>ContentsOnly</DataElementOutput>
-                      <ZIndex>1</ZIndex>
-                      <Style>
-                        <Border>
-                          <Color>LightGrey</Color>
-                          <Style>None</Style>
-                        </Border>
-                        <BottomBorder>
-                          <Style>Solid</Style>
-                        </BottomBorder>
-                        <LeftBorder>
-                          <Style>Solid</Style>
-                        </LeftBorder>
-                        <RightBorder>
-                          <Style>Solid</Style>
-                        </RightBorder>
-                      </Style>
-                    </Rectangle>
-                  </CellContents>
-                </TablixCell>
-                <TablixCell>
-                  <CellContents>
-                    <Rectangle Name="RelatedReports2Container">
-                      <ReportItems>
-                        <Textbox Name="Bullet3TextBox2">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>•</Value>
-                                  <Style>
-                                    <FontSize>12pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                    <Color>Gray</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <Top>0.07875in</Top>
-                          <Left>0.0625in</Left>
-                          <Height>0.125in</Height>
-                          <Width>0.125in</Width>
-                          <Style />
-                        </Textbox>
-                        <Textbox Name="RelatedLink3TextBox2">
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>Test Plan Progress</Value>
-                                  <Style>
-                                    <FontFamily>tahoma</FontFamily>
-                                    <FontSize>8pt</FontSize>
-                                    <Color>#5791e4</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <ActionInfo>
-                            <Actions>
-                              <Action>
-                                <Drillthrough>
-                                  <ReportName>
-                                    =IIF(Parameters!IsRuntime.Value,
-                                    "../" + "Tests" + "/"
-                                    + "Test Plan Progress",
-                                    "Test Plan Progress"
-                                    )
-                                  </ReportName>
-                                  <Parameters>
-                                    <Parameter Name="ProjectGuid">
-                                      <Value>=Parameters!ProjectGuid.Value</Value>
-                                      <Omit>=Parameters!IsRuntime.Value</Omit>
-                                    </Parameter>
-                                    <Parameter Name="AreaParam">
-                                      <Value>=Code.Wrap(Parameters!AreaParam.Value)</Value>
-                                    </Parameter>
-                                    <Parameter Name="StartDateParam">
-                                      <Value>=Parameters!StartDateParam.Value</Value>
-                                    </Parameter>
-                                    <Parameter Name="EndDateParam">
-                                      <Value>=Parameters!EndDateParam.Value</Value>
-                                    </Parameter>
-                                  </Parameters>
-                                </Drillthrough>
-                              </Action>
-                            </Actions>
-                          </ActionInfo>
-                          <Top>0.07875in</Top>
-                          <Left>0.1875in</Left>
-                          <Height>0.18in</Height>
-                          <Width>2in</Width>
-                          <ZIndex>1</ZIndex>
-                          <Style>
-                            <Border />
-                            <PaddingTop>1pt</PaddingTop>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                      <DataElementOutput>ContentsOnly</DataElementOutput>
-                      <ZIndex>5</ZIndex>
-                      <Style>
-                        <Border>
-                          <Color>LightGrey</Color>
-                          <Style>None</Style>
-                        </Border>
-                        <BottomBorder>
-                          <Style>Solid</Style>
-                        </BottomBorder>
-                      </Style>
-                    </Rectangle>
-                  </CellContents>
-                </TablixCell>
               </TablixCells>
             </TablixRow>
           </TablixRows>
         </TablixBody>
         <TablixColumnHierarchy>
           <TablixMembers>
-            <TablixMember />
-            <TablixMember />
             <TablixMember />
           </TablixMembers>
         </TablixColumnHierarchy>
@@ -1846,7 +1505,7 @@ SELECT DISTINCT
                           <ActionInfo>
                             <Actions>
                               <Action>
-                                <Hyperlink>http://go.microsoft.com/fwlink/?LinkId=145641</Hyperlink>
+                                <Hyperlink>https://go.microsoft.com/fwlink/?LinkId=145641</Hyperlink>
                               </Action>
                             </Actions>
                           </ActionInfo>

@@ -15,10 +15,40 @@
       </FIELD>
       <FIELD name="State" refname="System.State" type="String" reportable="dimension" />
       <FIELD name="Reason" refname="System.Reason" type="String" reportable="dimension" />
+      <FIELD name="State Change Date" refname="Microsoft.VSTS.Common.StateChangeDate" type="DateTime">
+        <WHENCHANGED field="System.State">
+          <SERVERDEFAULT from="clock" />
+        </WHENCHANGED>
+        <WHENNOTCHANGED field="System.State">
+          <READONLY />
+        </WHENNOTCHANGED>
+      </FIELD>
+      <FIELD name="Changed By" refname="System.ChangedBy" type="String" reportable="dimension" syncnamechanges="true">
+        <VALIDUSER />
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
       <FIELD name="Closed Date" refname="Microsoft.VSTS.Common.ClosedDate" type="DateTime" reportable="dimension">
         <WHENNOTCHANGED field="System.State">
           <READONLY />
         </WHENNOTCHANGED>
+      </FIELD>
+      <FIELD name="Closed By" refname="Microsoft.VSTS.Common.ClosedBy" type="String" syncnamechanges="true" reportable="dimension">
+        <WHENNOTCHANGED field="System.State">
+          <READONLY />
+        </WHENNOTCHANGED>
+        <ALLOWEXISTINGVALUE />
+        <VALIDUSER />
+      </FIELD>
+      <FIELD name="Activated Date" refname="Microsoft.VSTS.Common.ActivatedDate" type="DateTime" reportable="dimension">
+        <WHENNOTCHANGED field="System.State">
+          <READONLY />
+        </WHENNOTCHANGED>
+      </FIELD>
+      <FIELD name="Activated By" refname="Microsoft.VSTS.Common.ActivatedBy" type="String" syncnamechanges="true" reportable="dimension">
+        <WHENNOTCHANGED field="System.State">
+          <READONLY />
+        </WHENNOTCHANGED>
+        <ALLOWEXISTINGVALUE />
       </FIELD>
       <FIELD name="History" refname="System.History" type="History" />
       <FIELD name="Backlog Priority" refname="Microsoft.VSTS.Common.BacklogPriority" type="Double" reportable="detail" />
@@ -56,12 +86,32 @@
         </SUGGESTEDVALUES>
       </FIELD>
       <FIELD name="Description" refname="System.Description" type="HTML" />
+      <FIELD name="Resolved By" refname="Microsoft.VSTS.Common.ResolvedBy" type="String" syncnamechanges="true" reportable="dimension">
+        <WHENNOTCHANGED field="System.State">
+          <READONLY />
+        </WHENNOTCHANGED>
+        <ALLOWEXISTINGVALUE />
+      </FIELD>
+      <FIELD name="Resolved Date" refname="Microsoft.VSTS.Common.ResolvedDate" type="DateTime" reportable="dimension">
+        <WHENNOTCHANGED field="System.State">
+          <READONLY />
+        </WHENNOTCHANGED>
+      </FIELD>
     </FIELDS>
     <WORKFLOW>
       <STATES>
         <STATE value="New">
           <FIELDS>
             <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
+              <EMPTY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <EMPTY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
+              <EMPTY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
               <EMPTY />
             </FIELD>
           </FIELDS>
@@ -71,11 +121,23 @@
             <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
               <EMPTY />
             </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <EMPTY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
+              <EMPTY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
+              <EMPTY />
+            </FIELD>
           </FIELDS>
         </STATE>
         <STATE value="Committed">
           <FIELDS>
             <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
+              <EMPTY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
               <EMPTY />
             </FIELD>
           </FIELDS>
@@ -116,6 +178,10 @@
             <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
               <SERVERDEFAULT from="clock" />
             </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <COPY from="currentuser" />
+              <VALIDUSER />
+            </FIELD>
           </FIELDS>
         </TRANSITION>
         <TRANSITION from="Approved" to="Committed">
@@ -130,6 +196,10 @@
           <FIELDS>
             <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
               <SERVERDEFAULT from="clock" />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <COPY from="currentuser" />
+              <VALIDUSER />
             </FIELD>
           </FIELDS>
         </TRANSITION>
@@ -190,6 +260,10 @@
           <FIELDS>
             <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
               <SERVERDEFAULT from="clock" />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <COPY from="currentuser" />
+              <VALIDUSER />
             </FIELD>
           </FIELDS>
         </TRANSITION>
@@ -327,7 +401,7 @@
       </Layout>
       <WebLayout>
         <SystemControls>
-          <Control Type="FieldControl" FieldName="System.Title" EmptyText="Enter title" />
+          <Control Type="FieldControl" FieldName="System.Title" EmptyText="Enter title"/>
           <Control Label="Assi&amp;gned To" Type="FieldControl" FieldName="System.AssignedTo" />
           <Control Label="Stat&amp;e" Type="FieldControl" FieldName="System.State" />
           <Control Label="Reason" Type="FieldControl" FieldName="System.Reason" />
@@ -335,31 +409,33 @@
           <Control Label="Ite&amp;ration" Type="WorkItemClassificationControl" FieldName="System.IterationPath" />
           <Control Label="History" Type="WorkItemLogControl" FieldName="System.History" />
           <Control Label="Links" Type="LinksControl" Name="Links" />
-          <Control Label="Attachments" Type="AttachmentsControl" Name="Attachments" />
+          <Control Label="Attachments" Type="AttachmentsControl" Name="Attachments"/>
         </SystemControls>
-        <Page Label="Details" LayoutMode="FirstColumnWide">
+        <Page Label="Details">
           <Section>
             <Group Label="Description">
-              <Control Label="Description" Type="HtmlFieldControl" FieldName="System.Description" />
+              <Control Type="HtmlFieldControl" FieldName="System.Description" Label="Description" />
             </Group>
             <Group Label="Acceptance Criteria">
-              <Control Label="Acceptance Criteria" Type="HtmlFieldControl" FieldName="Microsoft.VSTS.Common.AcceptanceCriteria" />
+              <Control Type="HtmlFieldControl" FieldName="Microsoft.VSTS.Common.AcceptanceCriteria" Label="Acceptance Criteria" />
             </Group>
           </Section>
           <Section>
             <Group Label="Details">
-              <Control Label="Priority" Type="FieldControl" FieldName="Microsoft.VSTS.Common.Priority" />
-              <Control Label="Effort" Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.Effort" />
-              <Control Label="Business Value" Type="FieldControl" FieldName="Microsoft.VSTS.Common.BusinessValue" />
-              <Control Label="Value area" Type="FieldControl" FieldName="Microsoft.VSTS.Common.ValueArea" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Common.Priority" Label="Priority" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.Effort" Label="Effort" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Common.BusinessValue" Label="Business Value" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Common.ValueArea" Label="Value area" />
             </Group>
           </Section>
           <Section>
+            <Group Label="Deployment">
+              <Control Type="DeploymentsControl" Name="Deployments" />
+            </Group>
             <Group Label="Development">
               <Control Type="LinksControl" Name="Development">
-                <LinksControlOptions ViewMode="Dynamic" ZeroDataExperience="Development" ShowCallToAction="true">
-                  <ListViewOptions GroupLinks="false">
-                  </ListViewOptions>
+                <LinksControlOptions ViewMode="List" ZeroDataExperience="Development" ShowCallToAction="true">
+                  <ListViewOptions GroupLinks="false"></ListViewOptions>
                   <LinkFilters>
                     <ExternalLinkFilter Type="Build" />
                     <ExternalLinkFilter Type="Integrated in build" />
@@ -369,13 +445,15 @@
                     <ExternalLinkFilter Type="Fixed in Changeset" />
                     <ExternalLinkFilter Type="Source Code File" />
                     <ExternalLinkFilter Type="Found in build" />
+                    <ExternalLinkFilter Type="GitHub Pull Request" />
+                    <ExternalLinkFilter Type="GitHub Commit" />
                   </LinkFilters>
                 </LinksControlOptions>
               </Control>
             </Group>
             <Group Label="Related Work">
-              <Control Type="LinksControl" Name="Related Work">
-                <LinksControlOptions>
+              <Control Name="Related Work" Type="LinksControl">
+                <LinksControlOptions ViewMode="List">
                   <LinkFilters>
                     <WorkItemLinkFilter Type="System.LinkTypes.Duplicate-Reverse" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Hierarchy-Reverse" />
@@ -385,6 +463,7 @@
                     <WorkItemLinkFilter Type="System.LinkTypes.Duplicate-Forward" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Dependency" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Related" />
+                    <ExternalLinkFilter Type="GitHub Issue" />
                   </LinkFilters>
                   <Columns>
                     <Column Name="System.State" />

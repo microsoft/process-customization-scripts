@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>SELECT [System.Id], [System.WorkItemType], [System.Title], [Microsoft.VSTS.Common.BacklogPriority], [System.AssignedTo], [System.State], [Microsoft.VSTS.CMMI.Blocked]
+FROM WorkItems
+WHERE [System.TeamProject] = @project
+AND [System.IterationPath] UNDER '$$PROJECTNAME$$\Sprint 1'
+AND [System.WorkItemType] IN GROUP 'Microsoft.TaskCategory'
+AND [Microsoft.VSTS.CMMI.Blocked] = 'Yes'
+AND [System.State] &lt;&gt; 'Removed'
+ORDER BY [Microsoft.VSTS.Common.BacklogPriority], [System.Id]</Wiql>
+</WorkItemQuery>

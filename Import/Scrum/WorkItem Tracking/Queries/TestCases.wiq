@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>SELECT [System.Id], [System.WorkItemType], [System.Title], [System.State], [Microsoft.VSTS.Common.Priority]
+FROM WorkItems
+WHERE [System.TeamProject] = @project
+AND  [System.IterationPath] UNDER '$$PROJECTNAME$$\Sprint 1'
+AND  [System.WorkItemType] IN GROUP 'Microsoft.TestCaseCategory'
+ORDER BY [Microsoft.VSTS.Common.Priority], [System.Id]</Wiql>
+</WorkItemQuery>

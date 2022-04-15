@@ -62,43 +62,44 @@
       </Fields>
       <Query>
         <DataSourceName>TfsReportDS</DataSourceName>
-        <CommandText>CREATE TABLE #Results (
- BuildName NVARCHAR(64),
- BuildBK NVARCHAR(64),
- BuildSK INT,
- [DateTime] DATETIME,
- BuildStartTime DATETIME,
- BuildDefinitionName NVARCHAR(260) null,
- BuildStatusName NVARCHAR(256) null,
- BuildPlatformName NVARCHAR(64) null,
- BuildPlatformSK INT null,
- BuildFlavorName NVARCHAR(128) null,
- BuildFlavorSK INT null,
- BuildQualityName NVARCHAR(256) null,
- FailedCount INT,
- PassedCount INT,
- BlocksCovered INT,
- BlocksNotCovered INT,
- TotalChurn INT
-)
+        <CommandText>
+          CREATE TABLE #Results (
+          BuildName NVARCHAR(64),
+          BuildBK NVARCHAR(64),
+          BuildSK INT,
+          [DateTime] DATETIME,
+          BuildStartTime DATETIME,
+          BuildDefinitionName NVARCHAR(260) null,
+          BuildStatusName NVARCHAR(256) null,
+          BuildPlatformName NVARCHAR(64) null,
+          BuildPlatformSK INT null,
+          BuildFlavorName NVARCHAR(128) null,
+          BuildFlavorSK INT null,
+          BuildQualityName NVARCHAR(256) null,
+          FailedCount INT,
+          PassedCount INT,
+          BlocksCovered INT,
+          BlocksNotCovered INT,
+          TotalChurn INT
+          )
 
-CREATE CLUSTERED INDEX #IX_Results_BuildBK_BuildPlatformName_BuildFlavorName ON #Results (BuildBK, BuildPlatformName, BuildFlavorName)
+          CREATE CLUSTERED INDEX #IX_Results_BuildBK_BuildPlatformName_BuildFlavorName ON #Results (BuildBK, BuildPlatformName, BuildFlavorName)
 
--- Make sure we get everything for the end date, inclusive.
-SET @EndDateParam = DATEADD(dd, 1, @EndDateParam)
+          -- Make sure we get everything for the end date, inclusive.
+          SET @EndDateParam = DATEADD(dd, 1, @EndDateParam)
 
---
--- First get the set of builds for the project that are in the date range, and with the appropriate filters
--- applied.
---
-INSERT INTO #Results (BuildName, BuildBK, BuildSK, [DateTime], BuildStartTime, BuildDefinitionName, BuildStatusName, BuildPlatformName, BuildPlatformSK, BuildFlavorName, BuildFlavorSK, BuildQualityName)
-SELECT DISTINCT bd.BuildName, bd.BuildBK, db.BuildSK, bd.[DateTime], bd.BuildStartTime, bd.BuildDefinitionName, bd.BuildStatusName, dbp.BuildPlatformName, dbp.BuildPlatformSK, dbf.BuildFlavorName, dbf.BuildFlavorSK, BuildQualityName
-FROM BuildDetailsView bd
-     LEFT JOIN BuildProjectView pv ON pv.BuildBK = bd.BuildBK
-     JOIN DimBuild db on bd.BuildBK = db.BuildBK
-     LEFT JOIN DimBuildPlatform dbp on pv.BuildPlatformName = dbp.BuildPlatformName
-     LEFT JOIN DimBuildFlavor dbf on pv.BuildFlavorName = dbf.BuildFlavorName
-WHERE bd.[DateTime] &gt;= @StartDateParam and bd.[DateTime] &lt; @EndDateParam
+          --
+          -- First get the set of builds for the project that are in the date range, and with the appropriate filters
+          -- applied.
+          --
+          INSERT INTO #Results (BuildName, BuildBK, BuildSK, [DateTime], BuildStartTime, BuildDefinitionName, BuildStatusName, BuildPlatformName, BuildPlatformSK, BuildFlavorName, BuildFlavorSK, BuildQualityName)
+          SELECT DISTINCT bd.BuildName, bd.BuildBK, db.BuildSK, bd.[DateTime], bd.BuildStartTime, bd.BuildDefinitionName, bd.BuildStatusName, dbp.BuildPlatformName, dbp.BuildPlatformSK, dbf.BuildFlavorName, dbf.BuildFlavorSK, BuildQualityName
+          FROM BuildDetailsView bd
+          LEFT JOIN BuildProjectView pv ON pv.BuildBK = bd.BuildBK
+          JOIN DimBuild db on bd.BuildBK = db.BuildBK
+          LEFT JOIN DimBuildPlatform dbp on pv.BuildPlatformName = dbp.BuildPlatformName
+          LEFT JOIN DimBuildFlavor dbf on pv.BuildFlavorName = dbf.BuildFlavorName
+          WHERE bd.[DateTime] &gt;= @StartDateParam and bd.[DateTime] &lt; @EndDateParam
       AND bd.TeamProjectProjectNodeGUID = @ProjectGuid
       AND (bd.BuildDefinitionName IN (@BuildTypeParam) OR '*' IN (@BuildTypeParam))
       AND (bd.BuildStatusName IN (@ProgressParam) OR '*' IN (@ProgressParam))
@@ -1245,10 +1246,10 @@ ORDER BY BuildDefinitionName</CommandText>
                       <ChartSeriesHierarchy>
                         <ChartMembers>
                           <ChartMember>
-                            <Label>TestPass</Label>
+                            <Label />
                           </ChartMember>
                           <ChartMember>
-                            <Label>TestFail</Label>
+                            <Label />
                           </ChartMember>
                         </ChartMembers>
                       </ChartSeriesHierarchy>
@@ -1594,10 +1595,10 @@ ORDER BY BuildDefinitionName</CommandText>
                       <ChartSeriesHierarchy>
                         <ChartMembers>
                           <ChartMember>
-                            <Label>CodeCovered</Label>
+                            <Label />
                           </ChartMember>
                           <ChartMember>
-                            <Label>CodeNotCovered</Label>
+                            <Label />
                           </ChartMember>
                         </ChartMembers>
                       </ChartSeriesHierarchy>
@@ -1945,7 +1946,7 @@ ORDER BY BuildDefinitionName</CommandText>
                       <ChartSeriesHierarchy>
                         <ChartMembers>
                           <ChartMember>
-                            <Label>CodeChurn</Label>
+                            <Label />
                           </ChartMember>
                         </ChartMembers>
                       </ChartSeriesHierarchy>
@@ -2523,13 +2524,7 @@ ORDER BY BuildDefinitionName</CommandText>
         <TablixBody>
           <TablixColumns>
             <TablixColumn>
-              <Width>5.75in</Width>
-            </TablixColumn>
-            <TablixColumn>
-              <Width>2.25in</Width>
-            </TablixColumn>
-            <TablixColumn>
-              <Width>2.25in</Width>
+              <Width>10.24584in</Width>
             </TablixColumn>
           </TablixColumns>
           <TablixRows>
@@ -2558,73 +2553,10 @@ ORDER BY BuildDefinitionName</CommandText>
                         </Paragraph>
                       </Paragraphs>
                       <Style>
-                        <Border>
-                          <Color>LightGrey</Color>
-                          <Style>None</Style>
-                        </Border>
-                        <RightBorder>
-                          <Style>Solid</Style>
-                        </RightBorder>
+                        <Border />
                       </Style>
                     </Textbox>
-                  </CellContents>
-                </TablixCell>
-                <TablixCell>
-                  <CellContents>
-                    <Textbox Name="RelatedReportsTextBox">
-                      <CanGrow>true</CanGrow>
-                      <KeepTogether>true</KeepTogether>
-                      <Paragraphs>
-                        <Paragraph>
-                          <TextRuns>
-                            <TextRun>
-                              <Value>Related Reports</Value>
-                              <Style>
-                                <FontFamily>Arial</FontFamily>
-                                <FontSize>8pt</FontSize>
-                                <FontWeight>Bold</FontWeight>
-                                <Color>#333333</Color>
-                              </Style>
-                            </TextRun>
-                          </TextRuns>
-                          <Style />
-                        </Paragraph>
-                      </Paragraphs>
-                      <ZIndex>4</ZIndex>
-                      <Style>
-                        <Border>
-                          <Style>None</Style>
-                        </Border>
-                        <PaddingLeft>10pt</PaddingLeft>
-                        <PaddingTop>10pt</PaddingTop>
-                      </Style>
-                    </Textbox>
-                  </CellContents>
-                </TablixCell>
-                <TablixCell>
-                  <CellContents>
-                    <Textbox Name="Textbox22">
-                      <CanGrow>true</CanGrow>
-                      <KeepTogether>true</KeepTogether>
-                      <Paragraphs>
-                        <Paragraph>
-                          <TextRuns>
-                            <TextRun>
-                              <Value />
-                              <Style>
-                                <FontFamily>Arial</FontFamily>
-                                <FontSize>12pt</FontSize>
-                                <FontWeight>Bold</FontWeight>
-                                <Color>#444444</Color>
-                              </Style>
-                            </TextRun>
-                          </TextRuns>
-                          <Style />
-                        </Paragraph>
-                      </Paragraphs>
-                      <rd:DefaultName>Textbox22</rd:DefaultName>
-                      <Style />
-                    </Textbox>
+                    <rd:Selected>true</rd:Selected>
                   </CellContents>
                 </TablixCell>
               </TablixCells>
@@ -2668,236 +2600,12 @@ ORDER BY BuildDefinitionName</CommandText>
                     </Textbox>
                   </CellContents>
                 </TablixCell>
-                <TablixCell>
-                  <CellContents>
-                    <Rectangle Name="RelatedReports1Container">
-                      <ReportItems>
-                        <Textbox Name="Bullet1TextBox2">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>•</Value>
-                                  <Style>
-                                    <FontSize>12pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                    <Color>Gray</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <Top>0.06604in</Top>
-                          <Left>0.0625in</Left>
-                          <Height>0.125in</Height>
-                          <Width>0.125in</Width>
-                          <Style />
-                        </Textbox>
-                        <Textbox Name="RelatedLink1TextBox2">
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>Build Quality Indicators</Value>
-                                  <Style>
-                                    <FontFamily>tahoma</FontFamily>
-                                    <FontSize>8pt</FontSize>
-                                    <Color>#5791e4</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <ActionInfo>
-                            <Actions>
-                              <Action>
-                                <Drillthrough>
-                                  <ReportName>
-                                    =IIF(Parameters!IsRuntime.Value,
-                                    "../" + "Builds" + "/"
-                                    + "Build Quality Indicators",
-                                    "Build Quality Indicators"
-                                    )
-                                  </ReportName>
-                                  <Parameters>
-                                    <Parameter Name="ExplicitProject">
-                                      <Value>=Parameters!ExplicitProject.Value</Value>
-                                      <Omit>=Parameters!IsRuntime.Value</Omit>
-                                    </Parameter>
-                                    <Parameter Name="EndDateParam">
-                                      <Value>=Parameters!EndDateParam.Value</Value>
-                                    </Parameter>
-                                    <Parameter Name="PlatformParam">
-                                      <Value>=Code.WrapValue(Parameters!PlatformParam.Value(0), "[Build Platform].[Build Platform].[{0}]")</Value>
-                                      <Omit>=IIF(Parameters!PlatformParam.Count &gt; 1 OR Parameters!FlavorParam.Count &gt; 1 OR Parameters!BuildTypeParam.Count &gt; 1, True, False)</Omit>
-                                    </Parameter>
-                                    <Parameter Name="FlavorParam">
-                                      <Value>=Code.WrapValue(Parameters!FlavorParam.Value(0), "[Build Flavor].[Build Flavor].[{0}]")</Value>
-                                      <Omit>=IIF(Parameters!PlatformParam.Count &gt; 1 OR Parameters!FlavorParam.Count &gt; 1 OR Parameters!BuildTypeParam.Count &gt; 1, True, False)</Omit>
-                                    </Parameter>
-                                    <Parameter Name="BuildTypeParam">
-                                      <Value>
-                                        =IIF(Parameters!BuildTypeParam.Value(0) = "*",
-                                        "[Build].[Build Definition Name].[All]",
-                                        Code.WrapValue(Parameters!BuildTypeParam.Value(0), "[Build].[Build Definition Name].&amp;[{0}]")
-                                        )
-                                      </Value>
-                                      <Omit>=IIF(Parameters!PlatformParam.Count &gt; 1 OR Parameters!FlavorParam.Count &gt; 1 OR Parameters!BuildTypeParam.Count &gt; 1, True, False)</Omit>
-                                    </Parameter>
-                                  </Parameters>
-                                </Drillthrough>
-                              </Action>
-                            </Actions>
-                          </ActionInfo>
-                          <Top>0.06604in</Top>
-                          <Left>0.1875in</Left>
-                          <Height>0.18in</Height>
-                          <Width>2in</Width>
-                          <ZIndex>1</ZIndex>
-                          <Style>
-                            <Border />
-                            <PaddingTop>2pt</PaddingTop>
-                          </Style>
-                        </Textbox>
-                        <Textbox Name="Bullet2TextBox2">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>•</Value>
-                                  <Style>
-                                    <FontSize>12pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                    <Color>Gray</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <Top>0.25604in</Top>
-                          <Left>0.0625in</Left>
-                          <Height>0.125in</Height>
-                          <Width>0.125in</Width>
-                          <ZIndex>2</ZIndex>
-                          <Style />
-                        </Textbox>
-                        <Textbox Name="RelatedLink2TextBox2">
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>Build Success Over Time</Value>
-                                  <Style>
-                                    <FontFamily>tahoma</FontFamily>
-                                    <FontSize>8pt</FontSize>
-                                    <Color>#5791e4</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <ActionInfo>
-                            <Actions>
-                              <Action>
-                                <Drillthrough>
-                                  <ReportName>
-                                    =IIF(Parameters!IsRuntime.Value,
-                                    "../" + "Builds" + "/"
-                                    + "Build Success Over Time",
-                                    "Build Success Over Time"
-                                    )
-                                  </ReportName>
-                                  <Parameters>
-                                    <Parameter Name="ExplicitProject">
-                                      <Value>=Parameters!ExplicitProject.Value</Value>
-                                      <Omit>=Parameters!IsRuntime.Value</Omit>
-                                    </Parameter>
-                                    <Parameter Name="StartDateParam">
-                                      <Value>=Parameters!StartDateParam.Value</Value>
-                                    </Parameter>
-                                    <Parameter Name="EndDateParam">
-                                      <Value>=Parameters!EndDateParam.Value</Value>
-                                    </Parameter>
-                                    <Parameter Name="PlatformParam">
-                                      <Value>=Parameters!PlatformParam.Value</Value>
-                                    </Parameter>
-                                    <Parameter Name="FlavorParam">
-                                      <Value>=Parameters!FlavorParam.Value</Value>
-                                    </Parameter>
-                                    <Parameter Name="BuildTypeParam">
-                                      <Value>=Parameters!BuildTypeParam.Value</Value>
-                                    </Parameter>
-                                  </Parameters>
-                                </Drillthrough>
-                              </Action>
-                            </Actions>
-                          </ActionInfo>
-                          <Top>0.25604in</Top>
-                          <Left>0.1875in</Left>
-                          <Height>0.18in</Height>
-                          <Width>2in</Width>
-                          <ZIndex>3</ZIndex>
-                          <Style>
-                            <Border />
-                            <PaddingTop>2pt</PaddingTop>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                      <DataElementOutput>ContentsOnly</DataElementOutput>
-                      <ZIndex>1</ZIndex>
-                      <Style>
-                        <Border>
-                          <Color>LightGrey</Color>
-                          <Style>None</Style>
-                        </Border>
-                        <BottomBorder>
-                          <Style>Solid</Style>
-                        </BottomBorder>
-                        <LeftBorder>
-                          <Style>Solid</Style>
-                        </LeftBorder>
-                        <RightBorder>
-                          <Style>Solid</Style>
-                        </RightBorder>
-                      </Style>
-                    </Rectangle>
-                  </CellContents>
-                </TablixCell>
-                <TablixCell>
-                  <CellContents>
-                    <Rectangle Name="RelatedReports2Container">
-                      <DataElementOutput>ContentsOnly</DataElementOutput>
-                      <ZIndex>5</ZIndex>
-                      <Style>
-                        <Border>
-                          <Color>LightGrey</Color>
-                          <Style>None</Style>
-                        </Border>
-                        <BottomBorder>
-                          <Style>Solid</Style>
-                        </BottomBorder>
-                      </Style>
-                    </Rectangle>
-                  </CellContents>
-                </TablixCell>
               </TablixCells>
             </TablixRow>
           </TablixRows>
         </TablixBody>
         <TablixColumnHierarchy>
           <TablixMembers>
-            <TablixMember />
-            <TablixMember />
             <TablixMember />
           </TablixMembers>
         </TablixColumnHierarchy>
@@ -2911,7 +2619,7 @@ ORDER BY BuildDefinitionName</CommandText>
         <Top>0.125in</Top>
         <Left>0.25in</Left>
         <Height>0.92709in</Height>
-        <Width>10.25in</Width>
+        <Width>10.24584in</Width>
         <ZIndex>3</ZIndex>
         <Visibility>
           <Hidden>=Parameters!IsDashboard.Value</Hidden>
@@ -3087,7 +2795,7 @@ ORDER BY BuildDefinitionName</CommandText>
                           <ActionInfo>
                             <Actions>
                               <Action>
-                                <Hyperlink>http://go.microsoft.com/fwlink/?LinkId=145632</Hyperlink>
+                                <Hyperlink>https://go.microsoft.com/fwlink/?LinkId=145632</Hyperlink>
                               </Action>
                             </Actions>
                           </ActionInfo>
@@ -3781,7 +3489,7 @@ ORDER BY BuildDefinitionName</CommandText>
         </Style>
       </Tablix>
     </ReportItems>
-    <Height>5in</Height>
+    <Height>4.70833in</Height>
     <Style />
   </Body>
   <ReportParameters>
@@ -3897,7 +3605,6 @@ ORDER BY BuildDefinitionName</CommandText>
           <Value>100</Value>
         </Values>
       </DefaultValue>
-      <Prompt>MaxNumberOfBuildsToDisplay</Prompt>
       <Hidden>true</Hidden>
     </ReportParameter>
     <ReportParameter Name="BuildTypeParam">

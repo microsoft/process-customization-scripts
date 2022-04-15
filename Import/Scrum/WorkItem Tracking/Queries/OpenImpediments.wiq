@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo], [System.State], [Microsoft.VSTS.Common.Priority], [System.CreatedDate]
+FROM WorkItems
+WHERE [System.TeamProject] = @project
+and [System.IterationPath] under '$$PROJECTNAME$$\Sprint 1'
+and [System.WorkItemType] = 'Impediment'
+and [System.State] = 'Open'
+ORDER BY [Microsoft.VSTS.Common.Priority], [System.CreatedDate], [System.Id]</Wiql>
+</WorkItemQuery>

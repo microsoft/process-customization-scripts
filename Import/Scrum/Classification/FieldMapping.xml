@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<MSProject>
+  <Mappings>
+    <Mapping WorkItemTrackingFieldReferenceName="System.AreaPath" ProjectField="pjTaskOutlineCode9" />
+    <Mapping WorkItemTrackingFieldReferenceName="System.AssignedTo" ProjectField="pjTaskResourceNames" />
+    <Mapping WorkItemTrackingFieldReferenceName="System.Id" ProjectField="pjTaskText10" ProjectName="Work Item ID" />
+    <Mapping WorkItemTrackingFieldReferenceName="System.IterationPath" ProjectField="pjTaskOutlineCode10" ProjectName="Sprint" />
+    <Mapping WorkItemTrackingFieldReferenceName="System.Reason" ProjectField="pjTaskText14" />
+    <Mapping WorkItemTrackingFieldReferenceName="System.Rev" ProjectField="pjTaskText23" />
+    <Mapping WorkItemTrackingFieldReferenceName="System.State" ProjectField="pjTaskText13" ProjectName="State" />
+    <Mapping WorkItemTrackingFieldReferenceName="System.Title" ProjectField="pjTaskName" />
+    <Mapping WorkItemTrackingFieldReferenceName="System.WorkItemType" ProjectField="pjTaskText24" />
+    <Mapping WorkItemTrackingFieldReferenceName="Microsoft.VSTS.Common.BacklogPriority" ProjectField="pjTaskNumber1" ProjectName="Backlog Priority" />
+    <Mapping WorkItemTrackingFieldReferenceName="Microsoft.VSTS.Scheduling.RemainingWork" ProjectField="pjTaskRemainingWork" ProjectUnits="pjHour" IfSummaryRefreshOnly="true" />
+    <LinksField ProjectField="pjTaskText26" />
+    <SyncField ProjectField="pjTaskText25" />
+  </Mappings>
+</MSProject>

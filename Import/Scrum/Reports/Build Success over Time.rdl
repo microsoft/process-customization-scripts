@@ -409,7 +409,7 @@ ORDER BY BuildDefinitionName</CommandText>
           </Paragraph>
         </Paragraphs>
         <rd:DefaultName>textbox9</rd:DefaultName>
-        <Top>1.47042in</Top>
+        <Top>1.25167in</Top>
         <Left>0.25in</Left>
         <Height>0.375in</Height>
         <Width>7.375in</Width>
@@ -427,7 +427,7 @@ ORDER BY BuildDefinitionName</CommandText>
       </Textbox>
       <Rectangle Name="Rectangle14">
         <KeepTogether>true</KeepTogether>
-        <Top>1.47042in</Top>
+        <Top>1.25167in</Top>
         <Height>1.9875in</Height>
         <Width>0.23611in</Width>
         <ZIndex>1</ZIndex>
@@ -872,7 +872,7 @@ ORDER BY BuildDefinitionName</CommandText>
             <RepeatColumnHeaders>true</RepeatColumnHeaders>
             <RepeatRowHeaders>true</RepeatRowHeaders>
             <DataSetName>dsBuildSuccess</DataSetName>
-            <Top>1.0625in</Top>
+            <Top>1.28125in</Top>
             <Left>0.0125in</Left>
             <Height>0.55in</Height>
             <Width>3.3625in</Width>
@@ -1276,6 +1276,7 @@ ORDER BY BuildDefinitionName</CommandText>
               </Textbox>
             </ReportItems>
             <DataElementOutput>ContentsOnly</DataElementOutput>
+            <Top>0.21875in</Top>
             <Left>0.0125in</Left>
             <Height>0.71875in</Height>
             <Width>8in</Width>
@@ -1306,7 +1307,7 @@ ORDER BY BuildDefinitionName</CommandText>
               </Paragraph>
             </Paragraphs>
             <rd:DefaultName>textbox2</rd:DefaultName>
-            <Top>0.875in</Top>
+            <Top>1.09375in</Top>
             <Left>0.0125in</Left>
             <Height>0.1875in</Height>
             <Width>1.3125in</Width>
@@ -1338,7 +1339,7 @@ ORDER BY BuildDefinitionName</CommandText>
                 </Style>
               </Paragraph>
             </Paragraphs>
-            <Top>0.875in</Top>
+            <Top>1.09375in</Top>
             <Left>1.325in</Left>
             <Height>0.1875in</Height>
             <Width>0.875in</Width>
@@ -1379,7 +1380,7 @@ ORDER BY BuildDefinitionName</CommandText>
                 </Style>
               </Paragraph>
             </Paragraphs>
-            <Top>0.875in</Top>
+            <Top>1.09375in</Top>
             <Left>2.2in</Left>
             <Height>0.1875in</Height>
             <Width>0.875in</Width>
@@ -1393,7 +1394,7 @@ ORDER BY BuildDefinitionName</CommandText>
           </Textbox>
         </ReportItems>
         <KeepTogether>true</KeepTogether>
-        <Top>1.8732in</Top>
+        <Top>1.65445in</Top>
         <Left>0.25in</Left>
         <Height>1.6125in</Height>
         <Width>8.0125in</Width>
@@ -1408,13 +1409,7 @@ ORDER BY BuildDefinitionName</CommandText>
         <TablixBody>
           <TablixColumns>
             <TablixColumn>
-              <Width>5.75in</Width>
-            </TablixColumn>
-            <TablixColumn>
-              <Width>2.25in</Width>
-            </TablixColumn>
-            <TablixColumn>
-              <Width>2.25in</Width>
+              <Width>10.25in</Width>
             </TablixColumn>
           </TablixColumns>
           <TablixRows>
@@ -1443,75 +1438,15 @@ ORDER BY BuildDefinitionName</CommandText>
                         </Paragraph>
                       </Paragraphs>
                       <Style>
-                        <Border>
-                          <Color>LightGrey</Color>
-                          <Style>None</Style>
-                        </Border>
-                        <RightBorder>
-                          <Style>Solid</Style>
-                        </RightBorder>
+                        <Border />
                       </Style>
-                    </Textbox>
-                  </CellContents>
-                </TablixCell>
-                <TablixCell>
-                  <CellContents>
-                    <Textbox Name="RelatedReportsTextBox">
-                      <CanGrow>true</CanGrow>
-                      <KeepTogether>true</KeepTogether>
-                      <Paragraphs>
-                        <Paragraph>
-                          <TextRuns>
-                            <TextRun>
-                              <Value>Related Reports</Value>
-                              <Style>
-                                <FontFamily>Arial</FontFamily>
-                                <FontSize>8pt</FontSize>
-                                <FontWeight>Bold</FontWeight>
-                                <Color>#333333</Color>
-                              </Style>
-                            </TextRun>
-                          </TextRuns>
-                          <Style />
-                        </Paragraph>
-                      </Paragraphs>
-                      <ZIndex>4</ZIndex>
-                      <Style>
-                        <PaddingLeft>10pt</PaddingLeft>
-                        <PaddingTop>10pt</PaddingTop>
-                      </Style>
-                    </Textbox>
-                  </CellContents>
-                </TablixCell>
-                <TablixCell>
-                  <CellContents>
-                    <Textbox Name="Textbox201">
-                      <CanGrow>true</CanGrow>
-                      <KeepTogether>true</KeepTogether>
-                      <Paragraphs>
-                        <Paragraph>
-                          <TextRuns>
-                            <TextRun>
-                              <Value />
-                              <Style>
-                                <FontFamily>Arial</FontFamily>
-                                <FontSize>12pt</FontSize>
-                                <FontWeight>Bold</FontWeight>
-                                <Color>#444444</Color>
-                              </Style>
-                            </TextRun>
-                          </TextRuns>
-                          <Style />
-                        </Paragraph>
-                      </Paragraphs>
-                      <Style />
                     </Textbox>
                   </CellContents>
                 </TablixCell>
               </TablixCells>
             </TablixRow>
             <TablixRow>
-              <Height>0.88542in</Height>
+              <Height>0.66667in</Height>
               <TablixCells>
                 <TablixCell>
                   <CellContents>
@@ -1549,230 +1484,12 @@ ORDER BY BuildDefinitionName</CommandText>
                     </Textbox>
                   </CellContents>
                 </TablixCell>
-                <TablixCell>
-                  <CellContents>
-                    <Rectangle Name="RelatedReports1Container">
-                      <ReportItems>
-                        <Textbox Name="Bullet1TextBox2">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>•</Value>
-                                  <Style>
-                                    <FontSize>12pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                    <Color>Gray</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <Top>0.0625in</Top>
-                          <Left>0.0375in</Left>
-                          <Height>0.125in</Height>
-                          <Width>0.125in</Width>
-                          <Style />
-                        </Textbox>
-                        <Textbox Name="Bullet2TextBox2">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>•</Value>
-                                  <Style>
-                                    <FontSize>12pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                    <Color>Gray</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <Top>0.255in</Top>
-                          <Left>0.0375in</Left>
-                          <Height>0.125in</Height>
-                          <Width>0.125in</Width>
-                          <ZIndex>1</ZIndex>
-                          <Style />
-                        </Textbox>
-                        <Textbox Name="RelatedLink2TextBox2">
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>Build Summary</Value>
-                                  <Style>
-                                    <FontFamily>tahoma</FontFamily>
-                                    <FontSize>8pt</FontSize>
-                                    <Color>#5791e4</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <ActionInfo>
-                            <Actions>
-                              <Action>
-                                <Drillthrough>
-                                  <ReportName>
-                                    =IIF(Parameters!IsRuntime.Value,
-                                    "../" + "Builds" + "/"
-                                    + "Build Summary",
-                                    "Build Summary"
-                                    )
-                                  </ReportName>
-                                  <Parameters>
-                                    <Parameter Name="ExplicitProject">
-                                      <Value>=Parameters!ExplicitProject.Value</Value>
-                                      <Omit>=Parameters!IsRuntime.Value</Omit>
-                                    </Parameter>
-                                    <Parameter Name="StartDateParam">
-                                      <Value>=Parameters!StartDateParam.Value</Value>
-                                    </Parameter>
-                                    <Parameter Name="EndDateParam">
-                                      <Value>=Parameters!EndDateParam.Value</Value>
-                                    </Parameter>
-                                    <Parameter Name="PlatformParam">
-                                      <Value>=Parameters!PlatformParam.Value</Value>
-                                    </Parameter>
-                                    <Parameter Name="FlavorParam">
-                                      <Value>=Parameters!FlavorParam.Value</Value>
-                                    </Parameter>
-                                    <Parameter Name="BuildTypeParam">
-                                      <Value>=Parameters!BuildTypeParam.Value</Value>
-                                    </Parameter>
-                                  </Parameters>
-                                </Drillthrough>
-                              </Action>
-                            </Actions>
-                          </ActionInfo>
-                          <Top>0.24771in</Top>
-                          <Left>0.1875in</Left>
-                          <Height>0.18in</Height>
-                          <Width>2in</Width>
-                          <ZIndex>2</ZIndex>
-                          <Style>
-                            <Border />
-                            <PaddingTop>2pt</PaddingTop>
-                          </Style>
-                        </Textbox>
-                        <Textbox Name="RelatedLink1TextBox2">
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>Build Quality Indicators</Value>
-                                  <Style>
-                                    <FontFamily>tahoma</FontFamily>
-                                    <FontSize>8pt</FontSize>
-                                    <Color>#5791e4</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <ActionInfo>
-                            <Actions>
-                              <Action>
-                                <Drillthrough>
-                                  <ReportName>
-                                    =IIF(Parameters!IsRuntime.Value,
-                                    "../" + "Builds" + "/"
-                                    + "Build Quality Indicators",
-                                    "Build Quality Indicators"
-                                    )
-                                  </ReportName>
-                                  <Parameters>
-                                    <Parameter Name="ExplicitProject">
-                                      <Value>=Parameters!ExplicitProject.Value</Value>
-                                      <Omit>=Parameters!IsRuntime.Value</Omit>
-                                    </Parameter>
-                                    <Parameter Name="EndDateParam">
-                                      <Value>=Parameters!EndDateParam.Value</Value>
-                                    </Parameter>
-                                    <Parameter Name="PlatformParam">
-                                      <Value>=Code.SqlToMdx(Parameters!PlatformParam.Value, "[Build Platform].[Build Platform].[{0}]")</Value>
-                                    </Parameter>
-                                    <Parameter Name="FlavorParam">
-                                      <Value>=Code.SqlToMdx(Parameters!FlavorParam.Value, "[Build Flavor].[Build Flavor].[{0}]")</Value>
-                                    </Parameter>
-                                    <Parameter Name="BuildTypeParam">
-                                      <Value>
-                                        =IIF(Parameters!BuildTypeParam.Count &gt; 0 AND Parameters!BuildTypeParam.Value(0) = "*",
-                                        Code.SqlToMdx(Parameters!BuildTypeParam.Value, "[Build].[Build Definition Name].[All]"),
-                                        Code.SqlToMdx(Parameters!BuildTypeParam.Value, "[Build].[Build Definition Name].&amp;[{0}]")
-                                        )
-                                      </Value>
-                                    </Parameter>
-                                  </Parameters>
-                                </Drillthrough>
-                              </Action>
-                            </Actions>
-                          </ActionInfo>
-                          <Top>0.05382in</Top>
-                          <Left>0.1875in</Left>
-                          <Height>0.18in</Height>
-                          <Width>2in</Width>
-                          <ZIndex>3</ZIndex>
-                          <Style>
-                            <Border />
-                            <PaddingTop>2pt</PaddingTop>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                      <DataElementOutput>ContentsOnly</DataElementOutput>
-                      <ZIndex>1</ZIndex>
-                      <Style>
-                        <Border>
-                          <Color>LightGrey</Color>
-                          <Style>None</Style>
-                        </Border>
-                        <BottomBorder>
-                          <Style>Solid</Style>
-                        </BottomBorder>
-                        <LeftBorder>
-                          <Style>Solid</Style>
-                        </LeftBorder>
-                      </Style>
-                    </Rectangle>
-                  </CellContents>
-                </TablixCell>
-                <TablixCell>
-                  <CellContents>
-                    <Rectangle Name="RelatedReports2Container">
-                      <DataElementOutput>ContentsOnly</DataElementOutput>
-                      <ZIndex>5</ZIndex>
-                      <Style>
-                        <Border>
-                          <Color>LightGrey</Color>
-                          <Style>None</Style>
-                        </Border>
-                        <BottomBorder>
-                          <Style>Solid</Style>
-                        </BottomBorder>
-                      </Style>
-                    </Rectangle>
-                  </CellContents>
-                </TablixCell>
               </TablixCells>
             </TablixRow>
           </TablixRows>
         </TablixBody>
         <TablixColumnHierarchy>
           <TablixMembers>
-            <TablixMember />
-            <TablixMember />
             <TablixMember />
           </TablixMembers>
         </TablixColumnHierarchy>
@@ -1785,7 +1502,7 @@ ORDER BY BuildDefinitionName</CommandText>
         <DataSetName>dsProjectGuid</DataSetName>
         <Top>0.125in</Top>
         <Left>0.25in</Left>
-        <Height>1.13542in</Height>
+        <Height>0.91667in</Height>
         <Width>10.25in</Width>
         <ZIndex>3</ZIndex>
         <Visibility>
@@ -1939,7 +1656,7 @@ ORDER BY BuildDefinitionName</CommandText>
                           <ActionInfo>
                             <Actions>
                               <Action>
-                                <Hyperlink>http://go.microsoft.com/fwlink/?LinkId=145631</Hyperlink>
+                                <Hyperlink>https://go.microsoft.com/fwlink/?LinkId=145631</Hyperlink>
                               </Action>
                             </Actions>
                           </ActionInfo>
@@ -2498,7 +2215,7 @@ ORDER BY BuildDefinitionName</CommandText>
           </TablixMembers>
         </TablixRowHierarchy>
         <DataSetName>dsProjectGuid</DataSetName>
-        <Top>3.55514in</Top>
+        <Top>3.33639in</Top>
         <Left>0.25in</Left>
         <Height>1.25in</Height>
         <Width>10.25in</Width>
@@ -2513,7 +2230,7 @@ ORDER BY BuildDefinitionName</CommandText>
         </Style>
       </Tablix>
     </ReportItems>
-    <Height>5.1075in</Height>
+    <Height>4.88875in</Height>
     <Style />
   </Body>
   <ReportParameters>

@@ -3,16 +3,16 @@
   <task id="BuildTask" name="Add Build Permissions" plugin="Microsoft.ProjectCreationWizard.Build" completionMessage="Build tasks completed.">
     <dependencies />
     <taskXml>
-        <!-- Project-level groups -->
-      <Permission allow="ViewBuildDefinition, ViewBuilds" identity="[$$PROJECTNAME$$]\Readers" />
-      <Permission allow="ViewBuildDefinition, QueueBuilds, ViewBuilds, EditBuildQuality" identity="[$$PROJECTNAME$$]\Contributors" />
-      <Permission allow="ViewBuildDefinition, EditBuildDefinition, DeleteBuildDefinition, QueueBuilds, ManageBuildQueue, StopBuilds, ViewBuilds, EditBuildQuality, RetainIndefinitely, DeleteBuilds, ManageBuildQualities, DestroyBuilds, AdministerBuildPermissions" identity="[$$PROJECTNAME$$]\Build Administrators" />
-      <Permission allow="ViewBuildDefinition, EditBuildDefinition, DeleteBuildDefinition, QueueBuilds, ManageBuildQueue, StopBuilds, ViewBuilds, EditBuildQuality, RetainIndefinitely, DeleteBuilds, ManageBuildQualities, DestroyBuilds, AdministerBuildPermissions" identity="[$$PROJECTNAME$$]\$$PROJECTADMINGROUP$$" />
-
+      <!-- Project-level groups -->
+      <Permission allow="ViewBuilds, ViewBuildDefinition" identity="[$$PROJECTNAME$$]\Readers" />
+      <Permission allow="EditBuildQuality, ViewBuilds, QueueBuilds, ViewBuildDefinition, DeleteBuildDefinition, DeleteBuilds, DestroyBuilds, EditBuildDefinition, RetainIndefinitely, StopBuilds, UpdateBuildInformation" identity="[$$PROJECTNAME$$]\Contributors" />
+      <Permission allow="DeleteBuilds, DestroyBuilds, EditBuildQuality, ManageBuildQualities, RetainIndefinitely, ViewBuilds, ManageBuildQueue, QueueBuilds, StopBuilds, DeleteBuildDefinition, EditBuildDefinition, ViewBuildDefinition, AdministerBuildPermissions" identity="[$$PROJECTNAME$$]\Build Administrators" />
+      <Permission allow="DeleteBuilds, DestroyBuilds, EditBuildQuality, ManageBuildQualities, RetainIndefinitely, ViewBuilds, ManageBuildQueue, QueueBuilds, StopBuilds, DeleteBuildDefinition, EditBuildDefinition, ViewBuildDefinition, AdministerBuildPermissions" identity="[$$PROJECTNAME$$]\$$PROJECTADMINGROUP$$" />
+      
       <!-- Collection-level groups -->
       <Permission allow="EditBuildQuality, ManageBuildQueue, OverrideBuildCheckInValidation, QueueBuilds, UpdateBuildInformation, ViewBuildDefinition, ViewBuilds" identity="$$PROJECTCOLLECTIONBUILDSERVICESGROUP$$" />
       <Permission allow="ViewBuildDefinition, EditBuildDefinition, DeleteBuildDefinition, QueueBuilds, ManageBuildQueue, StopBuilds, ViewBuilds, EditBuildQuality, RetainIndefinitely, DeleteBuilds, ManageBuildQualities, DestroyBuilds, AdministerBuildPermissions" identity="$$PROJECTCOLLECTIONBUILDADMINSGROUP$$" />
-      <Permission allow="ViewBuildDefinition, EditBuildDefinition, DeleteBuildDefinition, QueueBuilds, ManageBuildQueue, StopBuilds, ViewBuilds, EditBuildQuality, RetainIndefinitely, DeleteBuilds, ManageBuildQualities, DestroyBuilds, AdministerBuildPermissions, OverrideBuildCheckInValidation" identity="$$PROJECTCOLLECTIONADMINGROUP$$" />
+      <Permission allow="DeleteBuilds, DestroyBuilds, EditBuildQuality, ManageBuildQualities, RetainIndefinitely, ViewBuilds, ManageBuildQueue, QueueBuilds, StopBuilds, DeleteBuildDefinition, EditBuildDefinition, ViewBuildDefinition, AdministerBuildPermissions, OverrideBuildCheckInValidation" identity="$$PROJECTCOLLECTIONADMINGROUP$$" />
     </taskXml>
   </task>
 </tasks>

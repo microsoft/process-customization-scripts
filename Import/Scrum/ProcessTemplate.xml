@@ -3,7 +3,7 @@
   <metadata>
     <name>Scrum</name>
     <description>This template is for teams who follow the Scrum framework.</description>
-    <version type="6B724908-EF14-45CF-84F8-768B5384DA45" major="16" minor="1" />
+    <version type="6B724908-EF14-45CF-84F8-768B5384DA45" major="18" minor="0" />
     <plugins>
       <plugin name="Microsoft.ProjectCreationWizard.Classification" wizardPage="false" />
       <plugin name="Microsoft.ProjectCreationWizard.Reporting" wizardPage="false" />
@@ -17,7 +17,8 @@
   </metadata>
   <groups>
     <group id="Classification" description="Structure definition for the project." completionMessage="Project Structure uploaded.">
-      <dependencies></dependencies>
+      <dependencies>
+      </dependencies>
       <taskList filename="Classification\Classification.xml" />
     </group>
     <group id="Groups" description="Create Groups and assign Permissions." completionMessage="Groups created and Permissions assigned.">

@@ -162,11 +162,13 @@ SELECT
 						//
 						CrossJoin(
 							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							StrToMember("[Work Item].[System_IsDeleted].[All]"),
 							[Test Case].[Area Hierarchy].[All]
 						),
 						NonEmpty(
 							CrossJoin(
 								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 								[Test Case].[Area Hierarchy].[Area0]
 							),
 							[Measures].[EmptyOrZeroPointCountTrend]
@@ -226,11 +228,13 @@ SELECT
 						//
 						CrossJoin(
 							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							StrToMember("[Work Item].[System_IsDeleted].[All]"),
 							[Test Case].[Area Hierarchy].[All]
 						),
 						NonEmpty(
 							CrossJoin(
 								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 								[Test Case].[Area Hierarchy].[Area0]
 							),
 							[Measures].[EmptyOrZeroPointCountTrend]
@@ -1617,13 +1621,7 @@ ELSE
         <TablixBody>
           <TablixColumns>
             <TablixColumn>
-              <Width>3in</Width>
-            </TablixColumn>
-            <TablixColumn>
-              <Width>2.25in</Width>
-            </TablixColumn>
-            <TablixColumn>
-              <Width>2.25in</Width>
+              <Width>7.5in</Width>
             </TablixColumn>
           </TablixColumns>
           <TablixRows>
@@ -1652,69 +1650,8 @@ ELSE
                         </Paragraph>
                       </Paragraphs>
                       <Style>
-                        <Border>
-                          <Color>LightGrey</Color>
-                          <Style>None</Style>
-                        </Border>
-                        <RightBorder>
-                          <Style>Solid</Style>
-                        </RightBorder>
+                        <Border />
                       </Style>
-                    </Textbox>
-                  </CellContents>
-                </TablixCell>
-                <TablixCell>
-                  <CellContents>
-                    <Textbox Name="RelatedReportsTextBox">
-                      <CanGrow>true</CanGrow>
-                      <KeepTogether>true</KeepTogether>
-                      <Paragraphs>
-                        <Paragraph>
-                          <TextRuns>
-                            <TextRun>
-                              <Value>Related Reports</Value>
-                              <Style>
-                                <FontFamily>Arial</FontFamily>
-                                <FontSize>8pt</FontSize>
-                                <FontWeight>Bold</FontWeight>
-                                <Color>#333333</Color>
-                              </Style>
-                            </TextRun>
-                          </TextRuns>
-                          <Style />
-                        </Paragraph>
-                      </Paragraphs>
-                      <ZIndex>4</ZIndex>
-                      <Style>
-                        <PaddingLeft>10pt</PaddingLeft>
-                        <PaddingTop>10pt</PaddingTop>
-                      </Style>
-                    </Textbox>
-                  </CellContents>
-                </TablixCell>
-                <TablixCell>
-                  <CellContents>
-                    <Textbox Name="Textbox22">
-                      <CanGrow>true</CanGrow>
-                      <KeepTogether>true</KeepTogether>
-                      <Paragraphs>
-                        <Paragraph>
-                          <TextRuns>
-                            <TextRun>
-                              <Value />
-                              <Style>
-                                <FontFamily>Arial</FontFamily>
-                                <FontSize>12pt</FontSize>
-                                <FontWeight>Bold</FontWeight>
-                                <Color>#444444</Color>
-                              </Style>
-                            </TextRun>
-                          </TextRuns>
-                          <Style />
-                        </Paragraph>
-                      </Paragraphs>
-                      <rd:DefaultName>Textbox22</rd:DefaultName>
-                      <Style />
                     </Textbox>
                   </CellContents>
                 </TablixCell>
@@ -1759,299 +1696,12 @@ ELSE
                     </Textbox>
                   </CellContents>
                 </TablixCell>
-                <TablixCell>
-                  <CellContents>
-                    <Rectangle Name="RelatedReports1Container">
-                      <ReportItems>
-                        <Textbox Name="Bullet1TextBox2">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>•</Value>
-                                  <Style>
-                                    <FontSize>12pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                    <Color>Gray</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <Top>0.065in</Top>
-                          <Left>0.055in</Left>
-                          <Height>0.125in</Height>
-                          <Width>0.125in</Width>
-                          <Style />
-                        </Textbox>
-                        <Textbox Name="RelatedLink1TextBox2">
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>Bug Status</Value>
-                                  <Style>
-                                    <FontFamily>tahoma</FontFamily>
-                                    <FontSize>8pt</FontSize>
-                                    <Color>#5791e4</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <ActionInfo>
-                            <Actions>
-                              <Action>
-                                <Drillthrough>
-                                  <ReportName>
-                                    =IIF(Parameters!IsRuntime.Value,
-                                    "../" + "Bugs" + "/"
-                                    + "Bug Status",
-                                    "Bug Status"
-                                    )
-                                  </ReportName>
-                                  <Parameters>
-                                    <Parameter Name="ExplicitProject">
-                                      <Value>=Parameters!ExplicitProject.Value</Value>
-                                      <Omit>=Parameters!IsRuntime.Value</Omit>
-                                    </Parameter>
-                                    <Parameter Name="IterationParam">
-                                      <Value>=Code.Wrap(Parameters!IterationParam.Value)</Value>
-                                    </Parameter>
-                                    <Parameter Name="AreaParam">
-                                      <Value>=Code.Wrap(Parameters!AreaParam.Value)</Value>
-                                    </Parameter>
-                                    <Parameter Name="StartDateParam">
-                                      <Value>=Parameters!StartDateParam.Value</Value>
-                                    </Parameter>
-                                    <Parameter Name="EndDateParam">
-                                      <Value>=Parameters!EndDateParam.Value</Value>
-                                    </Parameter>
-                                  </Parameters>
-                                </Drillthrough>
-                              </Action>
-                            </Actions>
-                          </ActionInfo>
-                          <Top>0.065in</Top>
-                          <Left>0.18in</Left>
-                          <Height>0.18in</Height>
-                          <Width>2in</Width>
-                          <ZIndex>1</ZIndex>
-                          <Style>
-                            <Border />
-                            <PaddingTop>1pt</PaddingTop>
-                          </Style>
-                        </Textbox>
-                        <Textbox Name="Bullet2TextBox2">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>•</Value>
-                                  <Style>
-                                    <FontSize>12pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                    <Color>Gray</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <Top>0.255in</Top>
-                          <Left>0.055in</Left>
-                          <Height>0.125in</Height>
-                          <Width>0.125in</Width>
-                          <ZIndex>2</ZIndex>
-                          <Style />
-                        </Textbox>
-                        <Textbox Name="RelatedLink2TextBox2">
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>Status on All Iterations</Value>
-                                  <Style>
-                                    <FontFamily>tahoma</FontFamily>
-                                    <FontSize>8pt</FontSize>
-                                    <Color>#5791e4</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <ActionInfo>
-                            <Actions>
-                              <Action>
-                                <Drillthrough>
-                                  <ReportName>
-                                    =IIF(Parameters!IsRuntime.Value,
-                                    "../" + "Project Management" + "/"
-                                    + "Status on All Iterations",
-                                    "Status on All Iterations"
-                                    )
-                                  </ReportName>
-                                  <Parameters>
-                                    <Parameter Name="ExplicitProject">
-                                      <Value>=Parameters!ExplicitProject.Value</Value>
-                                      <Omit>=Parameters!IsRuntime.Value</Omit>
-                                    </Parameter>
-                                    <Parameter Name="AreaParam">
-                                      <Value>=Parameters!AreaParamSQL.Value</Value>
-                                    </Parameter>
-                                  </Parameters>
-                                </Drillthrough>
-                              </Action>
-                            </Actions>
-                          </ActionInfo>
-                          <Top>0.255in</Top>
-                          <Left>0.18in</Left>
-                          <Height>0.18in</Height>
-                          <Width>2in</Width>
-                          <ZIndex>3</ZIndex>
-                          <Style>
-                            <Border />
-                            <PaddingTop>1pt</PaddingTop>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                      <DataElementOutput>ContentsOnly</DataElementOutput>
-                      <ZIndex>1</ZIndex>
-                      <Style>
-                        <Border>
-                          <Color>LightGrey</Color>
-                          <Style>None</Style>
-                        </Border>
-                        <BottomBorder>
-                          <Style>Solid</Style>
-                        </BottomBorder>
-                        <LeftBorder>
-                          <Style>Solid</Style>
-                        </LeftBorder>
-                        <RightBorder>
-                          <Style>Solid</Style>
-                        </RightBorder>
-                      </Style>
-                    </Rectangle>
-                  </CellContents>
-                </TablixCell>
-                <TablixCell>
-                  <CellContents>
-                    <Rectangle Name="RelatedReports2Container">
-                      <ReportItems>
-                        <Textbox Name="Bullet3TextBox2">
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>•</Value>
-                                  <Style>
-                                    <FontSize>12pt</FontSize>
-                                    <FontWeight>Bold</FontWeight>
-                                    <Color>Gray</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <Top>0.065in</Top>
-                          <Left>0.055in</Left>
-                          <Height>0.125in</Height>
-                          <Width>0.125in</Width>
-                          <Style />
-                        </Textbox>
-                        <Textbox Name="RelatedLink3TextBox2">
-                          <CanGrow>true</CanGrow>
-                          <KeepTogether>true</KeepTogether>
-                          <Paragraphs>
-                            <Paragraph>
-                              <TextRuns>
-                                <TextRun>
-                                  <Value>Test Case Readiness</Value>
-                                  <Style>
-                                    <FontFamily>tahoma</FontFamily>
-                                    <FontSize>8pt</FontSize>
-                                    <Color>#5791e4</Color>
-                                  </Style>
-                                </TextRun>
-                              </TextRuns>
-                              <Style />
-                            </Paragraph>
-                          </Paragraphs>
-                          <ActionInfo>
-                            <Actions>
-                              <Action>
-                                <Drillthrough>
-                                  <ReportName>
-                                    =IIF(Parameters!IsRuntime.Value,
-                                    "../" + "Tests" + "/"
-                                    + "Test Case Readiness",
-                                    "Test Case Readiness"
-                                    )
-                                  </ReportName>
-                                  <Parameters>
-                                    <Parameter Name="ExplicitProject">
-                                      <Value>=Parameters!ExplicitProject.Value</Value>
-                                      <Omit>=Parameters!IsRuntime.Value</Omit>
-                                    </Parameter>
-                                    <Parameter Name="AreaParam">
-                                      <Value>=Code.Wrap(Parameters!AreaParam.Value)</Value>
-                                    </Parameter>
-                                    <Parameter Name="StartDateParam">
-                                      <Value>=Parameters!StartDateParam.Value</Value>
-                                    </Parameter>
-                                    <Parameter Name="EndDateParam">
-                                      <Value>=Parameters!EndDateParam.Value</Value>
-                                    </Parameter>
-                                  </Parameters>
-                                </Drillthrough>
-                              </Action>
-                            </Actions>
-                          </ActionInfo>
-                          <Top>0.065in</Top>
-                          <Left>0.18in</Left>
-                          <Height>0.18in</Height>
-                          <Width>2in</Width>
-                          <ZIndex>1</ZIndex>
-                          <Style>
-                            <Border />
-                            <PaddingTop>1pt</PaddingTop>
-                          </Style>
-                        </Textbox>
-                      </ReportItems>
-                      <DataElementOutput>ContentsOnly</DataElementOutput>
-                      <ZIndex>5</ZIndex>
-                      <Style>
-                        <Border>
-                          <Color>LightGrey</Color>
-                          <Style>None</Style>
-                        </Border>
-                        <BottomBorder>
-                          <Style>Solid</Style>
-                        </BottomBorder>
-                      </Style>
-                    </Rectangle>
-                  </CellContents>
-                </TablixCell>
               </TablixCells>
             </TablixRow>
           </TablixRows>
         </TablixBody>
         <TablixColumnHierarchy>
           <TablixMembers>
-            <TablixMember />
-            <TablixMember />
             <TablixMember />
           </TablixMembers>
         </TablixColumnHierarchy>
@@ -2450,7 +2100,7 @@ ELSE
                           <ActionInfo>
                             <Actions>
                               <Action>
-                                <Hyperlink>http://go.microsoft.com/fwlink/?LinkId=145643</Hyperlink>
+                                <Hyperlink>https://go.microsoft.com/fwlink/?LinkId=145643</Hyperlink>
                               </Action>
                             </Actions>
                           </ActionInfo>
@@ -3015,7 +2665,7 @@ ELSE
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>/TfsReports/DefaultCollection/Agile01</Value>
+          <Value>/TfsReports/Collection0/ProcessTestProjectAgile0</Value>
         </Values>
       </DefaultValue>
       <AllowBlank>true</AllowBlank>
