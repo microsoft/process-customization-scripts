@@ -66,6 +66,7 @@ FROM
 SELECT
 	CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToMember("[Work Item].[System_WorkItemType].[" + @BugName + "]"),
 			StrToSet(@AreaParam),
 			StrToSet(@IterationParam),
@@ -123,10 +124,7 @@ SELECT
 {
 	CrossJoin(
 		[Date Range],
-		NonEmpty(
-			[Work Item].[System_State].[System_State]
-			,[Measures].[Work Item Count]
-		)
+		[Work Item].[System_State].[System_State]
 	)
 } ON ROWS
 FROM
@@ -134,6 +132,7 @@ FROM
 SELECT
 	CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToMember("[Work Item].[System_WorkItemType].[" + @BugName + "]"),
 			StrToSet(@AreaParam),
 			StrToSet(@IterationParam),
@@ -291,11 +290,13 @@ SELECT
 						//
 						CrossJoin(
 							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							StrToMember("[Work Item].[System_IsDeleted].[All]"),
 							[Work Item].[Area Hierarchy].[All]
 						),
 						NonEmpty(
 							CrossJoin(
 								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 								[Work Item].[Area Hierarchy].[Area0]
 							),
 							[Measures].[Work Item Count]
@@ -350,11 +351,13 @@ SELECT
 						//
 						CrossJoin(
 							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							StrToMember("[Work Item].[System_IsDeleted].[All]"),
 							[Work Item].[Area Hierarchy].[All]
 						),
 						NonEmpty(
 							CrossJoin(
 								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 								[Work Item].[Area Hierarchy].[Area0]
 							),
 							[Measures].[Work Item Count]
@@ -367,8 +370,7 @@ SELECT
 		)
 	)
 } ON ROWS
-FROM [Team System]
-</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>F0CB7644-85B2-4C21-A196-819F78FA890C</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AllNoFilter</Name><DefaultValues><DefaultValue>All (No Filter)</DefaultValue></DefaultValues><Caption>AllNoFilter</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
+FROM [Team System]</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>F0CB7644-85B2-4C21-A196-819F78FA890C</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AllNoFilter</Name><DefaultValues><DefaultValue>All (No Filter)</DefaultValue></DefaultValues><Caption>AllNoFilter</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
         <rd:SuppressAutoUpdate>true</rd:SuppressAutoUpdate>
       </Query>
       <Filters>
@@ -425,12 +427,14 @@ SELECT
 				CrossJoin(
 					[Work Item].[System_State].[All], 
 					[Team Project].[Project Node GUID].[All],
+					[Work Item].[System_IsDeleted].[All],
 					[Work Item].[System_WorkItemType].[All]
 				),
 				NonEmpty(
 					CrossJoin(
 						Descendants([Work Item].[System_State].[All]),
 						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+						StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 						StrToMember("[Work Item].[System_WorkItemType].&amp;[" + @BugName + "]")
 					),
 					[Measures].[State Change Count]
@@ -482,12 +486,14 @@ SELECT
 				CrossJoin(
 					[Work Item].[System_State].[All], 
 					[Team Project].[Project Node GUID].[All],
+					[Work Item].[System_IsDeleted].[All],
 					[Work Item].[System_WorkItemType].[All]
 				),
 				NonEmpty(
 					CrossJoin(
 						Descendants([Work Item].[System_State].[All]),
 						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+						StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 						StrToMember("[Work Item].[System_WorkItemType].&amp;[" + @BugName + "]")
 					),
 					[Measures].[State Change Count]
@@ -539,6 +545,7 @@ FROM
 	SELECT
 		CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToMember("[Work Item].[System_WorkItemType].[" + @BugName + "]"),                   
 			StrToMember("[Work Item].[System_State].&amp;[" + @ActiveName + "]"),
 			StrToSet(@AreaParam),
@@ -594,6 +601,7 @@ FROM
 	SELECT
 		CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToMember("[Work Item].[System_WorkItemType].[" + @BugName + "]"),                   
 			StrToMember("[Work Item].[System_State].&amp;[" + @ActiveName + "]"),
 			StrToSet(@AreaParam),
@@ -707,6 +715,7 @@ FROM
 	SELECT
 		CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToMember("[Work Item].[System_WorkItemType].[" + @BugName + "]"),                   
 			StrToMember("[Work Item].[System_State].&amp;[" + @ActiveName + "]"),
 			StrToSet(@AreaParam),
@@ -777,6 +786,7 @@ FROM
 	SELECT
 		CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToMember("[Work Item].[System_WorkItemType].[" + @BugName + "]"),                   
 			StrToMember("[Work Item].[System_State].&amp;[" + @ActiveName + "]"),
 			StrToSet(@AreaParam),
@@ -825,6 +835,7 @@ FROM
 	SELECT
 		CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToMember("[Work Item].[System_WorkItemType].[" + @BugName + "]"),                   
 			StrToMember("[Work Item].[System_State].&amp;[" + @ActiveName + "]"),
 			StrToSet(@AreaParam),
@@ -883,6 +894,7 @@ FROM
 	SELECT
 		CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToMember("[Work Item].[System_WorkItemType].[" + @BugName + "]"),                   
 			StrToMember("[Work Item].[System_State].&amp;[" + @ActiveName + "]"),
 			StrToSet(@AreaParam),
@@ -935,6 +947,7 @@ FROM
 	SELECT
 		CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToMember("[Work Item].[System_WorkItemType].[" + @BugName + "]"),                   
 			StrToMember("[Work Item].[System_State].&amp;[" + @ResolvedName + "]"),
 			StrToSet(@AreaParam),
@@ -998,6 +1011,7 @@ FROM
 	SELECT
 		CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToMember("[Work Item].[System_WorkItemType].[" + @BugName + "]"),                   
 			StrToMember("[Work Item].[System_State].&amp;[" + @ResolvedName + "]"),
 			StrToSet(@AreaParam),
@@ -1044,6 +1058,7 @@ FROM
 	SELECT
 		CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToMember("[Work Item].[System_WorkItemType].[" + @BugName + "]"),                   
 			StrToMember("[Work Item].[System_State].&amp;[" + @ResolvedName + "]"),
 			StrToSet(@AreaParam),
@@ -1102,6 +1117,7 @@ FROM
 	SELECT
 		CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToMember("[Work Item].[System_WorkItemType].[" + @BugName + "]"),                   
 			StrToMember("[Work Item].[System_State].&amp;[" + @ResolvedName + "]"),
 			StrToSet(@AreaParam),
@@ -1133,9 +1149,9 @@ FROM
         <DataSourceName>TfsOlapReportDS</DataSourceName>
         <CommandText>WITH
 MEMBER [Measures].[PriorityCaption] AS
-  IIF([Work Item].[Microsoft_VSTS_Common_Priority].CURRENTMEMBER IS [Work Item].[Microsoft_VSTS_Common_Priority].[All],
+  IIF([Work Item].[Microsoft_VSTS_Common_Priority].CurrentMember IS [Work Item].[Microsoft_VSTS_Common_Priority].[All],
       @AllNoFilter,
-      [Work Item].[Microsoft_VSTS_Common_Priority].CURRENTMEMBER.MEMBER_CAPTION
+      [Work Item].[Microsoft_VSTS_Common_Priority].CurrentMember.Member_Caption
   )
 MEMBER [Measures].[PriorityID] AS
         [Work Item].[Microsoft_VSTS_Common_Priority].CurrentMember.UniqueName
@@ -1152,19 +1168,21 @@ SELECT
             Union(
                 CrossJoin(
                     [Work Item].[Microsoft_VSTS_Common_Priority].[All],
-                    [Team Project].[Project Node GUID].[All]
+                    [Team Project].[Project Node GUID].[All],
+                    [Work Item].[System_IsDeleted].[All]
                 ),
                 NonEmpty(
                     CrossJoin(
                         [Work Item].[Microsoft_VSTS_Common_Priority].AllMembers,
-                        StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]")
+                        StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+                        StrToMember("[Work Item].[System_IsDeleted].&amp;[false]")
                     ),
                     [Measures].[State Change Count]
                 )
             ),
             [Work Item].[Microsoft_VSTS_Common_Priority]
         ),
-        [Work Item].[Microsoft_VSTS_Common_Priority].[All].UNKNOWNMEMBER
+        [Work Item].[Microsoft_VSTS_Common_Priority].[All].UnknownMember
     )
 } ON ROWS
 FROM [Team System]</CommandText>
@@ -1178,9 +1196,9 @@ FROM [Team System]</CommandText>
         </QueryParameters>
         <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Measure"><MeasureName>State Change Count</MeasureName><UniqueName>[Measures].[State Change Count]</UniqueName></ID><ItemCaption>State Change Count</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>PriorityID</MeasureName><UniqueName>[Measures].[PriorityID]</UniqueName></ID><ItemCaption>PriorityID</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>PriorityCaption</MeasureName><UniqueName>[Measures].[PriorityCaption]</UniqueName></ID><ItemCaption>PriorityCaption</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>WITH
 MEMBER [Measures].[PriorityCaption] AS
-  IIF([Work Item].[Microsoft_VSTS_Common_Priority].CURRENTMEMBER IS [Work Item].[Microsoft_VSTS_Common_Priority].[All],
+  IIF([Work Item].[Microsoft_VSTS_Common_Priority].CurrentMember IS [Work Item].[Microsoft_VSTS_Common_Priority].[All],
       @AllNoFilter,
-      [Work Item].[Microsoft_VSTS_Common_Priority].CURRENTMEMBER.MEMBER_CAPTION
+      [Work Item].[Microsoft_VSTS_Common_Priority].CurrentMember.Member_Caption
   )
 MEMBER [Measures].[PriorityID] AS
         [Work Item].[Microsoft_VSTS_Common_Priority].CurrentMember.UniqueName
@@ -1197,19 +1215,21 @@ SELECT
             Union(
                 CrossJoin(
                     [Work Item].[Microsoft_VSTS_Common_Priority].[All],
-                    [Team Project].[Project Node GUID].[All]
+                    [Team Project].[Project Node GUID].[All],
+                    [Work Item].[System_IsDeleted].[All]
                 ),
                 NonEmpty(
                     CrossJoin(
                         [Work Item].[Microsoft_VSTS_Common_Priority].AllMembers,
-                        StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]")
+                        StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+                        StrToMember("[Work Item].[System_IsDeleted].&amp;[false]")
                     ),
                     [Measures].[State Change Count]
                 )
             ),
             [Work Item].[Microsoft_VSTS_Common_Priority]
         ),
-        [Work Item].[Microsoft_VSTS_Common_Priority].[All].UNKNOWNMEMBER
+        [Work Item].[Microsoft_VSTS_Common_Priority].[All].UnknownMember
     )
 } ON ROWS
 FROM [Team System]</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>9284C674-9472-4B25-A1AC-95D7B721DC3F</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AllNoFilter</Name><DefaultValues><DefaultValue>All (No Filter)</DefaultValue></DefaultValues><Caption>AllNoFilter</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
@@ -1235,9 +1255,9 @@ FROM [Team System]</Statement><ParameterDefinitions><ParameterDefinition><Name>P
         <DataSourceName>TfsOlapReportDS</DataSourceName>
         <CommandText>WITH
 MEMBER [Measures].[SeverityCaption] AS
-  IIF([Work Item].[Microsoft_VSTS_Common_Severity].CURRENTMEMBER IS [Work Item].[Microsoft_VSTS_Common_Severity].[All],
+  IIF([Work Item].[Microsoft_VSTS_Common_Severity].CurrentMember IS [Work Item].[Microsoft_VSTS_Common_Severity].[All],
       @AllNoFilter,
-      [Work Item].[Microsoft_VSTS_Common_Severity].CURRENTMEMBER.MEMBER_CAPTION
+      [Work Item].[Microsoft_VSTS_Common_Severity].CurrentMember.Member_Caption
   )
 MEMBER [Measures].[SeverityID] AS
         [Work Item].[Microsoft_VSTS_Common_Severity].CurrentMember.UniqueName
@@ -1255,12 +1275,14 @@ SELECT
                 CrossJoin(
                     [Work Item].[Microsoft_VSTS_Common_Severity].[All],
                     [Team Project].[Project Node GUID].[All],
+                    [Work Item].[System_IsDeleted].[All],
                     [Work Item].[System_WorkItemType].[All]
                 ),
                 NonEmpty(
                     CrossJoin(
                         [Work Item].[Microsoft_VSTS_Common_Severity].AllMembers,
                         StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+                        StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
                         StrToMember("[Work Item].[System_WorkItemType].[" + @BugName + "]")
                     ),
                     [Measures].[State Change Count]
@@ -1285,9 +1307,9 @@ FROM [Team System]</CommandText>
         </QueryParameters>
         <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Measure"><MeasureName>State Change Count</MeasureName><UniqueName>[Measures].[State Change Count]</UniqueName></ID><ItemCaption>State Change Count</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>SeverityID</MeasureName><UniqueName>[Measures].[SeverityID]</UniqueName></ID><ItemCaption>SeverityID</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>SeverityCaption</MeasureName><UniqueName>[Measures].[SeverityCaption]</UniqueName></ID><ItemCaption>SeverityCaption</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>WITH
 MEMBER [Measures].[SeverityCaption] AS
-  IIF([Work Item].[Microsoft_VSTS_Common_Severity].CURRENTMEMBER IS [Work Item].[Microsoft_VSTS_Common_Severity].[All],
+  IIF([Work Item].[Microsoft_VSTS_Common_Severity].CurrentMember IS [Work Item].[Microsoft_VSTS_Common_Severity].[All],
       @AllNoFilter,
-      [Work Item].[Microsoft_VSTS_Common_Severity].CURRENTMEMBER.MEMBER_CAPTION
+      [Work Item].[Microsoft_VSTS_Common_Severity].CurrentMember.Member_Caption
   )
 MEMBER [Measures].[SeverityID] AS
         [Work Item].[Microsoft_VSTS_Common_Severity].CurrentMember.UniqueName
@@ -1305,12 +1327,14 @@ SELECT
                 CrossJoin(
                     [Work Item].[Microsoft_VSTS_Common_Severity].[All],
                     [Team Project].[Project Node GUID].[All],
+                    [Work Item].[System_IsDeleted].[All],
                     [Work Item].[System_WorkItemType].[All]
                 ),
                 NonEmpty(
                     CrossJoin(
                         [Work Item].[Microsoft_VSTS_Common_Severity].AllMembers,
                         StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+                        StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
                         StrToMember("[Work Item].[System_WorkItemType].[" + @BugName + "]")
                     ),
                     [Measures].[State Change Count]
@@ -1367,12 +1391,14 @@ SELECT
                     CrossJoin(
                         [Work Item].[System_State].[All],
                         [Team Project].[Project Node GUID].[All],
+                        [Work Item].[System_IsDeleted].[All],
                         [Work Item].[System_WorkItemType].[All]
                     ),
                     NonEmpty(
                         CrossJoin(
                             [Work Item].[System_State].[System_State],
                             StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+                            StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
                             StrToMember("[Work Item].[System_WorkItemType].&amp;[" + @BugName + "]")
                         ),
                         [Measures].[State Change Count]
@@ -1428,12 +1454,14 @@ SELECT
                     CrossJoin(
                         [Work Item].[System_State].[All],
                         [Team Project].[Project Node GUID].[All],
+                        [Work Item].[System_IsDeleted].[All],
                         [Work Item].[System_WorkItemType].[All]
                     ),
                     NonEmpty(
                         CrossJoin(
                             [Work Item].[System_State].[System_State],
                             StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+                            StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
                             StrToMember("[Work Item].[System_WorkItemType].&amp;[" + @BugName + "]")
                         ),
                         [Measures].[State Change Count]
@@ -4272,7 +4300,7 @@ ELSE
                           <ActionInfo>
                             <Actions>
                               <Action>
-                                <Hyperlink>http://go.microsoft.com/fwlink/?LinkId=145626</Hyperlink>
+                                <Hyperlink>https://go.microsoft.com/fwlink/?LinkId=145626</Hyperlink>
                               </Action>
                             </Actions>
                           </ActionInfo>

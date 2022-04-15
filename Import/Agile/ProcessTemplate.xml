@@ -3,7 +3,7 @@
   <metadata>
     <name>Agile</name>
     <description>This template is flexible and will work great for most teams using Agile planning methods, including those practicing Scrum.</description>
-    <version type="ADCC42AB-9882-485E-A3ED-7678F01F66BC" major="16" minor="1" />
+    <version type="ADCC42AB-9882-485E-A3ED-7678F01F66BC" major="18" minor="4" />
     <plugins>
       <plugin name="Microsoft.ProjectCreationWizard.Classification" wizardPage="false" />
       <plugin name="Microsoft.ProjectCreationWizard.Reporting" wizardPage="false" />
@@ -17,7 +17,8 @@
   </metadata>
   <groups>
     <group id="Classification" description="Structure definition for the project." completionMessage="Project Structure uploaded.">
-      <dependencies></dependencies>
+      <dependencies>
+      </dependencies>
       <taskList filename="Classification\Classification.xml" />
     </group>
     <group id="Groups" description="Create Groups and assign Permissions." completionMessage="Groups created and Permissions assigned.">

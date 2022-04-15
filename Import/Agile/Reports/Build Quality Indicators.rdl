@@ -89,11 +89,13 @@ SELECT
 						//
 						CrossJoin(
 							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							StrToMember("[Work Item].[System_IsDeleted].[All]"),
 							[Test Case].[Area Hierarchy].[All]
 						),
 						NonEmpty(
 							CrossJoin(
 								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 								[Test Case].[Area Hierarchy].[Area0]
 							),
 							[Measures].[Result Count]
@@ -152,11 +154,13 @@ SELECT
 						//
 						CrossJoin(
 							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							StrToMember("[Work Item].[System_IsDeleted].[All]"),
 							[Test Case].[Area Hierarchy].[All]
 						),
 						NonEmpty(
 							CrossJoin(
 								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 								[Test Case].[Area Hierarchy].[Area0]
 							),
 							[Measures].[Result Count]
@@ -248,6 +252,7 @@ MEMBER [Measures].[Active Bugs] AS
 		[Measures].[Work Item Count],
 		 STRTOMEMBER("[Work Item].[System_State].[" + @Active + "]"),
 		 STRTOMEMBER("[Work Item].[System_WorkItemType].[" + @Bug + "]"),
+		 STRTOMEMBER("[Work Item].[System_IsDeleted].&amp;[false]"),
 		 STRTOMEMBER([Measures].[Build Date])
 	) + 0
 
@@ -284,6 +289,7 @@ FROM
 	SELECT
 	(
 		StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+		// Filter or System_IsDeleted field is included in [Active Bugs] measure.
 		StrToSet(@AreaParam),
 		//
 		// We've designed this report so you have to select a single value for Platform, Configuration, and
@@ -361,6 +367,7 @@ MEMBER [Measures].[Active Bugs] AS
 		[Measures].[Work Item Count],
 		 STRTOMEMBER("[Work Item].[System_State].[" + @Active + "]"),
 		 STRTOMEMBER("[Work Item].[System_WorkItemType].[" + @Bug + "]"),
+		 STRTOMEMBER("[Work Item].[System_IsDeleted].&amp;[false]"),
 		 STRTOMEMBER([Measures].[Build Date])
 	) + 0
 
@@ -397,6 +404,7 @@ FROM
 	SELECT
 	(
 		StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+		// Filter or System_IsDeleted field is included in [Active Bugs] measure.
 		StrToSet(@AreaParam),
 		//
 		// We've designed this report so you have to select a single value for Platform, Configuration, and
@@ -418,8 +426,7 @@ FROM
 		)
 	) ON 0
 	FROM [Team System]
-)
-</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>B4A67F25-C7CF-4D03-AEA3-151F21D9A030</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>BuildTypeParam</Name><DefaultValues><DefaultValue>[Build].[Build Definition Name].&amp;[Debugx86]</DefaultValue></DefaultValues><Caption>BuildTypeParam</Caption><HierarchyUniqueName>[Build].[Build Definition Name]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Build].[Build Definition Name].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Build].[Build Definition Name].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Build].[Build Definition Name].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Build].[Build Definition Name].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>PlatformParam</Name><DefaultValues><DefaultValue>[Build Platform].[Build Platform].&amp;[x86]</DefaultValue></DefaultValues><Caption>PlatformParam</Caption><HierarchyUniqueName>[Build Platform].[Build Platform]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Build Platform].[Build Platform].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Build Platform].[Build Platform].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Build Platform].[Build Platform].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Build Platform].[Build Platform].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>FlavorParam</Name><DefaultValues><DefaultValue>[Build Flavor].[Build Flavor].&amp;[Debug]</DefaultValue></DefaultValues><Caption>FlavorParam</Caption><HierarchyUniqueName>[Build Flavor].[Build Flavor]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Build Flavor].[Build Flavor].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Build Flavor].[Build Flavor].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Build Flavor].[Build Flavor].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Build Flavor].[Build Flavor].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>Active</Name><DefaultValues><DefaultValue>Active</DefaultValue></DefaultValues><Caption>Active</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>Bug</Name><DefaultValues><DefaultValue>Bug</DefaultValue></DefaultValues><Caption>Bug</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AreaParam</Name><DefaultValues><DefaultValue>[Test Case].[Area Hierarchy].[All]</DefaultValue></DefaultValues><Caption>AreaParam</Caption><HierarchyUniqueName>[Test Case].[Area Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Test Case].[Area Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Test Case].[Area Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Test Case].[Area Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Test Case].[Area Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>EndDateParam</Name><DefaultValues><DefaultValue>11/30/2009</DefaultValue></DefaultValues><Caption>EndDateParam</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>DefaultNumberOfBuildsToSelect</Name><DefaultValues><DefaultValue>7</DefaultValue></DefaultValues><Caption>DefaultNumberOfBuildsToSelect</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
+)</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>B4A67F25-C7CF-4D03-AEA3-151F21D9A030</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>BuildTypeParam</Name><DefaultValues><DefaultValue>[Build].[Build Definition Name].&amp;[Debugx86]</DefaultValue></DefaultValues><Caption>BuildTypeParam</Caption><HierarchyUniqueName>[Build].[Build Definition Name]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Build].[Build Definition Name].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Build].[Build Definition Name].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Build].[Build Definition Name].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Build].[Build Definition Name].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>PlatformParam</Name><DefaultValues><DefaultValue>[Build Platform].[Build Platform].&amp;[x86]</DefaultValue></DefaultValues><Caption>PlatformParam</Caption><HierarchyUniqueName>[Build Platform].[Build Platform]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Build Platform].[Build Platform].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Build Platform].[Build Platform].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Build Platform].[Build Platform].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Build Platform].[Build Platform].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>FlavorParam</Name><DefaultValues><DefaultValue>[Build Flavor].[Build Flavor].&amp;[Debug]</DefaultValue></DefaultValues><Caption>FlavorParam</Caption><HierarchyUniqueName>[Build Flavor].[Build Flavor]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Build Flavor].[Build Flavor].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Build Flavor].[Build Flavor].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Build Flavor].[Build Flavor].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Build Flavor].[Build Flavor].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>Active</Name><DefaultValues><DefaultValue>Active</DefaultValue></DefaultValues><Caption>Active</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>Bug</Name><DefaultValues><DefaultValue>Bug</DefaultValue></DefaultValues><Caption>Bug</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AreaParam</Name><DefaultValues><DefaultValue>[Test Case].[Area Hierarchy].[All]</DefaultValue></DefaultValues><Caption>AreaParam</Caption><HierarchyUniqueName>[Test Case].[Area Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Test Case].[Area Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Test Case].[Area Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Test Case].[Area Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Test Case].[Area Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>EndDateParam</Name><DefaultValues><DefaultValue>11/30/2009</DefaultValue></DefaultValues><Caption>EndDateParam</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>DefaultNumberOfBuildsToSelect</Name><DefaultValues><DefaultValue>7</DefaultValue></DefaultValues><Caption>DefaultNumberOfBuildsToSelect</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
         <rd:SuppressAutoUpdate>true</rd:SuppressAutoUpdate>
       </Query>
     </DataSet>
@@ -557,8 +564,7 @@ FROM
 			[Build Platform].[Build Platform].[All]
 		)
 	) ON COLUMNS FROM [Team System]
-)
-</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>D82D4426-97E2-4F19-A6E3-A09790F42B6C</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>ChooseValue</Name><DefaultValues><DefaultValue>Choose a Value</DefaultValue></DefaultValues><Caption>ChooseValue</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>FlavorParam</Name><DefaultValues><DefaultValue>[Build Flavor].[Build Flavor].&amp;[1]</DefaultValue></DefaultValues><Caption>FlavorParam</Caption><HierarchyUniqueName>[Build Flavor].[Build Flavor]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Build Flavor].[Build Flavor].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Build Flavor].[Build Flavor].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Build Flavor].[Build Flavor].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Build Flavor].[Build Flavor].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>PlatformParam</Name><DefaultValues><DefaultValue>[Build Platform].[Build Platform].&amp;[1]</DefaultValue></DefaultValues><Caption>PlatformParam</Caption><HierarchyUniqueName>[Build Platform].[Build Platform]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Build Platform].[Build Platform].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Build Platform].[Build Platform].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Build Platform].[Build Platform].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Build Platform].[Build Platform].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
+)</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>D82D4426-97E2-4F19-A6E3-A09790F42B6C</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>ChooseValue</Name><DefaultValues><DefaultValue>Choose a Value</DefaultValue></DefaultValues><Caption>ChooseValue</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>FlavorParam</Name><DefaultValues><DefaultValue>[Build Flavor].[Build Flavor].&amp;[1]</DefaultValue></DefaultValues><Caption>FlavorParam</Caption><HierarchyUniqueName>[Build Flavor].[Build Flavor]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Build Flavor].[Build Flavor].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Build Flavor].[Build Flavor].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Build Flavor].[Build Flavor].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Build Flavor].[Build Flavor].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>PlatformParam</Name><DefaultValues><DefaultValue>[Build Platform].[Build Platform].&amp;[1]</DefaultValue></DefaultValues><Caption>PlatformParam</Caption><HierarchyUniqueName>[Build Platform].[Build Platform]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Build Platform].[Build Platform].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Build Platform].[Build Platform].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Build Platform].[Build Platform].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Build Platform].[Build Platform].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
         <rd:AutoGenerated>true</rd:AutoGenerated>
         <rd:SuppressAutoUpdate>true</rd:SuppressAutoUpdate>
       </Query>
@@ -637,7 +643,7 @@ MEMBER [Measures].[ParameterCaption] AS
 MEMBER [Measures].[ParameterValue] AS
 	IIF([Build Platform].[Build Platform].CurrentMember IS [Build Platform].[Build Platform].[All].UnknownMember,
 		Null,
-		"[Build Platform].[Build Platform].[" + [Build Platform].[Build Platform].CurrentMember.Member_Caption + "]"
+		[Build Platform].[Build Platform].CurrentMember.UniqueName
 	)
 
 SELECT
@@ -733,7 +739,7 @@ MEMBER [Measures].[ParameterCaption] AS
 MEMBER [Measures].[ParameterValue] AS
 	Iif([Build Flavor].[Build Flavor].CurrentMember IS [Build Flavor].[Build Flavor].[All].UnknownMember,
 		Null,
-		"[Build Flavor].[Build Flavor].[" + [Build Flavor].[Build Flavor].CurrentMember.Member_Caption + "]"
+		[Build Flavor].[Build Flavor].CurrentMember.UniqueName
 	)
 
 SELECT
@@ -1624,7 +1630,7 @@ FROM [Team System]</Statement><ParameterDefinitions><ParameterDefinition><Name>P
                           <ActionInfo>
                             <Actions>
                               <Action>
-                                <Hyperlink>http://go.microsoft.com/fwlink/?LinkId=145630</Hyperlink>
+                                <Hyperlink>https://go.microsoft.com/fwlink/?LinkId=145630</Hyperlink>
                               </Action>
                             </Actions>
                           </ActionInfo>

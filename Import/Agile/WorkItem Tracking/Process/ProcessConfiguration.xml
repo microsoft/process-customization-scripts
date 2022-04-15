@@ -127,10 +127,10 @@
     <DayOfWeek>Sunday</DayOfWeek>
   </Weekends>
   <WorkItemColors>
-    <WorkItemColor primary="FF009CCC" secondary="FFD6ECF2" name="User Story" />
+    <WorkItemColor primary="FF0098C7" secondary="FFD6ECF2" name="User Story" />
     <WorkItemColor primary="FF773B93" secondary="FFEEE2F2" name="Feature" />
-    <WorkItemColor primary="FFFF7B00" secondary="FFFFD7B5" name="Epic" />
-    <WorkItemColor primary="FFF2CB1D" secondary="FFF6F5D2" name="Task" />
+    <WorkItemColor primary="FFE06C00" secondary="FFFFD7B5" name="Epic" />
+    <WorkItemColor primary="FFA4880A" secondary="FFF6F5D2" name="Task" />
     <WorkItemColor primary="FFCC293D" secondary="FFFAEAE5" name="Bug" />
     <WorkItemColor primary="FFB4009E" secondary="FFFCEECF" name="Code Review Request" />
     <WorkItemColor primary="FFB4009E" secondary="FFFCEECF" name="Code Review Response" />

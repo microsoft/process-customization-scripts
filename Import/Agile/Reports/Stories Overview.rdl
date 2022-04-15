@@ -2923,7 +2923,7 @@
                           <ActionInfo>
                             <Actions>
                               <Action>
-                                <Hyperlink>http://go.microsoft.com/fwlink/?LinkId=145638</Hyperlink>
+                                <Hyperlink>https://go.microsoft.com/fwlink/?LinkId=145638</Hyperlink>
                               </Action>
                             </Actions>
                           </ActionInfo>
@@ -3553,6 +3553,7 @@ INSERT @RootNodeIDs
     SELECT cwi.[System_Id] AS ID FROM [CurrentWorkItemView] cwi
         WHERE cwi.[System_WorkItemType] IN (@DeliverableCategory)
             AND cwi.[ProjectNodeGUID] = @ProjectGuid
+            AND cwi.[System_IsDeleted] = 0
 
 EXCEPT
     -- This is selecting all workitems that have a parent and have not been deleted
@@ -3563,6 +3564,7 @@ EXCEPT
             AND lh.RemovedDate = CONVERT(DATETIME, '9999', 126)
             AND lh.TeamProjectCollectionSK = @TeamProjectCollectionSK
             AND cwi.[ProjectNodeGUID] = @ProjectGuid
+            AND cwi.[System_IsDeleted] = 0
 
 CREATE TABLE #Hierarchy
 (ID int, ParentID int, [Level] int, [Path] nvarchar(4000))
@@ -3587,6 +3589,7 @@ UNION ALL
                 AND flh.TeamProjectCollectionSK = @TeamProjectCollectionSK
         JOIN [CurrentWorkItemView] wi ON flh.TargetWorkItemID = wi.[System_ID]
             AND wi.ProjectNodeGUID  = @ProjectGuid
+            AND wi.[System_IsDeleted] = 0
             AND (wi.[System_WorkItemType] &lt;&gt; @Bug)
             AND (wi.System_State != @Proposed OR wi.System_WorkItemType != @Task) -- Exclude proposed tasks from the rollup
 
@@ -3608,6 +3611,7 @@ INSERT @TestCases
                 AND flh.TeamProjectCollectionSK = @TeamProjectCollectionSK
         JOIN [CurrentWorkItemView] wi ON flh.TargetWorkItemID = wi.[System_ID]
             AND wi.ProjectNodeGUID  = @ProjectGuid
+            AND wi.[System_IsDeleted] = 0
             AND wi.[System_WorkItemType] = @TestCase
 
 -- Get Test Results associated with Test Cases linked to deliverable workitems
@@ -3633,7 +3637,8 @@ INSERT @TestResults
     GROUP BY  tc.DeliverableID
     ) Counts
     INNER JOIN [CurrentWorkItemView] wi ON ID = wi.[System_Id]
-        AND wi.ProjectNodeGUID = @ProjectGuid;
+        AND wi.ProjectNodeGUID = @ProjectGuid
+        AND wi.[System_IsDeleted] = 0;
 
 -- Get the Bugs linked to the deliverable workitems directly
 DECLARE @Bugs Table (ID int, ActiveBugs int, ResolvedBugs int, ClosedBugs int, ProposedBugs int)
@@ -3650,6 +3655,7 @@ INSERT @Bugs
         JOIN [CurrentWorkItemView] wi 
             ON wi.[System_WorkItemType] = @Bug
             AND wi.[ProjectNodeGUID] = @ProjectGuid
+            AND wi.[System_IsDeleted] = 0
             AND wi.[System_Id] = flh.TargetWorkItemID
             AND flh.RemovedDate = CONVERT(DATETIME, '9999', 126)
     GROUP BY h.ID
@@ -3674,6 +3680,7 @@ FROM @TestCases tc
     JOIN [CurrentWorkItemView] wi
         ON wi.[System_Id] = flh.TargetWorkItemID
         AND wi.[ProjectNodeGUID] = @ProjectGuid
+        AND wi.[System_IsDeleted] = 0
         AND wi.[System_WorkItemType] = @Bug
 GROUP BY tc.DeliverableID
 
@@ -3684,7 +3691,9 @@ DECLARE @RecentChanged TABLE (ID int PRIMARY KEY, Latest DateTime);
 INSERT @RecentChanged
     SELECT wi.[System_Id] AS ID, MAX(wi.[System_ChangedDate]) AS Latest
     FROM #Hierarchy hierarchy 
-    INNER JOIN DimWorkItem wi ON hierarchy.ID = wi.[System_Id]
+    INNER JOIN DimWorkItem wi 
+        ON hierarchy.ID = wi.[System_Id]
+        AND wi.[System_IsDeleted] = 0
 	JOIN DimTeamProject on ProjectNodeSK=TeamProjectSK
         AND ProjectNodeGUID = @ProjectGuid 
     WHERE (wi.[System_ChangedDate] &lt; @ChangeDate)
@@ -3696,6 +3705,7 @@ INSERT @RecentChanges
     SELECT history.[System_Id] as Id, history.[System_ChangedDate] As ChangedDate,
     history.[Microsoft_VSTS_Scheduling_RemainingWork] AS RawOldRemaining, -- if required to count closed items as zero remaining work, use CASE here
     history.[Microsoft_VSTS_Scheduling_CompletedWork] AS RawOldCompleted
+    -- There is no need to filter history on System_IsDeleted column as the join with @RecentChanges handles that.
     FROM @RecentChanged AS recent INNER JOIN [WorkItemHistoryView] AS history
     ON	recent.ID = history.[System_Id]
     AND history.ProjectNodeGUID = @ProjectGuid
@@ -3749,7 +3759,10 @@ INSERT #Rollups
         [AreaPath] AreaPath,
         [IterationPath] IterationPath
     FROM (#Hierarchy hierarchy LEFT OUTER JOIN @RecentChanges changes ON hierarchy.ID = changes.Id)
-        INNER JOIN [CurrentWorkItemView] ON hierarchy.ID = [System_ID] AND ProjectNodeGUID = @ProjectGuid
+        INNER JOIN [CurrentWorkItemView]
+            ON hierarchy.ID = [System_ID] 
+            AND ProjectNodeGUID = @ProjectGuid
+            AND System_IsDeleted = 0
         LEFT OUTER JOIN @TestResults testResults ON testResults.ID = hierarchy.ID
         LEFT OUTER JOIN  (
             SELECT ID, SUM(ActiveBugs) ActiveBugs, SUM(ResolvedBugs) ResolvedBugs, SUM(ClosedBugs) ClosedBugs, SUM(ProposedBugs) ProposedBugs

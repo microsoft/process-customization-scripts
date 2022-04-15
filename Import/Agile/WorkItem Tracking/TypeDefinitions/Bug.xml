@@ -22,14 +22,14 @@
       </FIELD>
       <FIELD name="Activity" refname="Microsoft.VSTS.Common.Activity" type="String" reportable="dimension">
         <HELPTEXT>Type of work involved</HELPTEXT>
-        <SUGGESTEDVALUES>
+        <ALLOWEDVALUES>
           <LISTITEM value="Development" />
           <LISTITEM value="Testing" />
           <LISTITEM value="Requirements" />
           <LISTITEM value="Design" />
           <LISTITEM value="Deployment" />
           <LISTITEM value="Documentation" />
-        </SUGGESTEDVALUES>
+        </ALLOWEDVALUES>
       </FIELD>
       <FIELD name="System Info" refname="Microsoft.VSTS.TCM.SystemInfo" type="HTML">
         <HELPTEXT>Test context, provided automatically by test infrastructure</HELPTEXT>
@@ -325,9 +325,6 @@
             </REASON>
           </REASONS>
           <FIELDS>
-            <FIELD refname="System.AssignedTo">
-              <COPY from="field" field="System.CreatedBy" />
-            </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
               <SERVERDEFAULT from="clock" />
             </FIELD>
@@ -420,9 +417,6 @@
             </REASON>
           </REASONS>
           <FIELDS>
-            <FIELD refname="System.AssignedTo">
-              <COPY from="field" field="System.CreatedBy" />
-            </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
               <SERVERDEFAULT from="clock" />
             </FIELD>
@@ -546,9 +540,6 @@
             </REASON>
           </REASONS>
           <FIELDS>
-            <FIELD refname="System.AssignedTo">
-              <COPY from="field" field="System.CreatedBy" />
-            </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
               <READONLY />
             </FIELD>
@@ -639,9 +630,6 @@
             </REASON>
           </REASONS>
           <FIELDS>
-            <FIELD refname="System.AssignedTo">
-              <COPY from="field" field="System.CreatedBy" />
-            </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
               <READONLY />
             </FIELD>
@@ -860,7 +848,7 @@
       </Layout>
       <WebLayout>
         <SystemControls>
-          <Control Type="FieldControl" FieldName="System.Title" EmptyText="Enter title" />
+          <Control Type="FieldControl" FieldName="System.Title" EmptyText="Enter title"/>
           <Control Label="Assi&amp;gned To" Type="FieldControl" FieldName="System.AssignedTo" />
           <Control Label="Stat&amp;e" Type="FieldControl" FieldName="System.State" />
           <Control Label="Reason" Type="FieldControl" FieldName="System.Reason" />
@@ -868,37 +856,39 @@
           <Control Label="Ite&amp;ration" Type="WorkItemClassificationControl" FieldName="System.IterationPath" />
           <Control Label="History" Type="WorkItemLogControl" FieldName="System.History" />
           <Control Label="Links" Type="LinksControl" Name="Links" />
-          <Control Label="Attachments" Type="AttachmentsControl" Name="Attachments" />
+          <Control Label="Attachments" Type="AttachmentsControl" Name="Attachments"/>
         </SystemControls>
-        <Page Label="Details" LayoutMode="FirstColumnWide">
+        <Page Label="Details">
           <Section>
             <Group Label="Repro Steps">
-              <Control Label="Repro Steps" Type="HtmlFieldControl" FieldName="Microsoft.VSTS.TCM.ReproSteps" />
+              <Control Type="HtmlFieldControl" FieldName="Microsoft.VSTS.TCM.ReproSteps" Label="Repro Steps" />
             </Group>
             <Group Label="System Info">
-              <Control Label="System Info" Type="HtmlFieldControl" FieldName="Microsoft.VSTS.TCM.SystemInfo" />
+              <Control Type="HtmlFieldControl" FieldName="Microsoft.VSTS.TCM.SystemInfo" Label="System Info" />
             </Group>
           </Section>
           <Section>
             <Group Label="Planning">
-              <Control Label="Resolved Reason" Type="FieldControl" FieldName="Microsoft.VSTS.Common.ResolvedReason" />
-              <Control Label="Story Points" Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.StoryPoints" />
-              <Control Label="Priority" Type="FieldControl" FieldName="Microsoft.VSTS.Common.Priority" />
-              <Control Label="Severity" Type="FieldControl" FieldName="Microsoft.VSTS.Common.Severity" />
-              <Control Label="Activity" Type="FieldControl" FieldName="Microsoft.VSTS.Common.Activity" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Common.ResolvedReason" Label="Resolved Reason" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.StoryPoints" Label="Story Points" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Common.Priority" Label="Priority" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Common.Severity" Label="Severity" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Common.Activity" Label="Activity" />
             </Group>
             <Group Label="Effort (Hours)">
-              <Control Label="Original Estimate" Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.OriginalEstimate" />
-              <Control Label="Remaining" Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.RemainingWork" />
-              <Control Label="Completed" Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.CompletedWork" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.OriginalEstimate" Label="Original Estimate" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.RemainingWork" Label="Remaining" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.CompletedWork" Label="Completed" />
             </Group>
           </Section>
           <Section>
+            <Group Label="Deployment">
+              <Control Type="DeploymentsControl" Name="Deployments" />
+            </Group>
             <Group Label="Development">
               <Control Type="LinksControl" Name="Development">
-                <LinksControlOptions ViewMode="Dynamic" ZeroDataExperience="Development" ShowCallToAction="true">
-                  <ListViewOptions GroupLinks="false">
-                  </ListViewOptions>
+                <LinksControlOptions ViewMode="List" ZeroDataExperience="Development" ShowCallToAction="true">
+                  <ListViewOptions GroupLinks="false"></ListViewOptions>
                   <LinkFilters>
                     <ExternalLinkFilter Type="Build" />
                     <ExternalLinkFilter Type="Integrated in build" />
@@ -908,13 +898,15 @@
                     <ExternalLinkFilter Type="Fixed in Changeset" />
                     <ExternalLinkFilter Type="Source Code File" />
                     <ExternalLinkFilter Type="Found in build" />
+                    <ExternalLinkFilter Type="GitHub Pull Request" />
+                    <ExternalLinkFilter Type="GitHub Commit" />
                   </LinkFilters>
                 </LinksControlOptions>
               </Control>
             </Group>
             <Group Label="Related Work">
-              <Control Type="LinksControl" Name="Related Work">
-                <LinksControlOptions>
+              <Control Name="Related Work" Type="LinksControl">
+                <LinksControlOptions ViewMode="List">
                   <LinkFilters>
                     <WorkItemLinkFilter Type="System.LinkTypes.Duplicate-Reverse" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Hierarchy-Reverse" />
@@ -924,6 +916,7 @@
                     <WorkItemLinkFilter Type="System.LinkTypes.Duplicate-Forward" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Dependency" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Related" />
+                    <ExternalLinkFilter Type="GitHub Issue" />
                   </LinkFilters>
                   <Columns>
                     <Column Name="System.State" />
@@ -934,8 +927,8 @@
               </Control>
             </Group>
             <Group Label="System Info">
-              <Control Label="Found in Build" Type="FieldControl" FieldName="Microsoft.VSTS.Build.FoundIn" />
-              <Control Label="Integrated in Build" Type="FieldControl" FieldName="Microsoft.VSTS.Build.IntegrationBuild" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Build.FoundIn" Label="Found in Build" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Build.IntegrationBuild" Label="Integrated in Build" />
             </Group>
           </Section>
         </Page>

@@ -1554,7 +1554,7 @@
                           <ActionInfo>
                             <Actions>
                               <Action>
-                                <Hyperlink>http://go.microsoft.com/fwlink/?LinkId=145640</Hyperlink>
+                                <Hyperlink>https://go.microsoft.com/fwlink/?LinkId=145640</Hyperlink>
                               </Action>
                             </Actions>
                           </ActionInfo>
@@ -2148,6 +2148,7 @@ IF @RootStoryId IS NULL
         -- This is selecting all deliverable workitems
         SELECT cwi.[System_Id] AS ID FROM [CurrentWorkItemView] cwi
             WHERE cwi.[ProjectNodeGUID] = @ProjectGuid
+              AND cwi.[System_IsDeleted] = 0
               AND cwi.[System_WorkItemType] IN (@DeliverableCategory)
 
     EXCEPT
@@ -2155,6 +2156,7 @@ IF @RootStoryId IS NULL
         SELECT lh.SourceWorkItemID AS ID FROM FactWorkItemLinkHistory lh
             JOIN [CurrentWorkItemView] cwi ON cwi.System_Id = lh.TargetWorkItemID
             WHERE cwi.[ProjectNodeGUID] = @ProjectGuid
+                AND cwi.[System_IsDeleted] = 0
                 AND lh.WorkItemLinkTypeSK = @ParentWorkItemLinkTypeSK
                 AND cwi.System_WorkItemType IN (@DeliverableCategory)
                 AND lh.RemovedDate = CONVERT(DATETIME, '9999', 126)
@@ -2168,6 +2170,7 @@ ELSE
         FROM FactWorkItemLinkHistory lh 
             JOIN [CurrentWorkItemView] child ON lh.SourceWorkItemID = @RootStoryId -- parent is current node 
                 AND child.ProjectNodeGUID = @ProjectGuid
+                AND child.[System_IsDeleted] = 0
                 AND lh.TargetWorkItemID = child.System_Id
                 AND lh.WorkItemLinkTypeSK = @ChildWorkItemLinkTypeSK
                 AND lh.RemovedDate = CONVERT(DATETIME, '9999', 126)
@@ -2194,6 +2197,7 @@ UNION ALL
                 AND flh.TeamProjectCollectionSK = @TeamProjectCollectionSK
         JOIN [CurrentWorkItemView] wi ON flh.TargetWorkItemID = wi.[System_ID]
             AND wi.ProjectNodeGUID  = @ProjectGuid
+            AND wi.[System_IsDeleted] = 0
             AND (wi.[System_WorkItemType] &lt;&gt; @Bug)
             AND (wi.System_State != @Proposed OR wi.System_WorkItemType != @Task) -- Exclude proposed tasks from the rollup
 
@@ -2266,7 +2270,8 @@ INSERT @Rollups
         [IterationPath] IterationPath
     FROM (@Hierarchy hierarchy LEFT OUTER JOIN @RecentChanges changes ON hierarchy.ID = changes.Id)
         INNER JOIN [CurrentWorkItemView] ON hierarchy.ID = [System_ID]
-            WHERE ProjectNodeGUID = @ProjectGuid;
+            WHERE ProjectNodeGUID = @ProjectGuid
+                AND System_IsDeleted = 0;
 
 --
 -- Sum up the hierarchy
@@ -2765,7 +2770,7 @@ WHERE ProjectGUID = @ProjectGuid
             <Value>=Parameters!RootStoryId.Value</Value>
           </QueryParameter>
         </QueryParameters>
-        <CommandText>SELECT [System_Title] AS Title FROM [CurrentWorkItemView] WHERE [System_Id] = @RootStoryId</CommandText>
+        <CommandText>SELECT [System_Title] AS Title FROM [CurrentWorkItemView] WHERE [System_Id] = @RootStoryId AND [System_IsDeleted] = 0</CommandText>
         <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
       </Query>
       <Fields>

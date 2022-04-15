@@ -333,8 +333,11 @@ INSERT @WorkItemsInArea
 		wi.[Microsoft_VSTS_Scheduling_CompletedWork],
 		wi.[Microsoft_VSTS_Scheduling_OriginalEstimate]
 	FROM [CurrentWorkItemView] wi JOIN  @AreasAndChildren areas
-        ON (wi.[ProjectNodeGUID] = @ProjectGuid) AND (wi.[AreaPath] = areas.[AreaPath])
-        AND wi.[System_State] != @Proposed AND wi.[System_State] &lt;&gt; @Removed 
+		ON wi.[ProjectNodeGUID] = @ProjectGuid
+		AND wi.[System_IsDeleted] = 0
+		AND wi.[AreaPath] = areas.[AreaPath]
+		AND wi.[System_State] &lt;&gt; @Proposed 
+		AND wi.[System_State] &lt;&gt; @Removed 
 ;
 
 --
@@ -438,6 +441,7 @@ INSERT @StoryCounts
 		ON lh.TargetWorkItemID = child.[System_Id] 
 			AND child.[System_WorkItemType] IN (@DeliverableCategory)
 			AND child.ProjectNodeGUID = @ProjectGuid
+			AND child.[System_IsDeleted] = 0
 	WHERE wi.[System_WorkItemType] IN (@DeliverableCategory)
 		AND child.[System_Id] IS NULL -- exclude stories with child stories
 	GROUP BY  wi.[IterationPath]
@@ -3243,7 +3247,7 @@ WHERE ProjectGUID = @ProjectGuid</CommandText>
                           <ActionInfo>
                             <Actions>
                               <Action>
-                                <Hyperlink>http://go.microsoft.com/fwlink/?LinkId=145637</Hyperlink>
+                                <Hyperlink>https://go.microsoft.com/fwlink/?LinkId=145637</Hyperlink>
                               </Action>
                             </Actions>
                           </ActionInfo>

@@ -86,6 +86,7 @@ FROM
 	(
 		CROSSJOIN(
 			STRTOMEMBER("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			Except(
 				Descendants(StrToSet(@WorkItemTypeParam)),
 				[Work Item].[System_WorkItemType].[All] + StrToSet(@WorkItemsToExclude)
@@ -180,6 +181,7 @@ FROM
 	(
 		CROSSJOIN(
 			STRTOMEMBER("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			Except(
 				Descendants(StrToSet(@WorkItemTypeParam)),
 				[Work Item].[System_WorkItemType].[All] + StrToSet(@WorkItemsToExclude)
@@ -316,11 +318,13 @@ SELECT
 						//
 						CrossJoin(
 							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							StrToMember("[Work Item].[System_IsDeleted].[All]"),
 							[Work Item].[Area Hierarchy].[All]
 						),
 						NonEmpty(
 							CrossJoin(
 								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 								[Work Item].[Area Hierarchy].[Area0]
 							),
 							[Measures].[Work Item Count]
@@ -375,11 +379,13 @@ SELECT
 						//
 						CrossJoin(
 							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							StrToMember("[Work Item].[System_IsDeleted].[All]"),
 							[Work Item].[Area Hierarchy].[All]
 						),
 						NonEmpty(
 							CrossJoin(
 								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 								[Work Item].[Area Hierarchy].[Area0]
 							),
 							[Measures].[Work Item Count]
@@ -438,11 +444,16 @@ SELECT
 		[Work Item].[System_WorkItemType].[All],
 		Extract(
 			Union(
-				CrossJoin([Work Item].[System_WorkItemType].[All], [Team Project].[Project Node GUID].[All]),
+				CrossJoin(
+					[Work Item].[System_WorkItemType].[All], 
+					[Team Project].[Project Node GUID].[All],
+					[Work Item].[System_IsDeleted].[All]
+				),
 				NonEmpty(
 					CrossJoin(
 						Descendants([Work Item].[System_WorkItemType].AllMembers),
-						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]")
+						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+						StrToMember("[Work Item].[System_IsDeleted].&amp;[false]")
 					),
 					[Measures].[Work Item Count]
 				)
@@ -493,11 +504,16 @@ SELECT
 		[Work Item].[System_WorkItemType].[All],
 		Extract(
 			Union(
-				CrossJoin([Work Item].[System_WorkItemType].[All], [Team Project].[Project Node GUID].[All]),
+				CrossJoin(
+					[Work Item].[System_WorkItemType].[All], 
+					[Team Project].[Project Node GUID].[All],
+					[Work Item].[System_IsDeleted].[All]
+				),
 				NonEmpty(
 					CrossJoin(
 						Descendants([Work Item].[System_WorkItemType].AllMembers),
-						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]")
+						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+						StrToMember("[Work Item].[System_IsDeleted].&amp;[false]")
 					),
 					[Measures].[Work Item Count]
 				)
@@ -1395,7 +1411,7 @@ ELSE
                           <ActionInfo>
                             <Actions>
                               <Action>
-                                <Hyperlink>http://go.microsoft.com/fwlink/?LinkId=169330</Hyperlink>
+                                <Hyperlink>https://go.microsoft.com/fwlink/?LinkId=169330</Hyperlink>
                               </Action>
                             </Actions>
                           </ActionInfo>

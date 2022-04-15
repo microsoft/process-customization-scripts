@@ -3087,7 +3087,7 @@ ORDER BY BuildDefinitionName</CommandText>
                           <ActionInfo>
                             <Actions>
                               <Action>
-                                <Hyperlink>http://go.microsoft.com/fwlink/?LinkId=145632</Hyperlink>
+                                <Hyperlink>https://go.microsoft.com/fwlink/?LinkId=145632</Hyperlink>
                               </Action>
                             </Actions>
                           </ActionInfo>

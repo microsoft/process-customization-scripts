@@ -5,7 +5,7 @@
     <taskXml>
         <!-- Project-level groups -->
       <Permission allow="ViewBuildDefinition, ViewBuilds" identity="[$$PROJECTNAME$$]\Readers" />
-      <Permission allow="ViewBuildDefinition, QueueBuilds, ViewBuilds, EditBuildQuality" identity="[$$PROJECTNAME$$]\Contributors" />
+      <Permission allow="EditBuildQuality, ViewBuilds, QueueBuilds, ViewBuildDefinition, DeleteBuildDefinition, DeleteBuilds, DestroyBuilds, EditBuildDefinition, RetainIndefinitely, StopBuilds, UpdateBuildInformation" identity="[$$PROJECTNAME$$]\Contributors" />
       <Permission allow="ViewBuildDefinition, EditBuildDefinition, DeleteBuildDefinition, QueueBuilds, ManageBuildQueue, StopBuilds, ViewBuilds, EditBuildQuality, RetainIndefinitely, DeleteBuilds, ManageBuildQualities, DestroyBuilds, AdministerBuildPermissions" identity="[$$PROJECTNAME$$]\Build Administrators" />
       <Permission allow="ViewBuildDefinition, EditBuildDefinition, DeleteBuildDefinition, QueueBuilds, ManageBuildQueue, StopBuilds, ViewBuilds, EditBuildQuality, RetainIndefinitely, DeleteBuilds, ManageBuildQualities, DestroyBuilds, AdministerBuildPermissions" identity="[$$PROJECTNAME$$]\$$PROJECTADMINGROUP$$" />
 

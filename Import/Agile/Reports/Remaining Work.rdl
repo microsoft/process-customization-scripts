@@ -97,6 +97,7 @@ FROM
 	SELECT
 		CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToSet(@StateParam),
 			StrToSet(@AreaParam),
 			StrToSet(@IterationParam),
@@ -163,6 +164,7 @@ FROM
 	SELECT
 		CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToSet(@StateParam),
 			StrToSet(@AreaParam),
 			StrToSet(@IterationParam),
@@ -319,11 +321,13 @@ SELECT
 						//
 						CrossJoin(
 							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							StrToMember("[Work Item].[System_IsDeleted].[All]"),
 							[Work Item].[Area Hierarchy].[All]
 						),
 						NonEmpty(
 							CrossJoin(
 								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 								[Work Item].[Area Hierarchy].[Area0]
 							),
 							[Measures].[Work Item Count]
@@ -378,11 +382,13 @@ SELECT
 						//
 						CrossJoin(
 							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							StrToMember("[Work Item].[System_IsDeleted].[All]"),
 							[Work Item].[Area Hierarchy].[All]
 						),
 						NonEmpty(
 							CrossJoin(
 								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 								[Work Item].[Area Hierarchy].[Area0]
 							),
 							[Measures].[Work Item Count]
@@ -395,8 +401,7 @@ SELECT
 		)
 	)
 } ON ROWS
-FROM [Team System]
-</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>F0CB7644-85B2-4C21-A196-819F78FA890C</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AllNoFilter</Name><DefaultValues><DefaultValue>All (No Filter)</DefaultValue></DefaultValues><Caption>AllNoFilter</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
+FROM [Team System]</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>F0CB7644-85B2-4C21-A196-819F78FA890C</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AllNoFilter</Name><DefaultValues><DefaultValue>All (No Filter)</DefaultValue></DefaultValues><Caption>AllNoFilter</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
         <rd:SuppressAutoUpdate>true</rd:SuppressAutoUpdate>
       </Query>
       <Filters>
@@ -451,12 +456,14 @@ SELECT
                                       Union(
                                                 CrossJoin(
                                                           [Work Item].[System_State].[All], 
-                                                          [Team Project].[Project Node GUID].[All]
+                                                          [Team Project].[Project Node GUID].[All],
+                                                          [Work Item].[System_IsDeleted].[All]
                                                 ),
                                                 NonEmpty(
                                                           CrossJoin(
                                                                    Descendants([Work Item].[System_State].[All]),
-                                                                   StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]")
+                                                                   StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+                                                                   StrToMember("[Work Item].[System_IsDeleted].&amp;[false]")
                                                           ),
                                                           [Measures].[State Change Count]
                                                 )
@@ -520,12 +527,14 @@ SELECT
                                       Union(
                                                 CrossJoin(
                                                           [Work Item].[System_State].[All], 
-                                                          [Team Project].[Project Node GUID].[All]
+                                                          [Team Project].[Project Node GUID].[All],
+                                                          [Work Item].[System_IsDeleted].[All]
                                                 ),
                                                 NonEmpty(
                                                           CrossJoin(
                                                                    Descendants([Work Item].[System_State].[All]),
-                                                                   StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]")
+                                                                   StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+                                                                   StrToMember("[Work Item].[System_IsDeleted].&amp;[false]")
                                                           ),
                                                           [Measures].[State Change Count]
                                                 )
@@ -592,11 +601,16 @@ SELECT
 		[Work Item].[System_WorkItemType].[All],
 		Extract(
 			Union(
-				CrossJoin([Work Item].[System_WorkItemType].[All], [Team Project].[Project Node GUID].[All]),
+				CrossJoin(
+					[Work Item].[System_WorkItemType].[All], 
+					[Team Project].[Project Node GUID].[All],
+					[Work Item].[System_IsDeleted].[All]
+				),
 				NonEmpty(
 					CrossJoin(
 						Descendants([Work Item].[System_WorkItemType].AllMembers),
-						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]")
+						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+						StrToMember("[Work Item].[System_IsDeleted].&amp;[false]")
 					),
 					[Measures].[Work Item Count]
 				)
@@ -651,11 +665,16 @@ SELECT
 		[Work Item].[System_WorkItemType].[All],
 		Extract(
 			Union(
-				CrossJoin([Work Item].[System_WorkItemType].[All], [Team Project].[Project Node GUID].[All]),
+				CrossJoin(
+					[Work Item].[System_WorkItemType].[All], 
+					[Team Project].[Project Node GUID].[All],
+					[Work Item].[System_IsDeleted].[All]
+				),
 				NonEmpty(
 					CrossJoin(
 						Descendants([Work Item].[System_WorkItemType].AllMembers),
-						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]")
+						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+						StrToMember("[Work Item].[System_IsDeleted].&amp;[false]")
 					),
 					[Measures].[Work Item Count]
 				)
@@ -674,8 +693,7 @@ FROM
 		)
 	ON COLUMNS
 	FROM [Team System]
-)
-</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>4B2DEEFA-6E1F-43EC-BE4C-B12B73CFB060</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AllNoFilter</Name><DefaultValues><DefaultValue>All (No Filter)</DefaultValue></DefaultValues><Caption>AllNoFilter</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>WorkItemsToExclude</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Test Case]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Issue]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Shared Steps]</DefaultValue></DefaultValues><Caption>WorkItemsToExclude</Caption><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_WorkItemType].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>DefaultWorkItemType</Name><DefaultValues><DefaultValue>Task</DefaultValue></DefaultValues><Caption>DefaultWorkItemType</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
+)</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>4B2DEEFA-6E1F-43EC-BE4C-B12B73CFB060</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AllNoFilter</Name><DefaultValues><DefaultValue>All (No Filter)</DefaultValue></DefaultValues><Caption>AllNoFilter</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>WorkItemsToExclude</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Test Case]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Issue]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Shared Steps]</DefaultValue></DefaultValues><Caption>WorkItemsToExclude</Caption><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_WorkItemType].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>DefaultWorkItemType</Name><DefaultValues><DefaultValue>Task</DefaultValue></DefaultValues><Caption>DefaultWorkItemType</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
         <rd:SuppressAutoUpdate>true</rd:SuppressAutoUpdate>
       </Query>
     </DataSet>
@@ -2169,7 +2187,7 @@ ELSE
                           <ActionInfo>
                             <Actions>
                               <Action>
-                                <Hyperlink>http://go.microsoft.com/fwlink/?LinkId=145636</Hyperlink>
+                                <Hyperlink>https://go.microsoft.com/fwlink/?LinkId=145636</Hyperlink>
                               </Action>
                             </Actions>
                           </ActionInfo>
