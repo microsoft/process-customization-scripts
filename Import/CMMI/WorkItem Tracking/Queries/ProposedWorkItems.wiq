@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>
+    SELECT [System.Id], 
+           [Microsoft.VSTS.Common.StackRank], 
+           [Microsoft.VSTS.Common.Priority], 
+           [System.WorkItemType],
+           [System.Title], 
+           [System.AssignedTo], 
+           [System.State], 
+           [Microsoft.VSTS.Common.Triage],
+           [System.IterationPath],
+           [System.AreaPath]
+      FROM WorkItems 
+     WHERE [System.TeamProject] = @project    
+       AND [SYstem.State] = 'Proposed'
+       AND [System.State] &lt;&gt; 'Closed' 
+  ORDER BY [System.State],
+           [Microsoft.VSTS.Common.StackRank], 
+           [Microsoft.VSTS.Common.Priority], 
+           [System.IterationPath],
+           [System.AreaPath],
+           [Microsoft.VSTS.Common.Triage],
+           [System.Id]
+  </Wiql>
+</WorkItemQuery>

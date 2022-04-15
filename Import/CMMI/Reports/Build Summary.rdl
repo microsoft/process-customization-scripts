@@ -62,43 +62,44 @@
       </Fields>
       <Query>
         <DataSourceName>TfsReportDS</DataSourceName>
-        <CommandText>CREATE TABLE #Results (
- BuildName NVARCHAR(64),
- BuildBK NVARCHAR(64),
- BuildSK INT,
- [DateTime] DATETIME,
- BuildStartTime DATETIME,
- BuildDefinitionName NVARCHAR(260) null,
- BuildStatusName NVARCHAR(256) null,
- BuildPlatformName NVARCHAR(64) null,
- BuildPlatformSK INT null,
- BuildFlavorName NVARCHAR(128) null,
- BuildFlavorSK INT null,
- BuildQualityName NVARCHAR(256) null,
- FailedCount INT,
- PassedCount INT,
- BlocksCovered INT,
- BlocksNotCovered INT,
- TotalChurn INT
-)
+        <CommandText>
+          CREATE TABLE #Results (
+          BuildName NVARCHAR(64),
+          BuildBK NVARCHAR(64),
+          BuildSK INT,
+          [DateTime] DATETIME,
+          BuildStartTime DATETIME,
+          BuildDefinitionName NVARCHAR(260) null,
+          BuildStatusName NVARCHAR(256) null,
+          BuildPlatformName NVARCHAR(64) null,
+          BuildPlatformSK INT null,
+          BuildFlavorName NVARCHAR(128) null,
+          BuildFlavorSK INT null,
+          BuildQualityName NVARCHAR(256) null,
+          FailedCount INT,
+          PassedCount INT,
+          BlocksCovered INT,
+          BlocksNotCovered INT,
+          TotalChurn INT
+          )
 
-CREATE CLUSTERED INDEX #IX_Results_BuildBK_BuildPlatformName_BuildFlavorName ON #Results (BuildBK, BuildPlatformName, BuildFlavorName)
+          CREATE CLUSTERED INDEX #IX_Results_BuildBK_BuildPlatformName_BuildFlavorName ON #Results (BuildBK, BuildPlatformName, BuildFlavorName)
 
--- Make sure we get everything for the end date, inclusive.
-SET @EndDateParam = DATEADD(dd, 1, @EndDateParam)
+          -- Make sure we get everything for the end date, inclusive.
+          SET @EndDateParam = DATEADD(dd, 1, @EndDateParam)
 
---
--- First get the set of builds for the project that are in the date range, and with the appropriate filters
--- applied.
---
-INSERT INTO #Results (BuildName, BuildBK, BuildSK, [DateTime], BuildStartTime, BuildDefinitionName, BuildStatusName, BuildPlatformName, BuildPlatformSK, BuildFlavorName, BuildFlavorSK, BuildQualityName)
-SELECT DISTINCT bd.BuildName, bd.BuildBK, db.BuildSK, bd.[DateTime], bd.BuildStartTime, bd.BuildDefinitionName, bd.BuildStatusName, dbp.BuildPlatformName, dbp.BuildPlatformSK, dbf.BuildFlavorName, dbf.BuildFlavorSK, BuildQualityName
-FROM BuildDetailsView bd
-     LEFT JOIN BuildProjectView pv ON pv.BuildBK = bd.BuildBK
-     JOIN DimBuild db on bd.BuildBK = db.BuildBK
-     LEFT JOIN DimBuildPlatform dbp on pv.BuildPlatformName = dbp.BuildPlatformName
-     LEFT JOIN DimBuildFlavor dbf on pv.BuildFlavorName = dbf.BuildFlavorName
-WHERE bd.[DateTime] &gt;= @StartDateParam and bd.[DateTime] &lt; @EndDateParam
+          --
+          -- First get the set of builds for the project that are in the date range, and with the appropriate filters
+          -- applied.
+          --
+          INSERT INTO #Results (BuildName, BuildBK, BuildSK, [DateTime], BuildStartTime, BuildDefinitionName, BuildStatusName, BuildPlatformName, BuildPlatformSK, BuildFlavorName, BuildFlavorSK, BuildQualityName)
+          SELECT DISTINCT bd.BuildName, bd.BuildBK, db.BuildSK, bd.[DateTime], bd.BuildStartTime, bd.BuildDefinitionName, bd.BuildStatusName, dbp.BuildPlatformName, dbp.BuildPlatformSK, dbf.BuildFlavorName, dbf.BuildFlavorSK, BuildQualityName
+          FROM BuildDetailsView bd
+          LEFT JOIN BuildProjectView pv ON pv.BuildBK = bd.BuildBK
+          JOIN DimBuild db on bd.BuildBK = db.BuildBK
+          LEFT JOIN DimBuildPlatform dbp on pv.BuildPlatformName = dbp.BuildPlatformName
+          LEFT JOIN DimBuildFlavor dbf on pv.BuildFlavorName = dbf.BuildFlavorName
+          WHERE bd.[DateTime] &gt;= @StartDateParam and bd.[DateTime] &lt; @EndDateParam
       AND bd.TeamProjectProjectNodeGUID = @ProjectGuid
       AND (bd.BuildDefinitionName IN (@BuildTypeParam) OR '*' IN (@BuildTypeParam))
       AND (bd.BuildStatusName IN (@ProgressParam) OR '*' IN (@ProgressParam))
@@ -3087,7 +3088,7 @@ ORDER BY BuildDefinitionName</CommandText>
                           <ActionInfo>
                             <Actions>
                               <Action>
-                                <Hyperlink>http://go.microsoft.com/fwlink/?LinkId=145632</Hyperlink>
+                                <Hyperlink>https://go.microsoft.com/fwlink/?LinkId=145632</Hyperlink>
                               </Action>
                             </Actions>
                           </ActionInfo>
@@ -3789,7 +3790,7 @@ ORDER BY BuildDefinitionName</CommandText>
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>/TfsReports/Collection0/ProcessTestProjectAgile0</Value>
+          <Value>/TfsReports/Collection0/ProcessTestProjectCMMI0</Value>
         </Values>
       </DefaultValue>
       <AllowBlank>true</AllowBlank>

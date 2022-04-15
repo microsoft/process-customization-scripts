@@ -140,6 +140,18 @@
       <FIELD name="Original Estimate" refname="Microsoft.VSTS.Scheduling.OriginalEstimate" type="Double" reportable="measure" formula="sum">
         <HELPTEXT>The original estimate of hours of work required</HELPTEXT>
       </FIELD>
+      <FIELD name="Stack Rank" refname="Microsoft.VSTS.Common.StackRank" type="Double" reportable="dimension" />
+      <FIELD name="Discipline" refname="Microsoft.VSTS.Common.Discipline" type="String" reportable="dimension">
+        <ALLOWEDVALUES>
+          <LISTITEM value="Analysis" />
+          <LISTITEM value="User Experience" />
+          <LISTITEM value="User Education" />
+          <LISTITEM value="Development" />
+          <LISTITEM value="Test" />
+        </ALLOWEDVALUES>
+      </FIELD>
+      <FIELD name="Size" refname="Microsoft.VSTS.Scheduling.Size" type="Double" reportable="measure" formula="sum" />
+      <FIELD name="Remaining Work" refname="Microsoft.VSTS.Scheduling.RemainingWork" type="Double" reportable="measure" formula="sum" />
     </FIELDS>
     <WORKFLOW>
       <STATES>
@@ -403,7 +415,7 @@
       </Layout>
       <WebLayout>
         <SystemControls>
-          <Control Type="FieldControl" FieldName="System.Title" EmptyText="Enter title" />
+          <Control Type="FieldControl" FieldName="System.Title" EmptyText="Enter title"/>
           <Control Label="Assi&amp;gned To" Type="FieldControl" FieldName="System.AssignedTo" />
           <Control Label="Stat&amp;e" Type="FieldControl" FieldName="System.State" />
           <Control Label="Reason" Type="FieldControl" FieldName="System.Reason" />
@@ -411,43 +423,45 @@
           <Control Label="Ite&amp;ration" Type="WorkItemClassificationControl" FieldName="System.IterationPath" />
           <Control Label="History" Type="WorkItemLogControl" FieldName="System.History" />
           <Control Label="Links" Type="LinksControl" Name="Links" />
-          <Control Label="Attachments" Type="AttachmentsControl" Name="Attachments" />
+          <Control Label="Attachments" Type="AttachmentsControl" Name="Attachments"/>
         </SystemControls>
-        <Page Label="Details" LayoutMode="FirstColumnWide">
+        <Page Label="Details">
           <Section>
             <Group Label="Description">
-              <Control Label="Description" Type="HtmlFieldControl" FieldName="System.Description" />
+              <Control Type="HtmlFieldControl" FieldName="System.Description" Label="Description" />
             </Group>
             <Group Label="Analysis">
               <Control Type="HtmlFieldControl" FieldName="Microsoft.VSTS.CMMI.Analysis" />
             </Group>
             <Group Label="Plan">
-              <Control Label="Plan" Type="HtmlFieldControl" FieldName="Microsoft.VSTS.CMMI.CorrectiveActionPlan" />
+              <Control Type="HtmlFieldControl" FieldName="Microsoft.VSTS.CMMI.CorrectiveActionPlan" Label="Plan" />
             </Group>
             <Group Label="Actual Resolution">
-              <Control Label="Actual Resolution" Type="HtmlFieldControl" FieldName="Microsoft.VSTS.CMMI.CorrectiveActionActualResolution" />
+              <Control Type="HtmlFieldControl" FieldName="Microsoft.VSTS.CMMI.CorrectiveActionActualResolution" Label="Actual Resolution" />
             </Group>
           </Section>
           <Section>
             <Group Label="Planning">
-              <Control Label="Priority" Type="FieldControl" FieldName="Microsoft.VSTS.Common.Priority" />
-              <Control Label="Triage" Type="FieldControl" FieldName="Microsoft.VSTS.Common.Triage" />
-              <Control Label="Escalate" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.Escalate" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Common.Priority" Label="Priority" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Common.Triage" Label="Triage" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.Escalate" Label="Escalate" />
             </Group>
             <Group Label="Effort (Hours)">
-              <Control Label="Original Estimate" Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.OriginalEstimate" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.OriginalEstimate" Label="Original Estimate" />
             </Group>
             <Group Label="Schedule">
-              <Control Label="Target Resolve Date" Type="DateTimeControl" FieldName="Microsoft.VSTS.CMMI.TargetResolveDate" />
-              <Control Label="Actual Resolve Date" Type="DateTimeControl" FieldName="Microsoft.VSTS.Common.ResolvedDate" />
+              <Control Type="DateTimeControl" FieldName="Microsoft.VSTS.CMMI.TargetResolveDate" Label="Target Resolve Date" />
+              <Control Type="DateTimeControl" FieldName="Microsoft.VSTS.Common.ResolvedDate" Label="Actual Resolve Date" />
             </Group>
           </Section>
           <Section>
+            <Group Label="Deployment">
+              <Control Type="DeploymentsControl" Name="Deployments" />
+            </Group>
             <Group Label="Development">
               <Control Type="LinksControl" Name="Development">
-                <LinksControlOptions ViewMode="Dynamic" ZeroDataExperience="Development" ShowCallToAction="true">
-                  <ListViewOptions GroupLinks="false">
-                  </ListViewOptions>
+                <LinksControlOptions ViewMode="List" ZeroDataExperience="Development" ShowCallToAction="true">
+                  <ListViewOptions GroupLinks="false"></ListViewOptions>
                   <LinkFilters>
                     <ExternalLinkFilter Type="Build" />
                     <ExternalLinkFilter Type="Integrated in build" />
@@ -457,13 +471,15 @@
                     <ExternalLinkFilter Type="Fixed in Changeset" />
                     <ExternalLinkFilter Type="Source Code File" />
                     <ExternalLinkFilter Type="Found in build" />
+                    <ExternalLinkFilter Type="GitHub Pull Request" />
+                    <ExternalLinkFilter Type="GitHub Commit" />
                   </LinkFilters>
                 </LinksControlOptions>
               </Control>
             </Group>
             <Group Label="Related Work">
-              <Control Type="LinksControl" Name="Related Work">
-                <LinksControlOptions>
+              <Control Name="Related Work" Type="LinksControl">
+                <LinksControlOptions ViewMode="List">
                   <LinkFilters>
                     <WorkItemLinkFilter Type="System.LinkTypes.Duplicate-Reverse" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Hierarchy-Reverse" />
@@ -474,6 +490,7 @@
                     <WorkItemLinkFilter Type="Microsoft.VSTS.Common.Affects" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Dependency" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Related" />
+                    <ExternalLinkFilter Type="GitHub Issue" />
                   </LinkFilters>
                   <Columns>
                     <Column Name="System.State" />
@@ -484,7 +501,7 @@
               </Control>
             </Group>
             <Group Label="Analysis">
-              <Control Label="Impact on project promise" Type="FieldControl" FieldName="Microsoft.VSTS.Common.Severity" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Common.Severity" Label="Impact on project promise" />
             </Group>
           </Section>
         </Page>

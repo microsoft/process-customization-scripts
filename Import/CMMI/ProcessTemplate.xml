@@ -3,7 +3,7 @@
   <metadata>
     <name>CMMI</name>
     <description>This template is for more formal projects requiring a framework for process improvement and an auditable record of decisions.</description>
-    <version type="27450541-8E31-4150-9947-DC59F998FC01" major="16" minor="1" />
+    <version type="27450541-8E31-4150-9947-DC59F998FC01" major="18" minor="1" />
     <plugins>
       <plugin name="Microsoft.ProjectCreationWizard.Classification" wizardPage="false" />
       <plugin name="Microsoft.ProjectCreationWizard.Reporting" wizardPage="false" />
@@ -17,7 +17,8 @@
   </metadata>
   <groups>
     <group id="Classification" description="Structure definition for the project." completionMessage="Project Structure uploaded.">
-      <dependencies></dependencies>
+      <dependencies>
+      </dependencies>
       <taskList filename="Classification\Classification.xml" />
     </group>
     <group id="Groups" description="Create Groups and assign Permissions." completionMessage="Groups created and Permissions assigned.">

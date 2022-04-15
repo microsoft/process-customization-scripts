@@ -83,7 +83,7 @@
               <reference name="/Tfs2010ReportDS" dsname="TfsReportDS" />
             </datasources>
           </report>
-          <report name="Burndown" filename="Reports\Burndown - Dashboard.rdl" folder="Dashboards" cacheExpiration="30">
+          <report name="Remaining Work" filename="Reports\Remaining Work.rdl" folder="Project Management" cacheExpiration="30">
             <parameters>
               <parameter name="ExplicitProject" value="" />
             </parameters>
@@ -92,7 +92,16 @@
               <reference name="/Tfs2010ReportDS" dsname="TfsReportDS" />
             </datasources>
           </report>
-          <report name="Remaining Work" filename="Reports\Remaining Work.rdl" folder="Project Management" cacheExpiration="30">
+          <report name="Unplanned Work" filename="Reports\Unplanned Work.rdl" folder="Project Management" cacheExpiration="30">
+            <parameters>
+              <parameter name="ExplicitProject" value="" />
+            </parameters>
+            <datasources>
+              <reference name="/Tfs2010OlapReportDS" dsname="TfsOlapReportDS" />
+              <reference name="/Tfs2010ReportDS" dsname="TfsReportDS" />
+            </datasources>
+          </report>
+          <report name="Remaining Work" filename="Reports\Remaining Work - Dashboard.rdl" folder="Dashboards" cacheExpiration="30">
             <parameters>
               <parameter name="ExplicitProject" value="" />
             </parameters>
@@ -109,7 +118,7 @@
               <reference name="/Tfs2010ReportDS" dsname="TfsReportDS" />
             </datasources>
           </report>
-          <report name="Stories Overview" filename="Reports\Stories Overview.rdl" folder="Project Management" cacheExpiration="30">
+          <report name="Requirements Overview" filename="Reports\Requirements Overview.rdl" folder="Project Management" cacheExpiration="30">
             <parameters>
               <parameter name="ExplicitProject" value="" />
             </parameters>
@@ -117,20 +126,11 @@
               <reference name="/Tfs2010ReportDS" dsname="TfsReportDS" />
             </datasources>
           </report>
-          <report name="Stories Progress" filename="Reports\Stories Progress.rdl" folder="Project Management" cacheExpiration="30">
+          <report name="Requirements Progress" filename="Reports\Requirements Progress.rdl" folder="Project Management" cacheExpiration="30">
             <parameters>
               <parameter name="ExplicitProject" value="" />
             </parameters>
             <datasources>
-              <reference name="/Tfs2010ReportDS" dsname="TfsReportDS" />
-            </datasources>
-          </report>
-          <report name="Unplanned Work" filename="Reports\Unplanned Work.rdl" folder="Project Management" cacheExpiration="30">
-            <parameters>
-              <parameter name="ExplicitProject" value="" />
-            </parameters>
-            <datasources>
-              <reference name="/Tfs2010OlapReportDS" dsname="TfsOlapReportDS" />
               <reference name="/Tfs2010ReportDS" dsname="TfsReportDS" />
             </datasources>
           </report>
@@ -144,15 +144,6 @@
             </datasources>
           </report>
           <report name="Test Plan Progress" filename="Reports\Test Plan Progress.rdl" folder="Tests" cacheExpiration="30">
-            <parameters>
-              <parameter name="ExplicitProject" value="" />
-            </parameters>
-            <datasources>
-              <reference name="/Tfs2010OlapReportDS" dsname="TfsOlapReportDS" />
-              <reference name="/Tfs2010ReportDS" dsname="TfsReportDS" />
-            </datasources>
-          </report>
-          <report name="Burn Rate" filename="Reports\Burn Rate - Dashboard.rdl" folder="Dashboards" cacheExpiration="30">
             <parameters>
               <parameter name="ExplicitProject" value="" />
             </parameters>

@@ -493,7 +493,7 @@
       </Layout>
       <WebLayout>
         <SystemControls>
-          <Control Type="FieldControl" FieldName="System.Title" EmptyText="Enter title" />
+          <Control Type="FieldControl" FieldName="System.Title" EmptyText="Enter title"/>
           <Control Label="Assi&amp;gned To" Type="FieldControl" FieldName="System.AssignedTo" />
           <Control Label="Stat&amp;e" Type="FieldControl" FieldName="System.State" />
           <Control Label="Reason" Type="FieldControl" FieldName="System.Reason" />
@@ -501,40 +501,42 @@
           <Control Label="Ite&amp;ration" Type="WorkItemClassificationControl" FieldName="System.IterationPath" />
           <Control Label="History" Type="WorkItemLogControl" FieldName="System.History" />
           <Control Label="Links" Type="LinksControl" Name="Links" />
-          <Control Label="Attachments" Type="AttachmentsControl" Name="Attachments" />
+          <Control Label="Attachments" Type="AttachmentsControl" Name="Attachments"/>
         </SystemControls>
-        <Page Label="Details" LayoutMode="FirstColumnWide">
+        <Page Label="Details">
           <Section>
             <Group Label="Description">
-              <Control Label="Description" Type="HtmlFieldControl" FieldName="System.Description" />
+              <Control Type="HtmlFieldControl" FieldName="System.Description" Label="Description" />
             </Group>
           </Section>
           <Section>
             <Group Label="Planning">
-              <Control Label="Priority" Type="FieldControl" FieldName="Microsoft.VSTS.Common.Priority" />
-              <Control Label="Triage" Type="FieldControl" FieldName="Microsoft.VSTS.Common.Triage" />
-              <Control Label="Blocked" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.Blocked" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Common.Priority" Label="Priority" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Common.Triage" Label="Triage" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.Blocked" Label="Blocked" />
             </Group>
             <Group Label="Effort (Hours)">
-              <Control Label="Original Estimate" Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.OriginalEstimate" />
-              <Control Label="Remaining work" Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.RemainingWork" />
-              <Control Label="Completed work" Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.CompletedWork" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.OriginalEstimate" Label="Original Estimate" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.RemainingWork" Label="Remaining work" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.CompletedWork" Label="Completed work" />
             </Group>
             <Group Label="Classification">
-              <Control Label="Task Type" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.TaskType" />
-              <Control Label="Discipline" Type="FieldControl" FieldName="Microsoft.VSTS.Common.Discipline" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.TaskType" Label="Task Type" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Common.Discipline" Label="Discipline" />
             </Group>
             <Group Label="Schedule">
-              <Control Label="Start Date" Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.StartDate" ReadOnly="True" />
-              <Control Label="Finish Date" Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.FinishDate" ReadOnly="True" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.StartDate" Label="Start Date" ReadOnly="True" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.FinishDate" Label="Finish Date" ReadOnly="True" />
             </Group>
           </Section>
           <Section>
+            <Group Label="Deployment">
+              <Control Type="DeploymentsControl" Name="Deployments" />
+            </Group>
             <Group Label="Development">
               <Control Type="LinksControl" Name="Development">
-                <LinksControlOptions ViewMode="Dynamic" ZeroDataExperience="Development" ShowCallToAction="true">
-                  <ListViewOptions GroupLinks="false">
-                  </ListViewOptions>
+                <LinksControlOptions ViewMode="List" ZeroDataExperience="Development" ShowCallToAction="true">
+                  <ListViewOptions GroupLinks="false"></ListViewOptions>
                   <LinkFilters>
                     <ExternalLinkFilter Type="Build" />
                     <ExternalLinkFilter Type="Integrated in build" />
@@ -544,13 +546,15 @@
                     <ExternalLinkFilter Type="Fixed in Changeset" />
                     <ExternalLinkFilter Type="Source Code File" />
                     <ExternalLinkFilter Type="Found in build" />
+                    <ExternalLinkFilter Type="GitHub Pull Request" />
+                    <ExternalLinkFilter Type="GitHub Commit" />
                   </LinkFilters>
                 </LinksControlOptions>
               </Control>
             </Group>
             <Group Label="Related Work">
-              <Control Type="LinksControl" Name="Related Work">
-                <LinksControlOptions>
+              <Control Name="Related Work" Type="LinksControl">
+                <LinksControlOptions ViewMode="List">
                   <LinkFilters>
                     <WorkItemLinkFilter Type="System.LinkTypes.Duplicate-Reverse" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Hierarchy-Reverse" />
@@ -561,6 +565,7 @@
                     <WorkItemLinkFilter Type="Microsoft.VSTS.Common.Affects" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Dependency" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Related" />
+                    <ExternalLinkFilter Type="GitHub Issue" />
                   </LinkFilters>
                   <Columns>
                     <Column Name="System.State" />
@@ -571,11 +576,11 @@
               </Control>
             </Group>
             <Group Label="Build">
-              <Control Label="Integrated In" Type="FieldControl" FieldName="Microsoft.VSTS.Build.IntegrationBuild" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Build.IntegrationBuild" Label="Integrated In" />
             </Group>
             <Group Label="General">
-              <Control Label="Requires Review" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiresReview" />
-              <Control Label="Requires Test" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiresTest" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiresReview" Label="Requires Review" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiresTest" Label="Requires Test" />
             </Group>
           </Section>
         </Page>

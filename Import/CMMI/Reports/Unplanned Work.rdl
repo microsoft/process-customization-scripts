@@ -35,8 +35,7 @@
       </Fields>
       <Query>
         <DataSourceName>TfsOlapReportDS</DataSourceName>
-        <CommandText>
-WITH
+        <CommandText>WITH
 MEMBER [Measures].[State Changed] AS
 	IIF([Measures].[State Change Count] &gt; 0, 1, null)
 	
@@ -44,19 +43,18 @@ MEMBER [Measures].[Unplanned Cumulative Count] AS
 	Iif( DateDiff('d', [Date].[Date].CURRENTMEMBER.MEMBER_VALUE, CDate(@PlanCompletionDateParam)) &lt; 0,
 		-- Iif Current Date is after PlanCompletionDate
 		Sum(
-			NonEmpty(
-				NonEmpty(
-					-- Get a range of dates from the "date after the completion of planning" to "the date we're calculating the value for"
-					Filter(
-						[Date].[Date].[Date],
-						[Date].[Date].CURRENTMEMBER.Member_Value = CDate(@PlanCompletionDateParam)
-					).Item(0).NextMember:[Date].[Date].CURRENTMEMBER
-					-- Include ID so we count each work item
-					* [Work Item].[System_Id].[System_Id]
-					, [Measures].[State Change Count])
+			Nonempty(
+				-- Get a range of dates from the "date after the completion of planning" to "the date we're calculating the value for"
+				Filter(
+					[Date].[Date].[Date],
+					[Date].[Date].CURRENTMEMBER.Member_Value = CDate(@PlanCompletionDateParam)
+				).Item(0).NextMember:[Date].[Date].CURRENTMEMBER 
 
-                                  * [Work Item].[Previous State].[All].UnknownMember
+				-- Include ID so we count each work item
+				* [Work Item].[System_Id].[System_Id]
 
+				-- Only consider new work items (i.e. ones that transitioned from the empty/unknown state)
+				* [Work Item].[Previous State].[All].UnknownMember
 				, [State Changed]
 			),
 			[Measures].[Work Item Count]
@@ -86,6 +84,7 @@ FROM
 	(
 		CROSSJOIN(
 			STRTOMEMBER("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			Except(
 				Descendants(StrToSet(@WorkItemTypeParam)),
 				[Work Item].[System_WorkItemType].[All] + StrToSet(@WorkItemsToExclude)
@@ -129,8 +128,7 @@ FROM
             <Value>=Code.CollectionToMDX(Parameters!StatesToExclude.Value, "[Work Item].[State].&amp;[", "]")</Value>
           </QueryParameter>
         </QueryParameters>
-        <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Level"><DimensionName>Date</DimensionName><HierarchyName>Date</HierarchyName><HierarchyUniqueName>[Date].[Date]</HierarchyUniqueName><LevelName>Date</LevelName><UniqueName>[Date].[Date].[Date]</UniqueName></ID><ItemCaption>Date</ItemCaption></Item><Item><ID xsi:type="Measure"><MeasureName>Date Value</MeasureName><UniqueName>[Measures].[Date Value]</UniqueName></ID><ItemCaption>Date Value</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Work Item Count</MeasureName><UniqueName>[Measures].[Work Item Count]</UniqueName></ID><ItemCaption>Work Item Count</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Unplanned Cumulative Count</MeasureName><UniqueName>[Measures].[Unplanned Cumulative Count]</UniqueName></ID><ItemCaption>Unplanned Cumulative Count</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>
-WITH
+        <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Level"><DimensionName>Date</DimensionName><HierarchyName>Date</HierarchyName><HierarchyUniqueName>[Date].[Date]</HierarchyUniqueName><LevelName>Date</LevelName><UniqueName>[Date].[Date].[Date]</UniqueName></ID><ItemCaption>Date</ItemCaption></Item><Item><ID xsi:type="Measure"><MeasureName>Date Value</MeasureName><UniqueName>[Measures].[Date Value]</UniqueName></ID><ItemCaption>Date Value</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Work Item Count</MeasureName><UniqueName>[Measures].[Work Item Count]</UniqueName></ID><ItemCaption>Work Item Count</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Unplanned Cumulative Count</MeasureName><UniqueName>[Measures].[Unplanned Cumulative Count]</UniqueName></ID><ItemCaption>Unplanned Cumulative Count</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>WITH
 MEMBER [Measures].[State Changed] AS
 	IIF([Measures].[State Change Count] &gt; 0, 1, null)
 	
@@ -138,19 +136,18 @@ MEMBER [Measures].[Unplanned Cumulative Count] AS
 	Iif( DateDiff('d', [Date].[Date].CURRENTMEMBER.MEMBER_VALUE, CDate(@PlanCompletionDateParam)) &lt; 0,
 		-- Iif Current Date is after PlanCompletionDate
 		Sum(
-			NonEmpty(
-				NonEmpty(
-					-- Get a range of dates from the "date after the completion of planning" to "the date we're calculating the value for"
-					Filter(
-						[Date].[Date].[Date],
-						[Date].[Date].CURRENTMEMBER.Member_Value = CDate(@PlanCompletionDateParam)
-					).Item(0).NextMember:[Date].[Date].CURRENTMEMBER
-					-- Include ID so we count each work item
-					* [Work Item].[System_Id].[System_Id]
-					, [Measures].[State Change Count])
+			Nonempty(
+				-- Get a range of dates from the "date after the completion of planning" to "the date we're calculating the value for"
+				Filter(
+					[Date].[Date].[Date],
+					[Date].[Date].CURRENTMEMBER.Member_Value = CDate(@PlanCompletionDateParam)
+				).Item(0).NextMember:[Date].[Date].CURRENTMEMBER 
 
-                                  * [Work Item].[Previous State].[All].UnknownMember
+				-- Include ID so we count each work item
+				* [Work Item].[System_Id].[System_Id]
 
+				-- Only consider new work items (i.e. ones that transitioned from the empty/unknown state)
+				* [Work Item].[Previous State].[All].UnknownMember
 				, [State Changed]
 			),
 			[Measures].[Work Item Count]
@@ -180,6 +177,7 @@ FROM
 	(
 		CROSSJOIN(
 			STRTOMEMBER("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			Except(
 				Descendants(StrToSet(@WorkItemTypeParam)),
 				[Work Item].[System_WorkItemType].[All] + StrToSet(@WorkItemsToExclude)
@@ -316,11 +314,13 @@ SELECT
 						//
 						CrossJoin(
 							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							StrToMember("[Work Item].[System_IsDeleted].[All]"),
 							[Work Item].[Area Hierarchy].[All]
 						),
 						NonEmpty(
 							CrossJoin(
 								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 								[Work Item].[Area Hierarchy].[Area0]
 							),
 							[Measures].[Work Item Count]
@@ -375,11 +375,13 @@ SELECT
 						//
 						CrossJoin(
 							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							StrToMember("[Work Item].[System_IsDeleted].[All]"),
 							[Work Item].[Area Hierarchy].[All]
 						),
 						NonEmpty(
 							CrossJoin(
 								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 								[Work Item].[Area Hierarchy].[Area0]
 							),
 							[Measures].[Work Item Count]
@@ -438,11 +440,16 @@ SELECT
 		[Work Item].[System_WorkItemType].[All],
 		Extract(
 			Union(
-				CrossJoin([Work Item].[System_WorkItemType].[All], [Team Project].[Project Node GUID].[All]),
+				CrossJoin(
+					[Work Item].[System_WorkItemType].[All], 
+					[Team Project].[Project Node GUID].[All],
+					[Work Item].[System_IsDeleted].[All]
+				),
 				NonEmpty(
 					CrossJoin(
 						Descendants([Work Item].[System_WorkItemType].AllMembers),
-						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]")
+						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+						StrToMember("[Work Item].[System_IsDeleted].&amp;[false]")
 					),
 					[Measures].[Work Item Count]
 				)
@@ -493,11 +500,16 @@ SELECT
 		[Work Item].[System_WorkItemType].[All],
 		Extract(
 			Union(
-				CrossJoin([Work Item].[System_WorkItemType].[All], [Team Project].[Project Node GUID].[All]),
+				CrossJoin(
+					[Work Item].[System_WorkItemType].[All], 
+					[Team Project].[Project Node GUID].[All],
+					[Work Item].[System_IsDeleted].[All]
+				),
 				NonEmpty(
 					CrossJoin(
 						Descendants([Work Item].[System_WorkItemType].AllMembers),
-						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]")
+						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+						StrToMember("[Work Item].[System_IsDeleted].&amp;[false]")
 					),
 					[Measures].[Work Item Count]
 				)
@@ -1395,7 +1407,7 @@ ELSE
                           <ActionInfo>
                             <Actions>
                               <Action>
-                                <Hyperlink>http://go.microsoft.com/fwlink/?LinkId=169330</Hyperlink>
+                                <Hyperlink>https://go.microsoft.com/fwlink/?LinkId=169330</Hyperlink>
                               </Action>
                             </Actions>
                           </ActionInfo>
@@ -2004,7 +2016,7 @@ ELSE
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>/TfsReports/DefaultCollection/Agile01</Value>
+          <Value>/TfsReports/Collection0/ProcessTestProjectCMMI0</Value>
         </Values>
       </DefaultValue>
       <AllowBlank>true</AllowBlank>

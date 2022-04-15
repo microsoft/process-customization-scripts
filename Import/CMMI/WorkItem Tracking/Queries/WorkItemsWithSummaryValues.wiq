@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>
+      SELECT [System.Id], 
+             [System.WorkItemType], 
+             [Microsoft.VSTS.Scheduling.RemainingWork], 
+             [Microsoft.VSTS.Scheduling.CompletedWork], 
+             [System.Title], 
+             [System.AreaPath], 
+             [System.IterationPath] 
+        FROM WorkItemLinks
+       WHERE (
+                   [Source].[System.TeamProject] = @project
+              AND  (
+                        [Source].[Microsoft.VSTS.Scheduling.RemainingWork] &gt; 0
+                    OR  [Source].[Microsoft.VSTS.Scheduling.CompletedWork] &gt; 0
+                   )
+             )
+         And [System.Links.LinkType] = 'System.LinkTypes.Hierarchy-Forward'
+    ORDER BY [System.Links.LinkType] mode(MustContain)
+  </Wiql>
+</WorkItemQuery>

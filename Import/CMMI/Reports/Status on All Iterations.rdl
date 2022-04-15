@@ -333,8 +333,10 @@ INSERT @WorkItemsInArea
 		wi.[Microsoft_VSTS_Scheduling_CompletedWork],
 		wi.[Microsoft_VSTS_Scheduling_OriginalEstimate]
 	FROM [CurrentWorkItemView] wi JOIN  @AreasAndChildren areas
-        ON (wi.[ProjectNodeGUID] = @ProjectGuid) AND (wi.[AreaPath] = areas.[AreaPath])
-        AND wi.[System_State] != @Proposed AND wi.[System_State] &lt;&gt; @Removed 
+		ON wi.[ProjectNodeGUID] = @ProjectGuid
+		AND wi.[System_IsDeleted] = 0
+		AND wi.[AreaPath] = areas.[AreaPath]
+		AND wi.[System_State] &lt;&gt; @Proposed
 ;
 
 --
@@ -438,6 +440,7 @@ INSERT @StoryCounts
 		ON lh.TargetWorkItemID = child.[System_Id] 
 			AND child.[System_WorkItemType] IN (@DeliverableCategory)
 			AND child.ProjectNodeGUID = @ProjectGuid
+			AND child.[System_IsDeleted] = 0
 	WHERE wi.[System_WorkItemType] IN (@DeliverableCategory)
 		AND child.[System_Id] IS NULL -- exclude stories with child stories
 	GROUP BY  wi.[IterationPath]
@@ -654,9 +657,6 @@ ORDER BY [Iteration Path];</CommandText>
           </QueryParameter>
           <QueryParameter Name="@Resolved">
             <Value>=Parameters!Resolved.Value</Value>
-          </QueryParameter>
-          <QueryParameter Name="@Removed">
-            <Value>=Parameters!Removed.Value</Value>
           </QueryParameter>
           <QueryParameter Name="@Closed">
             <Value>=Parameters!Closed.Value</Value>
@@ -965,7 +965,7 @@ WHERE ProjectGUID = @ProjectGuid</CommandText>
         <TablixBody>
           <TablixColumns>
             <TablixColumn>
-              <Width>0.6in</Width>
+              <Width>0.85in</Width>
             </TablixColumn>
             <TablixColumn>
               <Width>1.7in</Width>
@@ -2217,7 +2217,7 @@ WHERE ProjectGUID = @ProjectGuid</CommandText>
                       <Paragraph>
                         <TextRuns>
                           <TextRun>
-                            <Value>Stories Closed</Value>
+                            <Value>Requirements Closed</Value>
                             <Style>
                               <FontFamily>tahoma</FontFamily>
                               <FontSize>8pt</FontSize>
@@ -2366,7 +2366,7 @@ WHERE ProjectGUID = @ProjectGuid</CommandText>
                 <Parent>=Fields!ParentID.Value</Parent>
               </Group>
               <TablixHeader>
-                <Size>3.5in</Size>
+                <Size>3.25in</Size>
                 <CellContents>
                   <Textbox Name="Iteration">
                     <CanGrow>true</CanGrow>
@@ -2919,7 +2919,7 @@ WHERE ProjectGUID = @ProjectGuid</CommandText>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>Stories Overview</Value>
+                                  <Value>Requirements Overview</Value>
                                   <Style>
                                     <FontFamily>tahoma</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -2937,8 +2937,8 @@ WHERE ProjectGUID = @ProjectGuid</CommandText>
                                   <ReportName>
                                     =IIF(Parameters!IsRuntime.Value,
                                     "../" + "Project Management" + "/"
-                                    + "Stories Overview",
-                                    "Stories Overview"
+                                    + "Requirements Overview",
+                                    "Requirements Overview"
                                     )
                                   </ReportName>
                                   <Parameters>
@@ -2970,7 +2970,7 @@ WHERE ProjectGUID = @ProjectGuid</CommandText>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>Stories Progress</Value>
+                                  <Value>Requirements Progress</Value>
                                   <Style>
                                     <FontFamily>tahoma</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -2988,8 +2988,8 @@ WHERE ProjectGUID = @ProjectGuid</CommandText>
                                   <ReportName>
                                     =IIF(Parameters!IsRuntime.Value,
                                     "../" + "Project Management" + "/"
-                                    + "Stories Progress",
-                                    "Stories Progress"
+                                    + "Requirements Progress",
+                                    "Requirements Progress"
                                     )
                                   </ReportName>
                                   <Parameters>
@@ -3243,7 +3243,7 @@ WHERE ProjectGUID = @ProjectGuid</CommandText>
                           <ActionInfo>
                             <Actions>
                               <Action>
-                                <Hyperlink>http://go.microsoft.com/fwlink/?LinkId=145637</Hyperlink>
+                                <Hyperlink>https://go.microsoft.com/fwlink/?LinkId=145637</Hyperlink>
                               </Action>
                             </Actions>
                           </ActionInfo>
@@ -3796,17 +3796,6 @@ WHERE ProjectGUID = @ProjectGuid</CommandText>
         </Values>
       </DefaultValue>
       <AllowBlank>true</AllowBlank>
-    </ReportParameter>
-    <ReportParameter Name="Removed">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>Removed</Value>
-        </Values>
-      </DefaultValue>
-      <AllowBlank>true</AllowBlank>
-      <Prompt>Removed</Prompt>
-      <Hidden>true</Hidden>
     </ReportParameter>
     <ReportParameter Name="Closed">
       <DataType>String</DataType>

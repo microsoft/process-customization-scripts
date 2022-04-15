@@ -208,6 +208,18 @@
         <VALIDUSER />
         <ALLOWEXISTINGVALUE />
       </FIELD>
+      <FIELD name="Stack Rank" refname="Microsoft.VSTS.Common.StackRank" type="Double" reportable="dimension" />
+      <FIELD name="Discipline" refname="Microsoft.VSTS.Common.Discipline" type="String" reportable="dimension">
+        <ALLOWEDVALUES>
+          <LISTITEM value="Analysis" />
+          <LISTITEM value="User Experience" />
+          <LISTITEM value="User Education" />
+          <LISTITEM value="Development" />
+          <LISTITEM value="Test" />
+        </ALLOWEDVALUES>
+      </FIELD>
+      <FIELD name="Size" refname="Microsoft.VSTS.Scheduling.Size" type="Double" reportable="measure" formula="sum" />
+      <FIELD name="Remaining Work" refname="Microsoft.VSTS.Scheduling.RemainingWork" type="Double" reportable="measure" formula="sum" />
     </FIELDS>
     <WORKFLOW>
       <STATES>
@@ -458,7 +470,7 @@
       </Layout>
       <WebLayout>
         <SystemControls>
-          <Control Type="FieldControl" FieldName="System.Title" EmptyText="Enter title" />
+          <Control Type="FieldControl" FieldName="System.Title" EmptyText="Enter title"/>
           <Control Label="Assi&amp;gned To" Type="FieldControl" FieldName="System.AssignedTo" />
           <Control Label="Stat&amp;e" Type="FieldControl" FieldName="System.State" />
           <Control Label="Reason" Type="FieldControl" FieldName="System.Reason" />
@@ -466,9 +478,9 @@
           <Control Label="Ite&amp;ration" Type="WorkItemClassificationControl" FieldName="System.IterationPath" />
           <Control Label="History" Type="WorkItemLogControl" FieldName="System.History" />
           <Control Label="Links" Type="LinksControl" Name="Links" />
-          <Control Label="Attachments" Type="AttachmentsControl" Name="Attachments" />
+          <Control Label="Attachments" Type="AttachmentsControl" Name="Attachments"/>
         </SystemControls>
-        <Page Label="Details" LayoutMode="FirstColumnWide">
+        <Page Label="Details">
           <Section>
             <Group Label="Purpose">
               <Control Type="HtmlFieldControl" FieldName="Microsoft.VSTS.CMMI.Purpose" />
@@ -482,32 +494,34 @@
           </Section>
           <Section>
             <Group Label="Required">
-              <Control Label="Required attendee 1" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee1" />
-              <Control Label="Required attendee 2" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee2" />
-              <Control Label="Required attendee 3" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee3" />
-              <Control Label="Required attendee 4" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee4" />
-              <Control Label="Required attendee 5" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee5" />
-              <Control Label="Required attendee 6" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee6" />
-              <Control Label="Required attendee 7" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee7" />
-              <Control Label="Required attendee 8" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee8" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee1" Label="Required attendee 1" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee2" Label="Required attendee 2" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee3" Label="Required attendee 3" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee4" Label="Required attendee 4" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee5" Label="Required attendee 5" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee6" Label="Required attendee 6" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee7" Label="Required attendee 7" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RequiredAttendee8" Label="Required attendee 8" />
             </Group>
             <Group Label="Optional">
-              <Control Label="Optional attendee 1" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee1" />
-              <Control Label="Optional attendee 2" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee2" />
-              <Control Label="Optional attendee 3" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee3" />
-              <Control Label="Optional attendee 4" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee4" />
-              <Control Label="Optional attendee 5" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee5" />
-              <Control Label="Optional attendee 6" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee6" />
-              <Control Label="Optional attendee 7" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee7" />
-              <Control Label="Optional attendee 8" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee8" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee1" Label="Optional attendee 1" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee2" Label="Optional attendee 2" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee3" Label="Optional attendee 3" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee4" Label="Optional attendee 4" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee5" Label="Optional attendee 5" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee6" Label="Optional attendee 6" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee7" Label="Optional attendee 7" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.OptionalAttendee8" Label="Optional attendee 8" />
             </Group>
           </Section>
           <Section>
+            <Group Label="Deployment">
+              <Control Type="DeploymentsControl" Name="Deployments" />
+            </Group>
             <Group Label="Development">
               <Control Type="LinksControl" Name="Development">
-                <LinksControlOptions ViewMode="Dynamic" ZeroDataExperience="Development" ShowCallToAction="true">
-                  <ListViewOptions GroupLinks="false">
-                  </ListViewOptions>
+                <LinksControlOptions ViewMode="List" ZeroDataExperience="Development" ShowCallToAction="true">
+                  <ListViewOptions GroupLinks="false"></ListViewOptions>
                   <LinkFilters>
                     <ExternalLinkFilter Type="Build" />
                     <ExternalLinkFilter Type="Integrated in build" />
@@ -517,13 +531,15 @@
                     <ExternalLinkFilter Type="Fixed in Changeset" />
                     <ExternalLinkFilter Type="Source Code File" />
                     <ExternalLinkFilter Type="Found in build" />
+                    <ExternalLinkFilter Type="GitHub Pull Request" />
+                    <ExternalLinkFilter Type="GitHub Commit" />
                   </LinkFilters>
                 </LinksControlOptions>
               </Control>
             </Group>
             <Group Label="Related Work">
-              <Control Type="LinksControl" Name="Related Work">
-                <LinksControlOptions>
+              <Control Name="Related Work" Type="LinksControl">
+                <LinksControlOptions ViewMode="List">
                   <LinkFilters>
                     <WorkItemLinkFilter Type="System.LinkTypes.Duplicate-Reverse" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Hierarchy-Reverse" />
@@ -534,6 +550,7 @@
                     <WorkItemLinkFilter Type="Microsoft.VSTS.Common.Affects" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Dependency" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Related" />
+                    <ExternalLinkFilter Type="GitHub Issue" />
                   </LinkFilters>
                   <Columns>
                     <Column Name="System.State" />
@@ -544,19 +561,19 @@
               </Control>
             </Group>
             <Group Label="Meeting">
-              <Control Label="Called By" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.CalledBy" />
-              <Control Label="Called Date" Type="DateTimeControl" FieldName="Microsoft.VSTS.CMMI.CalledDate" />
-              <Control Label="Meeting Type" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.MeetingType" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.CalledBy" Label="Called By" />
+              <Control Type="DateTimeControl" FieldName="Microsoft.VSTS.CMMI.CalledDate" Label="Called Date" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.MeetingType" Label="Meeting Type" />
             </Group>
             <Group Label="Actual">
-              <Control Label="Actual attendee 1" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee1" />
-              <Control Label="Actual attendee 2" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee2" />
-              <Control Label="Actual attendee 3" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee3" />
-              <Control Label="Actual attendee 4" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee4" />
-              <Control Label="Actual attendee 5" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee5" />
-              <Control Label="Actual attendee 6" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee6" />
-              <Control Label="Actual attendee 7" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee7" />
-              <Control Label="Actual attendee 8" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee8" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee1" Label="Actual attendee 1" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee2" Label="Actual attendee 2" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee3" Label="Actual attendee 3" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee4" Label="Actual attendee 4" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee5" Label="Actual attendee 5" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee6" Label="Actual attendee 6" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee7" Label="Actual attendee 7" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.ActualAttendee8" Label="Actual attendee 8" />
             </Group>
           </Section>
         </Page>

@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>
+    SELECT [System.Id], 
+           [Microsoft.VSTS.Common.Priority], 
+           [System.State], 
+           [System.Title] 
+      FROM WorkItems 
+     WHERE [System.TeamProject] = @project 
+       AND [System.AssignedTo] = @me 
+       AND [System.WorkItemType] = 'Test Case' 
+       AND [System.State] &lt;&gt; 'Closed' 
+  ORDER BY [Microsoft.VSTS.Common.Priority], 
+           [System.Id]
+  </Wiql>
+</WorkItemQuery>

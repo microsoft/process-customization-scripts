@@ -12,9 +12,9 @@
           </members>
           <teamSettings areaPath="Area">
             <iterationPaths backlogPath="Iteration">
+              <iterationPath path="Iteration 0" />
               <iterationPath path="Iteration 1" />
               <iterationPath path="Iteration 2" />
-              <iterationPath path="Iteration 3" />
             </iterationPaths>
           </teamSettings>
         </group>

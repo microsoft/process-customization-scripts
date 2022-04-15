@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>SELECT [System.Id], 
+             [System.Title],
+             [Microsoft.VSTS.CMMI.RequirementType],
+             [System.WorkItemType],
+             [Microsoft.VSTS.Common.Priority],
+             [System.AssignedTo],
+             [System.State],
+             [Microsoft.VSTS.Scheduling.RemainingWork],
+             [Microsoft.VSTS.Scheduling.CompletedWork],
+             [Microsoft.VSTS.Scheduling.OriginalEstimate],
+             [Microsoft.VSTS.CMMI.TaskType]
+        FROM WorkItemLinks 
+       WHERE ([Source].[System.TeamProject] = @project  
+         AND  [Source].[System.WorkItemType] = 'Requirement'  
+         AND  [Source].[System.State] &lt;&gt; 'Closed') 
+         And (System.Links.LinkType = 'System.LinkTypes.Hierarchy-Forward')
+         AND ([Target].[System.WorkItemType] = 'Requirement' OR [Target].[System.WorkItemType] = 'Task') 
+         ORDER BY [System.State], [Microsoft.VSTS.Common.Priority]
+         mode(Recursive)
+  </Wiql>
+</WorkItemQuery>

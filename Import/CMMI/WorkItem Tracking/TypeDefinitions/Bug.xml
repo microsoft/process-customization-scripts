@@ -585,7 +585,7 @@
       </Layout>
       <WebLayout>
         <SystemControls>
-          <Control Type="FieldControl" FieldName="System.Title" EmptyText="Enter title" />
+          <Control Type="FieldControl" FieldName="System.Title" EmptyText="Enter title"/>
           <Control Label="Assi&amp;gned To" Type="FieldControl" FieldName="System.AssignedTo" />
           <Control Label="Stat&amp;e" Type="FieldControl" FieldName="System.State" />
           <Control Label="Reason" Type="FieldControl" FieldName="System.Reason" />
@@ -593,18 +593,18 @@
           <Control Label="Ite&amp;ration" Type="WorkItemClassificationControl" FieldName="System.IterationPath" />
           <Control Label="History" Type="WorkItemLogControl" FieldName="System.History" />
           <Control Label="Links" Type="LinksControl" Name="Links" />
-          <Control Label="Attachments" Type="AttachmentsControl" Name="Attachments" />
+          <Control Label="Attachments" Type="AttachmentsControl" Name="Attachments"/>
         </SystemControls>
-        <Page Label="Details" LayoutMode="FirstColumnWide">
+        <Page Label="Details">
           <Section>
             <Group Label="Repro Steps">
-              <Control Label="Repro Steps" Type="HtmlFieldControl" FieldName="Microsoft.VSTS.TCM.ReproSteps" />
+              <Control Type="HtmlFieldControl" FieldName="Microsoft.VSTS.TCM.ReproSteps" Label="Repro Steps" />
             </Group>
             <Group Label="Symptom">
               <Control Type="HtmlFieldControl" FieldName="Microsoft.VSTS.CMMI.Symptom" />
             </Group>
             <Group Label="System Info">
-              <Control Label="System Info" Type="HtmlFieldControl" FieldName="Microsoft.VSTS.TCM.SystemInfo" />
+              <Control Type="HtmlFieldControl" FieldName="Microsoft.VSTS.TCM.SystemInfo" Label="System Info" />
             </Group>
             <Group Label="Fix">
               <Control Type="HtmlFieldControl" FieldName="Microsoft.VSTS.CMMI.ProposedFix" />
@@ -612,29 +612,31 @@
           </Section>
           <Section>
             <Group Label="Planning">
-              <Control Label="Resolved Reason" Type="FieldControl" FieldName="Microsoft.VSTS.Common.ResolvedReason" />
-              <Control Label="Size" Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.Size" />
-              <Control Label="Priority" Type="FieldControl" FieldName="Microsoft.VSTS.Common.Priority" />
-              <Control Label="Severity" Type="FieldControl" FieldName="Microsoft.VSTS.Common.Severity" />
-              <Control Label="Triage" Type="FieldControl" FieldName="Microsoft.VSTS.Common.Triage" />
-              <Control Label="Blocked" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.Blocked" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Common.ResolvedReason" Label="Resolved Reason" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.Size" Label="Size" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Common.Priority" Label="Priority" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Common.Severity" Label="Severity" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Common.Triage" Label="Triage" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.Blocked" Label="Blocked" />
             </Group>
             <Group Label="Effort (Hours)">
-              <Control Label="Original Estimate" Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.OriginalEstimate" />
-              <Control Label="Remaining work" Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.RemainingWork" />
-              <Control Label="Completed work" Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.CompletedWork" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.OriginalEstimate" Label="Original Estimate" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.RemainingWork" Label="Remaining work" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Scheduling.CompletedWork" Label="Completed work" />
             </Group>
             <Group Label="Classification">
-              <Control Label="Discipline" Type="FieldControl" FieldName="Microsoft.VSTS.Common.Discipline" />
-              <Control Label="Root Cause" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RootCause" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Common.Discipline" Label="Discipline" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.RootCause" Label="Root Cause" />
             </Group>
           </Section>
           <Section>
+            <Group Label="Deployment">
+              <Control Type="DeploymentsControl" Name="Deployments" />
+            </Group>
             <Group Label="Development">
               <Control Type="LinksControl" Name="Development">
-                <LinksControlOptions ViewMode="Dynamic" ZeroDataExperience="Development" ShowCallToAction="true">
-                  <ListViewOptions GroupLinks="false">
-                  </ListViewOptions>
+                <LinksControlOptions ViewMode="List" ZeroDataExperience="Development" ShowCallToAction="true">
+                  <ListViewOptions GroupLinks="false"></ListViewOptions>
                   <LinkFilters>
                     <ExternalLinkFilter Type="Build" />
                     <ExternalLinkFilter Type="Integrated in build" />
@@ -644,13 +646,15 @@
                     <ExternalLinkFilter Type="Fixed in Changeset" />
                     <ExternalLinkFilter Type="Source Code File" />
                     <ExternalLinkFilter Type="Found in build" />
+                    <ExternalLinkFilter Type="GitHub Pull Request" />
+                    <ExternalLinkFilter Type="GitHub Commit" />
                   </LinkFilters>
                 </LinksControlOptions>
               </Control>
             </Group>
             <Group Label="Related Work">
-              <Control Type="LinksControl" Name="Related Work">
-                <LinksControlOptions>
+              <Control Name="Related Work" Type="LinksControl">
+                <LinksControlOptions ViewMode="List">
                   <LinkFilters>
                     <WorkItemLinkFilter Type="System.LinkTypes.Duplicate-Reverse" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Hierarchy-Reverse" />
@@ -661,6 +665,7 @@
                     <WorkItemLinkFilter Type="Microsoft.VSTS.Common.Affects" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Dependency" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Related" />
+                    <ExternalLinkFilter Type="GitHub Issue" />
                   </LinkFilters>
                   <Columns>
                     <Column Name="System.State" />
@@ -671,12 +676,12 @@
               </Control>
             </Group>
             <Group Label="Environment">
-              <Control Label="Found-in environment" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.FoundInEnvironment" />
-              <Control Label="How found" Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.HowFound" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.FoundInEnvironment" Label="Found-in environment" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.CMMI.HowFound" Label="How found" />
             </Group>
             <Group Label="Build">
-              <Control Label="Found In" Type="FieldControl" FieldName="Microsoft.VSTS.Build.FoundIn" />
-              <Control Label="Integrated In" Type="FieldControl" FieldName="Microsoft.VSTS.Build.IntegrationBuild" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Build.FoundIn" Label="Found In" />
+              <Control Type="FieldControl" FieldName="Microsoft.VSTS.Build.IntegrationBuild" Label="Integrated In" />
             </Group>
           </Section>
         </Page>

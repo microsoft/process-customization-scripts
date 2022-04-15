@@ -78,110 +78,7 @@
       </Fields>
       <Query>
         <DataSourceName>TfsOlapReportDS</DataSourceName>
-        <CommandText>="WITH
-	SET [Date Range] AS
-		Filter(
-			[Date].[Date].[Date],
-			[Date].[Date].CurrentMember.Member_Value &gt;= CDate(@StartDateParam) AND
-			[Date].[Date].CurrentMember.Member_Value &lt;= CDate(@EndDateParam)
-		)
-	MEMBER [Measures].[DateValue] AS
-		[Date].[Date].CurrentMember.Member_Value
-	" &amp;
-	IIF(Parameters!TrendLineParam.Value = "both" Or Parameters!TrendLineParam.Value = "actual","MEMBER [Ranked] AS Rank([Date].[Date].CurrentMember, [Date Range])","")
-	&amp;
-	IIF(Parameters!YAxis.Value="hours",	"
-	MEMBER [Measures].[Work Item Count] AS 0
-	","")
-	&amp;
-	IIF(Parameters!YAxis.Value="count",	"
-	MEMBER[Measures].[Microsoft_VSTS_Scheduling_RemainingWork] AS 0
-	MEMBER[Measures].[Microsoft_VSTS_Scheduling_CompletedWork] AS 0
-	","")
-	&amp;
-	"MEMBER [Measures].[RemainingWorkLine] AS " &amp;
-		IIF(Parameters!YAxis.Value="hours" AND (Parameters!TrendLineParam.Value = "both" Or Parameters!TrendLineParam.Value = "actual"),"
-			LinRegPoint(
-				[Ranked],
-				{[Date Range]},
-				[Measures].[Microsoft_VSTS_Scheduling_RemainingWork],
-				[Ranked]
-			)
-		","0") &amp; "
-
-		MEMBER [Measures].[CountLine] AS " &amp;
-		IIF(Parameters!YAxis.Value="count" AND (Parameters!TrendLineParam.Value = "both" Or Parameters!TrendLineParam.Value = "actual"),"
-		LinRegPoint(
-			[Ranked],
-			{[Date Range]},
-			[Measures].[Work Item Count],
-			[Ranked]
-		)
-		", "0")
-		
-&amp; "
-SELECT
-{
-	[Measures].[DateValue],
-	[Measures].[Work Item Count],
-	[Measures].[Microsoft_VSTS_Scheduling_RemainingWork],
-	[Measures].[Microsoft_VSTS_Scheduling_CompletedWork],
-	[Measures].[RemainingWorkLine],
-	[Measures].[CountLine]
-	
-} ON COLUMNS,
-{
-	CrossJoin(
-		[Date Range],
-		EXCEPT([Work Item].[System_State].[All].Children, StrToMember(""[Work Item].[System_State].&amp;["" + @RemovedName + ""]"")) 
-		)
-} ON 1
-
-FROM
-(
-	SELECT
-		CrossJoin(
-			StrToMember(""[Team Project].[Project Node GUID].&amp;[{"" + @ProjectGuid + ""}]""),
-			StrToSet(@StateParam),
-			StrToSet(@AreaParam),
-			StrToSet(@IterationParam),
-			Except(
-				Descendants(StrToSet(@WorkItemTypeParam)),
-				[Work Item].[System_WorkItemType].[All] + StrToSet(@WorkItemsToExclude)
-			)
-		) ON COLUMNS
-	FROM [Team System]
-)"</CommandText>
-        <QueryParameters>
-          <QueryParameter Name="StartDateParam">
-            <Value>=Parameters!StartDateParam.Value</Value>
-          </QueryParameter>
-          <QueryParameter Name="ProjectGuid">
-            <Value>=Parameters!ProjectGuid.Value</Value>
-          </QueryParameter>
-          <QueryParameter Name="EndDateParam">
-            <Value>=Parameters!EndDateParam.Value</Value>
-          </QueryParameter>
-          <QueryParameter Name="AreaParam">
-            <Value>=Parameters!AreaParam.Value</Value>
-          </QueryParameter>
-          <QueryParameter Name="IterationParam">
-            <Value>=Parameters!IterationParam.Value</Value>
-          </QueryParameter>
-          <QueryParameter Name="StateParam">
-            <Value>=Parameters!StateParam.Value</Value>
-          </QueryParameter>
-          <QueryParameter Name="WorkItemTypeParam">
-            <Value>=Parameters!WorkItemTypeParam.Value</Value>
-          </QueryParameter>
-          <QueryParameter Name="WorkItemsToExclude">
-            <Value>=Code.CollectionToMDX(Parameters!WorkItemsToExclude.Value, "[Work Item].[System_WorkItemType].&amp;[", "]")</Value>
-          </QueryParameter>
-          <QueryParameter Name="RemovedName">
-            <Value>=Parameters!RemovedName.Value</Value>
-          </QueryParameter>
-        </QueryParameters>
-        <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Level"><DimensionName>Date</DimensionName><HierarchyName>Date</HierarchyName><HierarchyUniqueName>[Date].[Date]</HierarchyUniqueName><LevelName>Date</LevelName><UniqueName>[Date].[Date].[Date]</UniqueName></ID><ItemCaption>Date</ItemCaption></Item><Item><ID xsi:type="Level"><DimensionName>Work Item</DimensionName><HierarchyName>System_State</HierarchyName><HierarchyUniqueName>[Work Item].[System_State]</HierarchyUniqueName><LevelName>System_State</LevelName><UniqueName>[Work Item].[System_State].[System_State]</UniqueName></ID><ItemCaption>State</ItemCaption></Item><Item><ID xsi:type="Measure"><MeasureName>DateValue</MeasureName><UniqueName>[Measures].[DateValue]</UniqueName></ID><ItemCaption>DateValue</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Work Item Count</MeasureName><UniqueName>[Measures].[Work Item Count]</UniqueName></ID><ItemCaption>Work Item Count</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Microsoft_VSTS_Scheduling_RemainingWork</MeasureName><UniqueName>[Measures].[Microsoft_VSTS_Scheduling_RemainingWork]</UniqueName></ID><ItemCaption>Remaining Work</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Microsoft_VSTS_Scheduling_CompletedWork</MeasureName><UniqueName>[Measures].[Microsoft_VSTS_Scheduling_CompletedWork]</UniqueName></ID><ItemCaption>Completed Work</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>RemainingWorkLine</MeasureName><UniqueName>[Measures].[RemainingWorkLine]</UniqueName></ID><ItemCaption>RemainingWorkLine</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>CountLine</MeasureName><UniqueName>[Measures].[CountLine]</UniqueName></ID><ItemCaption>CountLine</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>WITH
+        <CommandText>WITH
 	SET [Date Range] AS
 		Filter(
 			[Date].[Date].[Date],
@@ -220,24 +117,109 @@ SELECT
 {
 	CrossJoin(
 		[Date Range],
-		EXCEPT([Work Item].[System_State].[All].Children, StrToMember("[Work Item].[System_State].&amp;[" + @RemovedName + "]")) 
-			)
+		[Work Item].[System_State].[All].Children
+	)
 } ON ROWS
 FROM
 (
 	SELECT
 		CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToSet(@StateParam),
 			StrToSet(@AreaParam),
 			StrToSet(@IterationParam),
 			Except(
 				Descendants(StrToSet(@WorkItemTypeParam)),
 				[Work Item].[System_WorkItemType].[All] + StrToSet(@WorkItemsToExclude)
-				)
+			)
 		) ON COLUMNS
 	FROM [Team System]
-)</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>BDC0744A-1732-43FE-82BC-2AF442AEDFA2</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>StartDateParam</Name><DefaultValues><DefaultValue>2/22/2011</DefaultValue></DefaultValues><Caption>StartDateParam</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>EndDateParam</Name><DefaultValues><DefaultValue>3/12/2011</DefaultValue></DefaultValues><Caption>EndDateParam</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AreaParam</Name><DefaultValues><DefaultValue>[Work Item].[Area Hierarchy].[All]</DefaultValue></DefaultValues><Caption>AreaParam</Caption><HierarchyUniqueName>[Work Item].[Area Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[Area Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>IterationParam</Name><DefaultValues><DefaultValue>[Work Item].[Iteration Hierarchy].[All]</DefaultValue></DefaultValues><Caption>IterationParam</Caption><HierarchyUniqueName>[Work Item].[Iteration Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[Iteration Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>StateParam</Name><DefaultValues><DefaultValue>[Work Item].[System_State].[All]</DefaultValue></DefaultValues><Caption>StateParam</Caption><HierarchyUniqueName>[Work Item].[System_State]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_State].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_State].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_State].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_State].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>WorkItemTypeParam</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Task]</DefaultValue></DefaultValues><Caption>WorkItemTypeParam</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>WorkItemsToExclude</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Shared Steps]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Test Case]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Issue]</DefaultValue></DefaultValues><Caption>WorkItemsToExclude</Caption><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_WorkItemType].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>RemovedName</Name><DefaultValues><DefaultValue>Removed</DefaultValue></DefaultValues><Caption>RemovedName</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
+)</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="StartDateParam">
+            <Value>=Parameters!StartDateParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="ProjectGuid">
+            <Value>=Parameters!ProjectGuid.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="EndDateParam">
+            <Value>=Parameters!EndDateParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="AreaParam">
+            <Value>=Parameters!AreaParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="IterationParam">
+            <Value>=Parameters!IterationParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="StateParam">
+            <Value>=Parameters!StateParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="WorkItemTypeParam">
+            <Value>=Parameters!WorkItemTypeParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="WorkItemsToExclude">
+            <Value>=Code.CollectionToMDX(Parameters!WorkItemsToExclude.Value, "[Work Item].[System_WorkItemType].&amp;[", "]")</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Level"><DimensionName>Date</DimensionName><HierarchyName>Date</HierarchyName><HierarchyUniqueName>[Date].[Date]</HierarchyUniqueName><LevelName>Date</LevelName><UniqueName>[Date].[Date].[Date]</UniqueName></ID><ItemCaption>Date</ItemCaption></Item><Item><ID xsi:type="Level"><DimensionName>Work Item</DimensionName><HierarchyName>System_State</HierarchyName><HierarchyUniqueName>[Work Item].[System_State]</HierarchyUniqueName><LevelName>System_State</LevelName><UniqueName>[Work Item].[System_State].[System_State]</UniqueName></ID><ItemCaption>State</ItemCaption></Item><Item><ID xsi:type="Measure"><MeasureName>DateValue</MeasureName><UniqueName>[Measures].[DateValue]</UniqueName></ID><ItemCaption>DateValue</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Work Item Count</MeasureName><UniqueName>[Measures].[Work Item Count]</UniqueName></ID><ItemCaption>Work Item Count</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Microsoft_VSTS_Scheduling_RemainingWork</MeasureName><UniqueName>[Measures].[Microsoft_VSTS_Scheduling_RemainingWork]</UniqueName></ID><ItemCaption>Cumulative Remaining Work</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Microsoft_VSTS_Scheduling_CompletedWork</MeasureName><UniqueName>[Measures].[Microsoft_VSTS_Scheduling_CompletedWork]</UniqueName></ID><ItemCaption>Cumulative Completed Work</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>RemainingWorkLine</MeasureName><UniqueName>[Measures].[RemainingWorkLine]</UniqueName></ID><ItemCaption>RemainingWorkLine</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>CountLine</MeasureName><UniqueName>[Measures].[CountLine]</UniqueName></ID><ItemCaption>CountLine</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>WITH
+	SET [Date Range] AS
+		Filter(
+			[Date].[Date].[Date],
+			[Date].[Date].CurrentMember.Member_Value &gt;= CDate(@StartDateParam) AND
+			[Date].[Date].CurrentMember.Member_Value &lt;= CDate(@EndDateParam)
+		)
+	MEMBER [Measures].[DateValue] AS
+		[Date].[Date].CurrentMember.Member_Value
+
+	MEMBER [Measures].[RemainingWorkLine] AS
+		LinRegPoint(
+			Rank([Date].[Date].CurrentMember, [Date Range]),
+			{[Date Range]},
+			[Measures].[Microsoft_VSTS_Scheduling_RemainingWork],
+			Rank([Date].[Date].CurrentMember, [Date Range])
+		)
+
+	MEMBER [Measures].[CountLine] AS
+		LinRegPoint(
+			Rank([Date].[Date].CurrentMember, [Date Range]),
+			{[Date Range]},
+			[Measures].[Work Item Count],
+			Rank([Date].[Date].CurrentMember, [Date Range])
+		)
+
+SELECT
+{
+	[Measures].[DateValue],
+	[Measures].[Work Item Count],
+	[Measures].[Microsoft_VSTS_Scheduling_RemainingWork],
+	[Measures].[Microsoft_VSTS_Scheduling_CompletedWork],
+	[Measures].[RemainingWorkLine],
+	[Measures].[CountLine]
+	
+} ON COLUMNS,
+{
+	CrossJoin(
+		[Date Range],
+		[Work Item].[System_State].[All].Children
+	)
+} ON ROWS
+FROM
+(
+	SELECT
+		CrossJoin(
+			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
+			StrToSet(@StateParam),
+			StrToSet(@AreaParam),
+			StrToSet(@IterationParam),
+			Except(
+				Descendants(StrToSet(@WorkItemTypeParam)),
+				[Work Item].[System_WorkItemType].[All] + StrToSet(@WorkItemsToExclude)
+			)
+		) ON COLUMNS
+	FROM [Team System]
+)</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>A8915606-5343-4FAB-8502-E8D9BD4B3D20</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>StartDateParam</Name><DefaultValues><DefaultValue>5/1/2009</DefaultValue></DefaultValues><Caption>StartDateParam</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>EndDateParam</Name><DefaultValues><DefaultValue>7/1/2009</DefaultValue></DefaultValues><Caption>EndDateParam</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AreaParam</Name><DefaultValues><DefaultValue>[Work Item].[Area Hierarchy].[All]</DefaultValue></DefaultValues><Caption>AreaParam</Caption><HierarchyUniqueName>[Work Item].[Area Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[Area Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>IterationParam</Name><DefaultValues><DefaultValue>[Work Item].[Iteration Hierarchy].[All]</DefaultValue></DefaultValues><Caption>IterationParam</Caption><HierarchyUniqueName>[Work Item].[Iteration Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[Iteration Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>StateParam</Name><DefaultValues><DefaultValue>[Work Item].[System_State].[All]</DefaultValue></DefaultValues><Caption>StateParam</Caption><HierarchyUniqueName>[Work Item].[System_State]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_State].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_State].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_State].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_State].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>WorkItemTypeParam</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Task]</DefaultValue></DefaultValues><Caption>WorkItemTypeParam</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>WorkItemsToExclude</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Shared Steps]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Test Case]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Issue]</DefaultValue></DefaultValues><Caption>WorkItemsToExclude</Caption><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_WorkItemType].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
         <rd:SuppressAutoUpdate>true</rd:SuppressAutoUpdate>
       </Query>
     </DataSet>
@@ -315,11 +297,13 @@ SELECT
 						//
 						CrossJoin(
 							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							StrToMember("[Work Item].[System_IsDeleted].[All]"),
 							[Work Item].[Area Hierarchy].[All]
 						),
 						NonEmpty(
 							CrossJoin(
 								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 								[Work Item].[Area Hierarchy].[Area0]
 							),
 							[Measures].[Work Item Count]
@@ -374,11 +358,13 @@ SELECT
 						//
 						CrossJoin(
 							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							StrToMember("[Work Item].[System_IsDeleted].[All]"),
 							[Work Item].[Area Hierarchy].[All]
 						),
 						NonEmpty(
 							CrossJoin(
 								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 								[Work Item].[Area Hierarchy].[Area0]
 							),
 							[Measures].[Work Item Count]
@@ -391,8 +377,7 @@ SELECT
 		)
 	)
 } ON ROWS
-FROM [Team System]
-</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>F0CB7644-85B2-4C21-A196-819F78FA890C</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AllNoFilter</Name><DefaultValues><DefaultValue>All (No Filter)</DefaultValue></DefaultValues><Caption>AllNoFilter</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
+FROM [Team System]</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>F0CB7644-85B2-4C21-A196-819F78FA890C</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AllNoFilter</Name><DefaultValues><DefaultValue>All (No Filter)</DefaultValue></DefaultValues><Caption>AllNoFilter</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
       </Query>
       <Filters>
         <Filter>
@@ -478,6 +463,10 @@ ORDER BY IterationPath, Depth</CommandText>
           <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[StateCaption]" /&gt;</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
         </Field>
+        <Field Name="State">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Level" UniqueName="[Work Item].[System_State].[System_State]" /&gt;</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
         <Field Name="State_Change_Count">
           <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[State Change Count]" /&gt;</DataField>
           <rd:TypeName>System.Int32</rd:TypeName>
@@ -509,24 +498,25 @@ SELECT
 	// Ensure All is present even when the warehouse is not yet populated.
 	Union(
 		[Work Item].[System_State].[All],
-	Except(
 		Extract(
 			Union(
 				CrossJoin(
 					[Work Item].[System_State].[All], 
-					[Team Project].[Project Node GUID].[All]
+					[Team Project].[Project Node GUID].[All],
+					[Work Item].[System_IsDeleted].[All]
 				),
 				NonEmpty(
 					CrossJoin(
 						Descendants([Work Item].[System_State].[All]),
-						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]")
+						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+						StrToMember("[Work Item].[System_IsDeleted].&amp;[false]")
 					),
 					[Measures].[State Change Count]
 				)
 			),
 			[Work Item].[System_State]
 		),
-		StrToMember("[Work Item].[System_State].&amp;[" + @RemovedName + "]"))
+		StrToMember("[Work Item].[System_State].&amp;[" + @ActiveName + "]")
 	)
 } ON ROWS
 FROM
@@ -552,11 +542,11 @@ FROM
           <QueryParameter Name="WorkItemsToExclude">
             <Value>=Code.CollectionToMDX(Parameters!WorkItemsToExclude.Value, "[Work Item].[System_WorkItemType].&amp;[", "]")</Value>
           </QueryParameter>
-          <QueryParameter Name="RemovedName">
-            <Value>=Parameters!RemovedName.Value</Value>
+          <QueryParameter Name="ActiveName">
+            <Value>=Parameters!ActiveName.Value</Value>
           </QueryParameter>
         </QueryParameters>
-        <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Measure"><MeasureName>State Change Count</MeasureName><UniqueName>[Measures].[State Change Count]</UniqueName></ID><ItemCaption>State Change Count</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>StateID</MeasureName><UniqueName>[Measures].[StateID]</UniqueName></ID><ItemCaption>StateID</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>StateCaption</MeasureName><UniqueName>[Measures].[StateCaption]</UniqueName></ID><ItemCaption>StateCaption</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>WITH
+        <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Level"><DimensionName>Work Item</DimensionName><HierarchyName>System_State</HierarchyName><HierarchyUniqueName>[Work Item].[System_State]</HierarchyUniqueName><LevelName>System_State</LevelName><UniqueName>[Work Item].[System_State].[System_State]</UniqueName></ID><ItemCaption>State</ItemCaption></Item><Item><ID xsi:type="Measure"><MeasureName>State Change Count</MeasureName><UniqueName>[Measures].[State Change Count]</UniqueName></ID><ItemCaption>State Change Count</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>StateID</MeasureName><UniqueName>[Measures].[StateID]</UniqueName></ID><ItemCaption>StateID</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>StateCaption</MeasureName><UniqueName>[Measures].[StateCaption]</UniqueName></ID><ItemCaption>StateCaption</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>WITH
 MEMBER [Measures].[StateCaption] AS
 	IIF([Work Item].[System_State].CurrentMember IS [Work Item].[System_State].[All],
 		@AllNoFilter,
@@ -576,24 +566,25 @@ SELECT
 	// Ensure All is present even when the warehouse is not yet populated.
 	Union(
 		[Work Item].[System_State].[All],
-	Except(
 		Extract(
 			Union(
 				CrossJoin(
 					[Work Item].[System_State].[All], 
-					[Team Project].[Project Node GUID].[All]
+					[Team Project].[Project Node GUID].[All],
+					[Work Item].[System_IsDeleted].[All]
 				),
 				NonEmpty(
 					CrossJoin(
 						Descendants([Work Item].[System_State].[All]),
-						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]")
+						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+						StrToMember("[Work Item].[System_IsDeleted].&amp;[false]")
 					),
 					[Measures].[State Change Count]
 				)
 			),
 			[Work Item].[System_State]
 		),
-		StrToMember("[Work Item].[System_State].&amp;[" + @RemovedName + "]"))
+		StrToMember("[Work Item].[System_State].&amp;[" + @ActiveName + "]")
 	)
 } ON ROWS
 FROM
@@ -605,7 +596,7 @@ FROM
 		)
 	ON COLUMNS
 	FROM [Team System]
-)</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>A8915606-5343-4FAB-8502-E8D9BD4B3D20</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AllNoFilter</Name><DefaultValues><DefaultValue>All (No Filter)</DefaultValue></DefaultValues><Caption>AllNoFilter</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>WorkItemTypeParam</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Task]</DefaultValue></DefaultValues><Caption>WorkItemTypeParam</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>WorkItemsToExclude</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Test Case]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Issue]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Shared Steps]</DefaultValue></DefaultValues><Caption>WorkItemsToExclude</Caption><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_WorkItemType].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>RemovedName</Name><DefaultValues><DefaultValue>Removed</DefaultValue></DefaultValues><Caption>RemovedName</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
+)</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>A8915606-5343-4FAB-8502-E8D9BD4B3D20</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AllNoFilter</Name><DefaultValues><DefaultValue>All (No Filter)</DefaultValue></DefaultValues><Caption>AllNoFilter</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>WorkItemTypeParam</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Task]</DefaultValue></DefaultValues><Caption>WorkItemTypeParam</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>WorkItemsToExclude</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Test Case]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Issue]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Shared Steps]</DefaultValue></DefaultValues><Caption>WorkItemsToExclude</Caption><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_WorkItemType].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>ActiveName</Name><DefaultValues><DefaultValue>Active</DefaultValue></DefaultValues><Caption>ActiveName</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
         <rd:SuppressAutoUpdate>true</rd:SuppressAutoUpdate>
       </Query>
     </DataSet>
@@ -651,11 +642,16 @@ SELECT
 		[Work Item].[System_WorkItemType].[All],
 		Extract(
 			Union(
-				CrossJoin([Work Item].[System_WorkItemType].[All], [Team Project].[Project Node GUID].[All]),
+				CrossJoin(
+					[Work Item].[System_WorkItemType].[All], 
+					[Team Project].[Project Node GUID].[All],
+					[Work Item].[System_IsDeleted].[All]
+				),
 				NonEmpty(
 					CrossJoin(
 						Descendants([Work Item].[System_WorkItemType].AllMembers),
-						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]")
+						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+						StrToMember("[Work Item].[System_IsDeleted].&amp;[false]")
 					),
 					[Measures].[Work Item Count]
 				)
@@ -710,11 +706,16 @@ SELECT
 		[Work Item].[System_WorkItemType].[All],
 		Extract(
 			Union(
-				CrossJoin([Work Item].[System_WorkItemType].[All], [Team Project].[Project Node GUID].[All]),
+				CrossJoin(
+					[Work Item].[System_WorkItemType].[All], 
+					[Team Project].[Project Node GUID].[All],
+					[Work Item].[System_IsDeleted].[All]
+				),
 				NonEmpty(
 					CrossJoin(
 						Descendants([Work Item].[System_WorkItemType].AllMembers),
-						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]")
+						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+						StrToMember("[Work Item].[System_IsDeleted].&amp;[false]")
 					),
 					[Measures].[Work Item Count]
 				)
@@ -791,7 +792,7 @@ SELECT
 } ON COLUMNS,
 {
 	NonEmpty(
-		Except([Work Item].[System_State].[System_State],StrToMember("[Work Item].[System_State].&amp;[" + @RemovedName + "]")),
+		[Work Item].[System_State].[System_State],
 		[Measures].[Work Item Count]
 	)
 } ON ROWS
@@ -800,6 +801,7 @@ FROM
 	SELECT
 		CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToSet(@StateParam),
 			StrToSet(@AreaParam),
 			StrToSet(@IterationParam),
@@ -829,11 +831,8 @@ FROM
           <QueryParameter Name="WorkItemsToExclude">
             <Value>=Code.CollectionToMDX(Parameters!WorkItemsToExclude.Value, "[Work Item].[System_WorkItemType].&amp;[", "]")</Value>
           </QueryParameter>
-          <QueryParameter Name="RemovedName">
-            <Value>=Parameters!RemovedName.Value</Value>
-          </QueryParameter>
         </QueryParameters>
-        <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Measure"><MeasureName>Work Item Count</MeasureName><UniqueName>[Measures].[Work Item Count]</UniqueName></ID><ItemCaption>Work Item Count</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Remaining Work</MeasureName><UniqueName>[Measures].[Remaining Work]</UniqueName></ID><ItemCaption>Remaining Work</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Completed Work</MeasureName><UniqueName>[Measures].[Completed Work]</UniqueName></ID><ItemCaption>Completed Work</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>WITH
+        <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Level"><DimensionName>Work Item</DimensionName><HierarchyName>System_State</HierarchyName><HierarchyUniqueName>[Work Item].[System_State]</HierarchyUniqueName><LevelName>System_State</LevelName><UniqueName>[Work Item].[System_State].[System_State]</UniqueName></ID><ItemCaption>State</ItemCaption></Item><Item><ID xsi:type="Measure"><MeasureName>Work Item Count</MeasureName><UniqueName>[Measures].[Work Item Count]</UniqueName></ID><ItemCaption>Work Item Count</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Remaining Work</MeasureName><UniqueName>[Measures].[Remaining Work]</UniqueName></ID><ItemCaption>Remaining Work</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Completed Work</MeasureName><UniqueName>[Measures].[Completed Work]</UniqueName></ID><ItemCaption>Completed Work</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>WITH
 	MEMBER [Measures].[Remaining Work] AS [Measures].[FactCurrentWorkItem Microsoft_VSTS_Scheduling_RemainingWork]
 	MEMBER [Measures].[Completed Work] AS [Measures].[FactCurrentWorkItem Microsoft_VSTS_Scheduling_CompletedWork]
 SELECT
@@ -844,7 +843,7 @@ SELECT
 } ON COLUMNS,
 {
 	NonEmpty(
-		Except([Work Item].[System_State].[System_State],StrToMember("[Work Item].[System_State].&amp;[" + @RemovedName + "]")),
+		[Work Item].[System_State].[System_State],
 		[Measures].[Work Item Count]
 	)
 } ON ROWS
@@ -853,6 +852,7 @@ FROM
 	SELECT
 		CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToSet(@StateParam),
 			StrToSet(@AreaParam),
 			StrToSet(@IterationParam),
@@ -862,7 +862,7 @@ FROM
 			)
 		) ON COLUMNS
 	FROM [Team System]
-)</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>A8915606-5343-4FAB-8502-E8D9BD4B3D20</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AreaParam</Name><DefaultValues><DefaultValue>[Work Item].[Area Hierarchy].[All]</DefaultValue></DefaultValues><Caption>AreaParam</Caption><HierarchyUniqueName>[Work Item].[Area Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[Area Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>IterationParam</Name><DefaultValues><DefaultValue>[Work Item].[Iteration Hierarchy].[All]</DefaultValue></DefaultValues><Caption>IterationParam</Caption><HierarchyUniqueName>[Work Item].[Iteration Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[Iteration Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>WorkItemTypeParam</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Task]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[User Story]</DefaultValue></DefaultValues><Caption>WorkItemTypeParam</Caption><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_WorkItemType].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>StateParam</Name><DefaultValues><DefaultValue>[Work Item].[System_State].[All]</DefaultValue></DefaultValues><Caption>StateParam</Caption><HierarchyUniqueName>[Work Item].[System_State]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_State].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_State].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_State].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_State].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>WorkItemsToExclude</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Issue]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Shared Steps]</DefaultValue></DefaultValues><Caption>WorkItemsToExclude</Caption><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_WorkItemType].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>RemovedName</Name><DefaultValues><DefaultValue>Removed</DefaultValue></DefaultValues><Caption>RemovedName</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
+)</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>A8915606-5343-4FAB-8502-E8D9BD4B3D20</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AreaParam</Name><DefaultValues><DefaultValue>[Work Item].[Area Hierarchy].[All]</DefaultValue></DefaultValues><Caption>AreaParam</Caption><HierarchyUniqueName>[Work Item].[Area Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[Area Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>IterationParam</Name><DefaultValues><DefaultValue>[Work Item].[Iteration Hierarchy].[All]</DefaultValue></DefaultValues><Caption>IterationParam</Caption><HierarchyUniqueName>[Work Item].[Iteration Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[Iteration Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>WorkItemTypeParam</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Task]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[User Story]</DefaultValue></DefaultValues><Caption>WorkItemTypeParam</Caption><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_WorkItemType].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>StateParam</Name><DefaultValues><DefaultValue>[Work Item].[System_State].[All]</DefaultValue></DefaultValues><Caption>StateParam</Caption><HierarchyUniqueName>[Work Item].[System_State]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_State].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_State].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_State].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_State].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>WorkItemsToExclude</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Issue]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Shared Steps]</DefaultValue></DefaultValues><Caption>WorkItemsToExclude</Caption><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_WorkItemType].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
         <rd:SuppressAutoUpdate>true</rd:SuppressAutoUpdate>
       </Query>
     </DataSet>
@@ -902,7 +902,7 @@ SELECT
 {
 	// Filter out people who don't currently have any work items assigned to them.
 	CrossJoin(
-		EXCEPT([Work Item].[System_State].[All].Children, StrToMember("[Work Item].[System_State].&amp;[" + @RemovedName + "]")),
+		[Work Item].[System_State].[All].Children,
 		TopCount(
 			NonEmpty(
 				[Work Item].[System_AssignedTo].[System_AssignedTo].AllMembers,
@@ -923,6 +923,7 @@ FROM
 	SELECT
 		CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToSet(@StateParam),
 			StrToSet(@AreaParam),
 			StrToSet(@IterationParam),
@@ -958,11 +959,8 @@ FROM
           <QueryParameter Name="YAxis">
             <Value>=Parameters!YAxis.Value</Value>
           </QueryParameter>
-          <QueryParameter Name="RemovedName">
-            <Value>=Parameters!RemovedName.Value</Value>
-          </QueryParameter>
         </QueryParameters>
-        <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Measure"><MeasureName>Microsoft_VSTS_Scheduling_CompletedWork</MeasureName><UniqueName>[Measures].[Microsoft_VSTS_Scheduling_CompletedWork]</UniqueName></ID><ItemCaption>Completed Work</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Microsoft_VSTS_Scheduling_RemainingWork</MeasureName><UniqueName>[Measures].[Microsoft_VSTS_Scheduling_RemainingWork]</UniqueName></ID><ItemCaption>Remaining Work</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Work Item Count</MeasureName><UniqueName>[Measures].[Work Item Count]</UniqueName></ID><ItemCaption>Work Item Count</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>// Returns the completed and remaining work for each person with a work item
+        <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Level"><DimensionName>Work Item</DimensionName><HierarchyName>System_State</HierarchyName><HierarchyUniqueName>[Work Item].[System_State]</HierarchyUniqueName><LevelName>System_State</LevelName><UniqueName>[Work Item].[System_State].[System_State]</UniqueName></ID><ItemCaption>State</ItemCaption></Item><Item><ID xsi:type="Level"><DimensionName>Work Item</DimensionName><HierarchyName>System_AssignedTo</HierarchyName><HierarchyUniqueName>[Work Item].[System_AssignedTo]</HierarchyUniqueName><LevelName>System_AssignedTo</LevelName><UniqueName>[Work Item].[System_AssignedTo].[System_AssignedTo]</UniqueName></ID><ItemCaption>Assigned To</ItemCaption></Item><Item><ID xsi:type="Measure"><MeasureName>Microsoft_VSTS_Scheduling_CompletedWork</MeasureName><UniqueName>[Measures].[Microsoft_VSTS_Scheduling_CompletedWork]</UniqueName></ID><ItemCaption>Completed Work</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Microsoft_VSTS_Scheduling_RemainingWork</MeasureName><UniqueName>[Measures].[Microsoft_VSTS_Scheduling_RemainingWork]</UniqueName></ID><ItemCaption>Remaining Work</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>Work Item Count</MeasureName><UniqueName>[Measures].[Work Item Count]</UniqueName></ID><ItemCaption>Work Item Count</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>// Returns the completed and remaining work for each person with a work item
 // currently assigned to them.
 SELECT
 {
@@ -973,7 +971,7 @@ SELECT
 {
 	// Filter out people who don't currently have any work items assigned to them.
 	CrossJoin(
-		EXCEPT([Work Item].[System_State].[All].Children, StrToMember("[Work Item].[System_State].&amp;[" + @RemovedName + "]")),
+		[Work Item].[System_State].[All].Children,
 		TopCount(
 			NonEmpty(
 				[Work Item].[System_AssignedTo].[System_AssignedTo].AllMembers,
@@ -994,6 +992,7 @@ FROM
 	SELECT
 		CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToSet(@StateParam),
 			StrToSet(@AreaParam),
 			StrToSet(@IterationParam),
@@ -1003,7 +1002,7 @@ FROM
 			)
 		) ON COLUMNS
 	FROM [Team System]
-)</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>B6952D9B-1DB7-4054-AA0E-03DCFCE06051</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>StateParam</Name><DefaultValues><DefaultValue>[Work Item].[System_State].[All]</DefaultValue></DefaultValues><Caption>StateParam</Caption><HierarchyUniqueName>[Work Item].[System_State]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_State].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_State].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_State].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_State].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>AreaParam</Name><DefaultValues><DefaultValue>[Work Item].[Area Hierarchy].[All]</DefaultValue></DefaultValues><Caption>AreaParam</Caption><HierarchyUniqueName>[Work Item].[Area Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[Area Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>IterationParam</Name><DefaultValues><DefaultValue>[Work Item].[Iteration Hierarchy].[All]</DefaultValue></DefaultValues><Caption>IterationParam</Caption><HierarchyUniqueName>[Work Item].[Iteration Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[Iteration Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>WorkItemTypeParam</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Task]</DefaultValue></DefaultValues><Caption>WorkItemTypeParam</Caption><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_WorkItemType].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>WorkItemsToExclude</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Shared Steps]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Issue]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Test Case]</DefaultValue></DefaultValues><Caption>WorkItemsToExclude</Caption><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_WorkItemType].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>TopUserCount</Name><DefaultValues><DefaultValue>10</DefaultValue></DefaultValues><Caption>TopUserCount</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>YAxis</Name><DefaultValues><DefaultValue>hours</DefaultValue></DefaultValues><Caption>YAxis</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>RemovedName</Name><DefaultValues><DefaultValue>Removed</DefaultValue></DefaultValues><Caption>RemovedName</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
+)</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>B6952D9B-1DB7-4054-AA0E-03DCFCE06051</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>StateParam</Name><DefaultValues><DefaultValue>[Work Item].[System_State].[All]</DefaultValue></DefaultValues><Caption>StateParam</Caption><HierarchyUniqueName>[Work Item].[System_State]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_State].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_State].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_State].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_State].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>AreaParam</Name><DefaultValues><DefaultValue>[Work Item].[Area Hierarchy].[All]</DefaultValue></DefaultValues><Caption>AreaParam</Caption><HierarchyUniqueName>[Work Item].[Area Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[Area Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>IterationParam</Name><DefaultValues><DefaultValue>[Work Item].[Iteration Hierarchy].[All]</DefaultValue></DefaultValues><Caption>IterationParam</Caption><HierarchyUniqueName>[Work Item].[Iteration Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[Iteration Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>WorkItemTypeParam</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Task]</DefaultValue></DefaultValues><Caption>WorkItemTypeParam</Caption><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_WorkItemType].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>WorkItemsToExclude</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Shared Steps]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Issue]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Test Case]</DefaultValue></DefaultValues><Caption>WorkItemsToExclude</Caption><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_WorkItemType].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>TopUserCount</Name><DefaultValues><DefaultValue>10</DefaultValue></DefaultValues><Caption>TopUserCount</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>YAxis</Name><DefaultValues><DefaultValue>hours</DefaultValue></DefaultValues><Caption>YAxis</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
         <rd:SuppressAutoUpdate>true</rd:SuppressAutoUpdate>
       </Query>
     </DataSet>
@@ -1045,6 +1044,7 @@ FROM
 	SELECT
 		CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToSet(@StateParam),
 			StrToSet(@AreaParam),
 			StrToSet(@IterationParam),
@@ -1106,6 +1106,7 @@ FROM
 	SELECT
 		CrossJoin(
 			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+			StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 			StrToSet(@StateParam),
 			StrToSet(@AreaParam),
 			StrToSet(@IterationParam),
@@ -1117,6 +1118,181 @@ FROM
 	FROM [Team System]
 )</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>B6952D9B-1DB7-4054-AA0E-03DCFCE06051</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AreaParam</Name><DefaultValues><DefaultValue>[Work Item].[Area Hierarchy].[All]</DefaultValue></DefaultValues><Caption>AreaParam</Caption><HierarchyUniqueName>[Work Item].[Area Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[Area Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[Area Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>IterationParam</Name><DefaultValues><DefaultValue>[Work Item].[Iteration Hierarchy].[All]</DefaultValue></DefaultValues><Caption>IterationParam</Caption><HierarchyUniqueName>[Work Item].[Iteration Hierarchy]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[Iteration Hierarchy].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[Iteration Hierarchy].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>WorkItemTypeParam</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Task]</DefaultValue></DefaultValues><Caption>WorkItemTypeParam</Caption><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_WorkItemType].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>StateParam</Name><DefaultValues><DefaultValue>[Work Item].[System_State].[All]</DefaultValue></DefaultValues><Caption>StateParam</Caption><HierarchyUniqueName>[Work Item].[System_State]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_State].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_State].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_State].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_State].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>WorkItemsToExclude</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Test Case]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Shared Steps]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Issue]</DefaultValue></DefaultValues><Caption>WorkItemsToExclude</Caption><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_WorkItemType].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>TopUserCount</Name><DefaultValues><DefaultValue>10</DefaultValue></DefaultValues><Caption>TopUserCount</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>YAxis</Name><DefaultValues><DefaultValue>hours</DefaultValue></DefaultValues><Caption>YAxis</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
         <rd:SuppressAutoUpdate>true</rd:SuppressAutoUpdate>
+      </Query>
+    </DataSet>
+    <DataSet Name="dsStatesDefault">
+      <Fields>
+        <Field Name="State_Change_Count">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[State Change Count]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="State">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Level" UniqueName="[Work Item].[System_State].[System_State]" /&gt;</DataField>
+          <rd:TypeName>System.String</rd:TypeName>
+        </Field>
+        <Field Name="StateID">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[StateID]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+        <Field Name="StateCaption">
+          <DataField>&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;Field xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:type="Measure" UniqueName="[Measures].[StateCaption]" /&gt;</DataField>
+          <rd:TypeName>System.Int32</rd:TypeName>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>TfsOlapReportDS</DataSourceName>
+        <CommandText>WITH
+MEMBER [Measures].[StateCaption] AS
+	IIF([Work Item].[System_State].CurrentMember IS [Work Item].[System_State].[All],
+		@AllNoFilter,
+		[Work Item].[System_State].CurrentMember.Member_Caption
+	)
+
+MEMBER [Measures].[StateID] AS
+	[Work Item].[System_State].CurrentMember.UniqueName
+
+SELECT
+{
+	[Measures].[State Change Count],
+	[Measures].[StateID],
+	[Measures].[StateCaption]
+} ON COLUMNS,
+{
+	//
+	// This query handles the following cases:
+	//
+	//	1.	Returns all states except Proposed when this team project has states
+	//	2.	When this team project has no work items, but other team projects do, explictly
+	//		return the Active state so the report will run.
+	//	3.	When the active state is not used anywhere in any team project, return the All
+	//		member.
+	Union(
+		Except(
+			Extract(
+				(
+					[Team Project].[Project Node GUID].[All], 
+					[Work Item].[System_IsDeleted].[All],
+					[Work Item].[System_State].[All]
+				) +
+				NonEmpty(
+					CrossJoin(
+						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+						StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
+						Except(
+							[Work Item].[System_State].[All].Children,
+							StrToSet("[Work Item].[System_State].&amp;[" + @ProposedName + "]")
+						)
+					),
+					[Measures].[State Change Count]
+				),
+				[Work Item].[System_State]
+			),
+			[Work Item].[System_State].[All]
+		),
+		Head(
+			Union(
+				StrToMember("[Work Item].[System_State].&amp;[" + @ActiveName + "]"),
+				[Work Item].[System_State].[All]
+			),
+			1
+		)
+	)
+} ON ROWS
+FROM
+(
+	SELECT 
+		Except(
+			Descendants(StrToSet(@WorkItemTypeParam)),
+			[Work Item].[System_WorkItemType].[All] + StrToSet(@WorkItemsToExclude)
+		) ON COLUMNS
+	FROM [Team System]
+)</CommandText>
+        <QueryParameters>
+          <QueryParameter Name="ProjectGuid">
+            <Value>=Parameters!ProjectGuid.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="AllNoFilter">
+            <Value>=Parameters!AllNoFilter.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="WorkItemTypeParam">
+            <Value>=Parameters!WorkItemTypeParam.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="WorkItemsToExclude">
+            <Value>=Code.CollectionToMDX(Parameters!WorkItemsToExclude.Value, "[Work Item].[System_WorkItemType].&amp;[", "]")</Value>
+          </QueryParameter>
+          <QueryParameter Name="ProposedName">
+            <Value>=Parameters!ProposedName.Value</Value>
+          </QueryParameter>
+          <QueryParameter Name="ActiveName">
+            <Value>=Parameters!ActiveName.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <rd:DesignerState><QueryDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/AnalysisServices/QueryDefinition"><CommandType>MDX</CommandType><Type>Query</Type><QuerySpecification xsi:type="MDXQuerySpecification"><Select><Items><Item><ID xsi:type="Level"><DimensionName>Work Item</DimensionName><HierarchyName>System_State</HierarchyName><HierarchyUniqueName>[Work Item].[System_State]</HierarchyUniqueName><LevelName>System_State</LevelName><UniqueName>[Work Item].[System_State].[System_State]</UniqueName></ID><ItemCaption>State</ItemCaption></Item><Item><ID xsi:type="Measure"><MeasureName>State Change Count</MeasureName><UniqueName>[Measures].[State Change Count]</UniqueName></ID><ItemCaption>State Change Count</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>StateID</MeasureName><UniqueName>[Measures].[StateID]</UniqueName></ID><ItemCaption>StateID</ItemCaption><FormattedValue>true</FormattedValue></Item><Item><ID xsi:type="Measure"><MeasureName>StateCaption</MeasureName><UniqueName>[Measures].[StateCaption]</UniqueName></ID><ItemCaption>StateCaption</ItemCaption><FormattedValue>true</FormattedValue></Item></Items></Select><From>Team System</From><Filter><FilterItems /></Filter><Calculations /><Aggregates /><QueryProperties /></QuerySpecification><Query><Statement>WITH
+MEMBER [Measures].[StateCaption] AS
+	IIF([Work Item].[System_State].CurrentMember IS [Work Item].[System_State].[All],
+		@AllNoFilter,
+		[Work Item].[System_State].CurrentMember.Member_Caption
+	)
+
+MEMBER [Measures].[StateID] AS
+	[Work Item].[System_State].CurrentMember.UniqueName
+
+SELECT
+{
+	[Measures].[State Change Count],
+	[Measures].[StateID],
+	[Measures].[StateCaption]
+} ON COLUMNS,
+{
+	//
+	// This query handles the following cases:
+	//
+	//	1.	Returns all states except Proposed when this team project has states
+	//	2.	When this team project has no work items, but other team projects do, explictly
+	//		return the Active state so the report will run.
+	//	3.	When the active state is not used anywhere in any team project, return the All
+	//		member.
+	Union(
+		Except(
+			Extract(
+				(
+					[Team Project].[Project Node GUID].[All], 
+					[Work Item].[System_IsDeleted].[All],
+					[Work Item].[System_State].[All]
+				) +
+				NonEmpty(
+					CrossJoin(
+						StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+						StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
+						Except(
+							[Work Item].[System_State].[All].Children,
+							StrToSet("[Work Item].[System_State].&amp;[" + @ProposedName + "]")
+						)
+					),
+					[Measures].[State Change Count]
+				),
+				[Work Item].[System_State]
+			),
+			[Work Item].[System_State].[All]
+		),
+		Head(
+			Union(
+				StrToMember("[Work Item].[System_State].&amp;[" + @ActiveName + "]"),
+				[Work Item].[System_State].[All]
+			),
+			1
+		)
+	)
+} ON ROWS
+FROM
+(
+	SELECT 
+		Except(
+			Descendants(StrToSet(@WorkItemTypeParam)),
+			[Work Item].[System_WorkItemType].[All] + StrToSet(@WorkItemsToExclude)
+		) ON COLUMNS
+	FROM [Team System]
+)</Statement><ParameterDefinitions><ParameterDefinition><Name>ProjectGuid</Name><DefaultValues><DefaultValue>CCA89938-3D73-412E-9C55-AFDB39C968A5</DefaultValue></DefaultValues><Caption>ProjectGuid</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>AllNoFilter</Name><DefaultValues><DefaultValue>All (No Filter)</DefaultValue></DefaultValues><Caption>AllNoFilter</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>WorkItemTypeParam</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Task]</DefaultValue></DefaultValues><Caption>WorkItemTypeParam</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>WorkItemsToExclude</Name><DefaultValues><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Test Case]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Issue]</DefaultValue><DefaultValue>[Work Item].[System_WorkItemType].&amp;[Shared Steps]</DefaultValue></DefaultValues><Caption>WorkItemsToExclude</Caption><HierarchyUniqueName>[Work Item].[System_WorkItemType]</HierarchyUniqueName><ParameterValuesQuery><Statement>WITH MEMBER [Measures].[ParameterCaption] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.MEMBER_CAPTION MEMBER [Measures].[ParameterValue] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.UNIQUENAME MEMBER [Measures].[ParameterLevel] AS [Work Item].[System_WorkItemType].CURRENTMEMBER.LEVEL.ORDINAL SELECT {[Measures].[ParameterCaption], [Measures].[ParameterValue], [Measures].[ParameterLevel]} ON COLUMNS , [Work Item].[System_WorkItemType].ALLMEMBERS ON ROWS FROM [Team System]</Statement><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery><MultipleValues>true</MultipleValues></ParameterDefinition><ParameterDefinition><Name>ProposedName</Name><DefaultValues><DefaultValue>Proposed</DefaultValue></DefaultValues><Caption>ProposedName</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition><ParameterDefinition><Name>ActiveName</Name><DefaultValues><DefaultValue>Active</DefaultValue></DefaultValues><Caption>ActiveName</Caption><ParameterValuesQuery><ParameterizedStatement><ReferencedParameters /></ParameterizedStatement></ParameterValuesQuery></ParameterDefinition></ParameterDefinitions></Query></QueryDefinition></rd:DesignerState>
       </Query>
     </DataSet>
     <DataSet Name="dsWorkItemDefault">
@@ -1326,8 +1502,7 @@ SELECT
 -- Return the dates and their text version
 SELECT
   CAST(@StartDate AS DATE) AS IterationStartDate,
-  CAST(@EndDate AS DATE) AS IterationFinishDate
-</CommandText>
+  CAST(@EndDate AS DATE) AS IterationFinishDate</CommandText>
         <QueryParameters>
           <QueryParameter Name="@IterationListParam">
             <Value>=Parameters!IterationListParam.Value</Value>
@@ -2310,9 +2485,6 @@ ELSE
                       <Label>Cumulative Remaining Work</Label>
                     </ChartMember>
                     <ChartMember>
-                      <Label />
-                    </ChartMember>
-                    <ChartMember>
                       <Label>Cumulative Completed Work</Label>
                     </ChartMember>
                     <ChartMember>
@@ -2477,7 +2649,7 @@ ELSE
                   <ChartDataPoints>
                     <ChartDataPoint>
                       <ChartDataPointValues>
-                        <Y>=Sum(IIF(Parameters!YAxis.Value = "hours" AND Fields!System_State.Value &lt;&gt; Parameters!ActiveName.Value, Fields!Cumulative_Remaining_Work.Value,Nothing))</Y>
+                        <Y>=Sum(IIF(Parameters!YAxis.Value = "hours", Fields!Cumulative_Remaining_Work.Value,Nothing))</Y>
                       </ChartDataPointValues>
                       <ChartDataLabel>
                         <Style>
@@ -2521,64 +2693,6 @@ ELSE
                   <LegendName>Default</LegendName>
                   <ChartItemInLegend>
                     <LegendText>Hours Remaining</LegendText>
-                  </ChartItemInLegend>
-                  <ChartAreaName>Default</ChartAreaName>
-                  <ValueAxisName>Primary</ValueAxisName>
-                  <CategoryAxisName>Primary</CategoryAxisName>
-                  <ChartSmartLabel>
-                    <Disabled>true</Disabled>
-                    <MaxMovingDistance>22.5pt</MaxMovingDistance>
-                  </ChartSmartLabel>
-                </ChartSeries>
-                <ChartSeries Name="HoursInProgress">
-                  <Hidden>=IIF(Parameters!YAxis.Value="count",True,False)</Hidden>
-                  <ChartDataPoints>
-                    <ChartDataPoint>
-                      <ChartDataPointValues>
-                        <Y>=Sum(IIF(Parameters!YAxis.Value = "hours" AND Fields!System_State.Value = Parameters!ActiveName.Value, Fields!Cumulative_Remaining_Work.Value,Nothing))</Y>
-                      </ChartDataPointValues>
-                      <ChartDataLabel>
-                        <Style>
-                          <FontFamily>Microsoft Sans Serif</FontFamily>
-                          <FontSize>8pt</FontSize>
-                        </Style>
-                      </ChartDataLabel>
-                      <Style>
-                        <Border>
-                          <Color>#156bed</Color>
-                          <Width>0.75pt</Width>
-                        </Border>
-                        <Color>#c8156bed</Color>
-                        <BackgroundGradientEndColor>#427094</BackgroundGradientEndColor>
-                      </Style>
-                      <ChartMarker>
-                        <Style />
-                      </ChartMarker>
-                      <CustomProperties>
-                        <CustomProperty>
-                          <Name>LabelStyle</Name>
-                          <Value>Top</Value>
-                        </CustomProperty>
-                      </CustomProperties>
-                    </ChartDataPoint>
-                  </ChartDataPoints>
-                  <Type>Area</Type>
-                  <Subtype>Stacked</Subtype>
-                  <Style />
-                  <ChartEmptyPoints>
-                    <Style>
-                      <Color>#00ffffff</Color>
-                    </Style>
-                    <ChartMarker>
-                      <Style />
-                    </ChartMarker>
-                    <ChartDataLabel>
-                      <Style />
-                    </ChartDataLabel>
-                  </ChartEmptyPoints>
-                  <LegendName>Default</LegendName>
-                  <ChartItemInLegend>
-                    <LegendText>Hours in Progress</LegendText>
                   </ChartItemInLegend>
                   <ChartAreaName>Default</ChartAreaName>
                   <ValueAxisName>Primary</ValueAxisName>
@@ -3742,7 +3856,7 @@ ELSE
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>Stories Progress</Value>
+                                  <Value>Requirements Progress</Value>
                                   <Style>
                                     <FontFamily>tahoma</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -3760,8 +3874,8 @@ ELSE
                                   <ReportName>
                                     =IIF(Parameters!IsRuntime.Value,
                                     "../" + "Project Management" + "/"
-                                    + "Stories Progress",
-                                    "Stories Progress"
+                                    + "Requirements Progress",
+                                    "Requirements Progress"
                                     )
                                   </ReportName>
                                   <Parameters>
@@ -3797,7 +3911,7 @@ ELSE
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>Stories Overview</Value>
+                                  <Value>Requirements Overview</Value>
                                   <Style>
                                     <FontFamily>tahoma</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -3815,8 +3929,8 @@ ELSE
                                   <ReportName>
                                     =IIF(Parameters!IsRuntime.Value,
                                     "../" + "Project Management" + "/"
-                                    + "Stories Overview",
-                                    "Stories Overview"
+                                    + "Requirements Overview",
+                                    "Requirements Overview"
                                     )
                                   </ReportName>
                                   <Parameters>
@@ -4121,7 +4235,7 @@ ELSE
                           <ActionInfo>
                             <Actions>
                               <Action>
-                                <Hyperlink>http://go.microsoft.com/fwlink/?LinkId=145634</Hyperlink>
+                                <Hyperlink>https://go.microsoft.com/fwlink/?LinkId=145634</Hyperlink>
                               </Action>
                             </Actions>
                           </ActionInfo>
@@ -4854,7 +4968,7 @@ ELSE
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>/TfsReports/DefaultCollection/Agile01</Value>
+          <Value>/TfsReports/Collection0/ProcessTestProjectCMMI0</Value>
         </Values>
       </DefaultValue>
       <AllowBlank>true</AllowBlank>
@@ -4944,16 +5058,6 @@ ELSE
           <Value>Proposed</Value>
         </Values>
       </DefaultValue>
-    </ReportParameter>
-    <ReportParameter Name="RemovedName">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>Removed</Value>
-        </Values>
-      </DefaultValue>
-      <AllowBlank>true</AllowBlank>
-      <Hidden>true</Hidden>
     </ReportParameter>
     <ReportParameter Name="DefaultWorkItemType">
       <DataType>String</DataType>
@@ -5136,9 +5240,10 @@ ELSE
     <ReportParameter Name="StateParam">
       <DataType>String</DataType>
       <DefaultValue>
-        <Values>
-          <Value>[Work Item].[System_State].[All]</Value>
-        </Values>
+        <DataSetReference>
+          <DataSetName>dsStatesDefault</DataSetName>
+          <ValueField>StateID</ValueField>
+        </DataSetReference>
       </DefaultValue>
       <AllowBlank>true</AllowBlank>
       <Prompt>State</Prompt>

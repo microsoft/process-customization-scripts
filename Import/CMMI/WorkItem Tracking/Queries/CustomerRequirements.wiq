@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>
+		SELECT [System.Id], [System.IterationId], [System.State], [Microsoft.VSTS.Common.Priority], [System.Title] 
+		FROM WorkItems WHERE [System.TeamProject] = @project  AND  [System.WorkItemType] = 'Requirement'  
+		AND ( [Microsoft.VSTS.CMMI.RequirementType] = 'Scenario'  OR  [Microsoft.VSTS.CMMI.RequirementType] = 'Quality of Service' ) 
+		ORDER BY [System.Id]
+	</Wiql>
+</WorkItemQuery>

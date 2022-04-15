@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>
+		SELECT [System.Id], [System.Links.LinkType], [System.WorkItemType], [System.Title], [System.AssignedTo], [System.State]
+		FROM WorkItemLinks 
+		WHERE ([Source].[System.TeamProject] = @project 
+		AND [Source].[System.WorkItemType] = 'Requirement') 
+
+		AND ([System.Links.LinkType] IN ('Microsoft.VSTS.Common.Affects-Reverse','Microsoft.VSTS.Common.Affects-Forward'))
+		AND ([Target].[System.WorkItemType] = 'Change Request' AND [Target].[System.State] &lt;&gt; 'Closed')
+		ORDER BY [System.Id] mode(MustContain)
+	</Wiql>
+</WorkItemQuery>

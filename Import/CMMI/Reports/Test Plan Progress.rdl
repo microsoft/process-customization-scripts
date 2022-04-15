@@ -162,11 +162,13 @@ SELECT
 						//
 						CrossJoin(
 							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							StrToMember("[Work Item].[System_IsDeleted].[All]"),
 							[Test Case].[Area Hierarchy].[All]
 						),
 						NonEmpty(
 							CrossJoin(
 								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 								[Test Case].[Area Hierarchy].[Area0]
 							),
 							[Measures].[EmptyOrZeroPointCountTrend]
@@ -226,11 +228,13 @@ SELECT
 						//
 						CrossJoin(
 							StrToMember("[Team Project].[Project Node GUID].[All]"),
+							StrToMember("[Work Item].[System_IsDeleted].[All]"),
 							[Test Case].[Area Hierarchy].[All]
 						),
 						NonEmpty(
 							CrossJoin(
 								StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
+								StrToMember("[Work Item].[System_IsDeleted].&amp;[false]"),
 								[Test Case].[Area Hierarchy].[Area0]
 							),
 							[Measures].[EmptyOrZeroPointCountTrend]
@@ -2450,7 +2454,7 @@ ELSE
                           <ActionInfo>
                             <Actions>
                               <Action>
-                                <Hyperlink>http://go.microsoft.com/fwlink/?LinkId=145643</Hyperlink>
+                                <Hyperlink>https://go.microsoft.com/fwlink/?LinkId=145643</Hyperlink>
                               </Action>
                             </Actions>
                           </ActionInfo>
@@ -3015,7 +3019,7 @@ ELSE
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>/TfsReports/DefaultCollection/Agile01</Value>
+          <Value>/TfsReports/Collection0/ProcessTestProjectCMMI0</Value>
         </Values>
       </DefaultValue>
       <AllowBlank>true</AllowBlank>

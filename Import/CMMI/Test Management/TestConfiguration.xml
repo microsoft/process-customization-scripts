@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <TestConfigurations>
-    <TestConfiguration name="Windows 8" 
+    <TestConfiguration name="Windows 10" 
                         description="Default operating system for testing" state="active" isdefault="true">
         <TestVariable 
-                        name="Operating System" value="Windows 8" />
+                        name="Operating System" value="Windows 10" />
     </TestConfiguration>
 </TestConfigurations>

@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>
+		SELECT [System.Id], [System.WorkItemType], [System.State], [Microsoft.VSTS.Common.Priority], [Microsoft.VSTS.Common.Severity], [System.Title] 
+		FROM 	WorkItems WHERE [System.TeamProject] = @project  AND  [Microsoft.VSTS.CMMI.Blocked] = 'Yes' 
+		ORDER BY [System.Id]
+	</Wiql>
+</WorkItemQuery>

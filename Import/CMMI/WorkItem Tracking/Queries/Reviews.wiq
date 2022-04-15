@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>
+		SELECT [System.Id], [Microsoft.VSTS.CMMI.CalledDate], [Microsoft.VSTS.CMMI.CalledBy], [System.Title] 
+		FROM WorkItems WHERE [System.TeamProject] = @project  AND  [System.WorkItemType] = 'Review' 
+		ORDER BY [System.Id]
+	</Wiql>
+</WorkItemQuery>

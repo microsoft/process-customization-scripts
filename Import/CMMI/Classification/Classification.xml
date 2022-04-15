@@ -5,16 +5,16 @@
       <Nodes>
         <Node StructureType="ProjectLifecycle" Name="Iteration" xmlns="">
           <Children>
+            <Node StructureType="ProjectLifecycle" Name="Iteration 0" />
             <Node StructureType="ProjectLifecycle" Name="Iteration 1" />
             <Node StructureType="ProjectLifecycle" Name="Iteration 2" />
-            <Node StructureType="ProjectLifecycle" Name="Iteration 3" />
           </Children>
         </Node>
         <Node StructureType="ProjectModelHierarchy" Name="Area" xmlns="" />
       </Nodes>
       <properties>
-        <property name="MSPROJ" value="Classification\FileMapping.xml" isFile="true" />
-        <property name="Process Template" value="Agile"/>
+        <property name="MSPROJ" value="Classification\FieldMapping.xml" isFile="true" />
+        <property name="Process Template" value="CMMI"/>
       </properties>
     </taskXml>
   </task>

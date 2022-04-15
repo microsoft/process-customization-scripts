@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>
+    SELECT [System.Id], 
+           [System.Title], 
+           [System.AssignedTo], 
+           [System.State], 
+           [System.WorkItemType], 
+           [System.CreatedDate]
+      FROM WorkItems 
+     WHERE [System.TeamProject] = @project 
+       AND [System.WorkItemType] = 'Issue' 
+       AND [System.State] &lt;&gt; 'Closed' 
+  ORDER BY [System.CreatedDate]
+  </Wiql>
+</WorkItemQuery>

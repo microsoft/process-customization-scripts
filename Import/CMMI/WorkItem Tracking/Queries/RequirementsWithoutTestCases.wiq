@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkItemQuery Version="1">
+  <Wiql>
+    SELECT [System.Id], [System.Links.LinkType], [System.Title] 
+    FROM WorkItemLinks 
+    WHERE ([Source].[System.TeamProject] = @project 
+    AND [Source].[System.WorkItemType] = 'Requirement'     
+    AND [Source].[System.State] &lt;&gt; 'Closed')   
+    AND [System.Links.LinkType] = 'Microsoft.VSTS.Common.TestedBy-Forward' 
+    AND ([Target].[System.WorkItemType] = 'Test Case') 
+    ORDER BY [System.Id] mode(DoesNotContain)
+  </Wiql>
+</WorkItemQuery>
