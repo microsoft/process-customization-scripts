@@ -2092,8 +2092,7 @@ DECLARE @ChildAreas TABLE (AreaSK int, [AreaPath] nvarchar(4000) null);
 INSERT @ChildAreas 
     SELECT DISTINCT a.AreaSK, a.[AreaPath]
       FROM DimArea a
-     INNER JOIN @SelectedAreaList sa ON a.[AreaPath] LIKE sa.[AreaPath] + '\%'
-	 WHERE ProjectGUID = @ProjectGuid;
+     INNER JOIN @SelectedAreaList sa ON a.[AreaPath] LIKE sa.[AreaPath] + '\%';
 
 DECLARE @AreasAndChildren TABLE (AreaSK int, [AreaPath]  nvarchar(4000) null);
 INSERT @AreasAndChildren 
@@ -2101,25 +2100,24 @@ INSERT @AreasAndChildren
     UNION
     SELECT AreaSK, [AreaPath] FROM @ChildAreas;
 
-DECLARE @SelectedIterationList TABLE (IterationSK int, [IterationPath] nvarchar(4000) null);
+DECLARE @SelectedIterationList TABLE (IterationSk int, [IterationPath] nvarchar(4000) null);
 INSERT @SelectedIterationList
     SELECT IterationSK, [IterationPath] 
     FROM DimIteration
     WHERE ProjectGUID = @ProjectGuid
-      AND '*' IN (@IterationParam) OR CONVERT(NVARCHAR, IterationSK) IN (@IterationParam);
+      AND '*' IN (@IterationParam) OR CONVERT(NVARCHAR, IterationSk) IN (@IterationParam);
 
-DECLARE @ChildIterations TABLE (IterationSK int, [IterationPath] nvarchar(4000) null);
+DECLARE @ChildIterations TABLE (IterationSk int, [IterationPath] nvarchar(4000) null);
 INSERT @ChildIterations
     SELECT DISTINCT i.IterationSK, i.[IterationPath]
       FROM DimIteration i
-    INNER JOIN @SelectedIterationList si ON i.[IterationPath] LIKE si.[IterationPath] + '\%'
-	WHERE ProjectGUID = @ProjectGuid;
+    INNER JOIN @SelectedIterationList si ON i.[IterationPath] LIKE si.[IterationPath] + '\%';
 
 DECLARE @IterationsAndChildren TABLE (__ID int, [Iteration Path] nvarchar(4000) null);
 INSERT @IterationsAndChildren
-    SELECT IterationSK, [IterationPath] FROM @SelectedIterationList
+    SELECT IterationSk, [IterationPath] FROM @SelectedIterationList
     UNION
-    SELECT IterationSK, [IterationPath] FROM @ChildIterations;
+    SELECT IterationSk, [IterationPath] FROM @ChildIterations;
 
 -- TeamProjectCollection - Needed because links are done at the TPC level
 DECLARE @TeamProjectCollectionSK int; 
@@ -2147,18 +2145,18 @@ IF @RootStoryId IS NULL
     INSERT @RootNodeIDs
         -- This is selecting all deliverable workitems
         SELECT cwi.[System_Id] AS ID FROM [CurrentWorkItemView] cwi
-            WHERE cwi.[ProjectNodeGUID] = @ProjectGuid
-              AND cwi.[System_WorkItemType] IN (@DeliverableCategory)
+            WHERE cwi.[System_WorkItemType] IN (@DeliverableCategory)
+                AND cwi.[ProjectNodeGUID] = @ProjectGuid
 
     EXCEPT
         -- This is selecting all workitems that have a parent and have not been deleted
         SELECT lh.SourceWorkItemID AS ID FROM FactWorkItemLinkHistory lh
             JOIN [CurrentWorkItemView] cwi ON cwi.System_Id = lh.TargetWorkItemID
-            WHERE cwi.[ProjectNodeGUID] = @ProjectGuid
-                AND lh.WorkItemLinkTypeSK = @ParentWorkItemLinkTypeSK
+            WHERE lh.WorkItemLinkTypeSK = @ParentWorkItemLinkTypeSK
                 AND cwi.System_WorkItemType IN (@DeliverableCategory)
                 AND lh.RemovedDate = CONVERT(DATETIME, '9999', 126)
                 AND lh.TeamProjectCollectionSK = @TeamProjectCollectionSK
+                AND cwi.[ProjectNodeGUID] = @ProjectGuid
     END
 ELSE
     BEGIN
@@ -2167,11 +2165,11 @@ ELSE
         SELECT lh.TargetWorkItemID as ID
         FROM FactWorkItemLinkHistory lh 
             JOIN [CurrentWorkItemView] child ON lh.SourceWorkItemID = @RootStoryId -- parent is current node 
-                AND child.ProjectNodeGUID = @ProjectGuid
                 AND lh.TargetWorkItemID = child.System_Id
                 AND lh.WorkItemLinkTypeSK = @ChildWorkItemLinkTypeSK
                 AND lh.RemovedDate = CONVERT(DATETIME, '9999', 126)
                 AND lh.TeamProjectCollectionSK = @TeamProjectCollectionSK
+                AND child.ProjectNodeGUID = @ProjectGuid
     END
 
 
@@ -2193,9 +2191,9 @@ UNION ALL
                 AND flh.RemovedDate = CONVERT(DATETIME, '9999', 126)
                 AND flh.TeamProjectCollectionSK = @TeamProjectCollectionSK
         JOIN [CurrentWorkItemView] wi ON flh.TargetWorkItemID = wi.[System_ID]
-            AND wi.ProjectNodeGUID  = @ProjectGuid
             AND (wi.[System_WorkItemType] &lt;&gt; @Bug)
             AND (wi.System_State != @Proposed OR wi.System_WorkItemType != @Task) -- Exclude proposed tasks from the rollup
+            AND wi.ProjectNodeGUID  = @ProjectGuid
 
     WHERE parent.Path NOT LIKE CAST('%' + STR(flh.TargetWorkItemID) + '%' AS nvarchar(20)) AND parent.Level &lt; 20 
 )
@@ -2222,9 +2220,9 @@ INSERT @RecentChanges
         history.[Microsoft_VSTS_Scheduling_CompletedWork] AS RawOldCompleted
     FROM @RecentChanged AS recent INNER JOIN [WorkItemHistoryView] AS history
         ON recent.ID = history.[System_Id]
-            AND history.ProjectNodeGUID = @ProjectGuid
             AND recent.[Latest] = history.[System_ChangedDate]
-            AND history.[RecordCount] = 1;
+            AND history.[RecordCount] = 1
+            AND history.ProjectNodeGUID = @ProjectGuid;
 
 --
 -- Roll values up the hierarchy
@@ -2529,7 +2527,7 @@ SELECT	CONVERT(NVARCHAR, IterationSK) AS ID,
 		ParentIterationSK as ParentID, 
 		IterationName AS Iteration, 
 		IterationPath AS [Iteration Path],
-    REPLACE(IterationPath, ' ','') AS NormalizedIterationPath 
+        REPLACE(IterationPath, ' ','') AS NormalizedIterationPath 
  FROM DimIteration
 WHERE ProjectGUID = @ProjectGuid
   AND IterationSK &lt;&gt;  ParentIterationSK

@@ -3,10 +3,11 @@
   <metadata>
     <name>Agile</name>
     <description>This template is flexible and will work great for most teams using Agile planning methods, including those practicing Scrum.</description>
-    <version type="ADCC42AB-9882-485E-A3ED-7678F01F66BC" major="16" minor="1" />
+    <version type="f2bc6ff5-4d26-4494-aba9-c939c7c4d9e7" major="1" minor="0" />
     <plugins>
       <plugin name="Microsoft.ProjectCreationWizard.Classification" wizardPage="false" />
       <plugin name="Microsoft.ProjectCreationWizard.Reporting" wizardPage="false" />
+      <plugin name="Microsoft.ProjectCreationWizard.Portal" wizardPage="true" />
       <plugin name="Microsoft.ProjectCreationWizard.Groups" wizardPage="false" />
       <plugin name="Microsoft.ProjectCreationWizard.WorkItemTracking" wizardPage="false" />
       <plugin name="Microsoft.ProjectCreationWizard.VersionControl" wizardPage="true" />
@@ -17,7 +18,8 @@
   </metadata>
   <groups>
     <group id="Classification" description="Structure definition for the project." completionMessage="Project Structure uploaded.">
-      <dependencies></dependencies>
+      <dependencies>
+      </dependencies>
       <taskList filename="Classification\Classification.xml" />
     </group>
     <group id="Groups" description="Create Groups and assign Permissions." completionMessage="Groups created and Permissions assigned.">
@@ -72,6 +74,13 @@
         <dependency groupId="VersionControl" />
       </dependencies>
       <taskList filename="Reports\ReportsTasks.xml" />
+    </group>
+    <group id="Portal" description="Creating project Site" completionMessage="Project portal tasks completed.">
+      <dependencies>
+        <dependency groupId="Classification" />
+        <dependency groupId="Reporting" />
+      </dependencies>
+      <taskList filename="Windows SharePoint Services\WssTasks.xml" />
     </group>
   </groups>
 </ProcessTemplate>

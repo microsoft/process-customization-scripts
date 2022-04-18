@@ -6,10 +6,23 @@
       <FIELD name="Iteration Path" refname="System.IterationPath" type="TreePath" reportable="dimension">
         <HELPTEXT>The iteration for this test suite.</HELPTEXT>
       </FIELD>
+      <FIELD name="Iteration ID" refname="System.IterationId" type="Integer" />
+      <FIELD name="External Link Count" refname="System.ExternalLinkCount" type="Integer" />
+      <FIELD name="Team Project" refname="System.TeamProject" type="String" reportable="dimension" />
+      <FIELD name="Parent" refname="System.Parent" type="Integer" />
+      <FIELD name="Remote Link Count" refname="System.RemoteLinkCount" type="Integer" />
+      <FIELD name="Comment Count" refname="System.CommentCount" type="Integer" />
+      <FIELD name="Hyperlink Count" refname="System.HyperLinkCount" type="Integer" />
+      <FIELD name="Attached File Count" refname="System.AttachedFileCount" type="Integer" />
+      <FIELD name="Node Name" refname="System.NodeName" type="String" />
       <FIELD name="Area Path" refname="System.AreaPath" type="TreePath" reportable="dimension">
         <HELPTEXT>The area of the product associated with this test suite.</HELPTEXT>
       </FIELD>
-      <FIELD name="Id" refname="System.Id" type="Integer" reportable="dimension" />
+      <FIELD name="Revised Date" refname="System.RevisedDate" type="DateTime" reportable="detail" />
+      <FIELD name="Changed Date" refname="System.ChangedDate" type="DateTime" reportable="dimension" />
+      <FIELD name="ID" refname="System.Id" type="Integer" reportable="dimension" />
+      <FIELD name="Area ID" refname="System.AreaId" type="Integer" />
+      <FIELD name="Authorized As" refname="System.AuthorizedAs" type="String" syncnamechanges="true" />
       <FIELD name="Title" refname="System.Title" type="String" reportable="dimension">
         <HELPTEXT>Short description of the test suite.</HELPTEXT>
         <REQUIRED />
@@ -17,6 +30,10 @@
       <FIELD name="State" refname="System.State" type="String" reportable="dimension">
         <HELPTEXT>The workflow state of the test suite.</HELPTEXT>
       </FIELD>
+      <FIELD name="Authorized Date" refname="System.AuthorizedDate" type="DateTime" />
+      <FIELD name="Watermark" refname="System.Watermark" type="Integer" />
+      <FIELD name="Rev" refname="System.Rev" type="Integer" reportable="dimension" />
+      <FIELD name="Changed By" refname="System.ChangedBy" type="String" syncnamechanges="true" reportable="dimension" />
       <FIELD name="Reason" refname="System.Reason" type="String" reportable="dimension">
         <HELPTEXT>The reason why  the current test suite is in the current state.</HELPTEXT>
       </FIELD>
@@ -25,34 +42,36 @@
         <ALLOWEXISTINGVALUE />
         <VALIDUSER />
       </FIELD>
+      <FIELD name="Work Item Type" refname="System.WorkItemType" type="String" reportable="dimension" />
+      <FIELD name="Created Date" refname="System.CreatedDate" type="DateTime" reportable="dimension" />
+      <FIELD name="Created By" refname="System.CreatedBy" type="String" syncnamechanges="true" reportable="dimension" />
       <FIELD name="Description" refname="System.Description" type="HTML">
         <HELPTEXT>Purpose of this test suite</HELPTEXT>
       </FIELD>
       <FIELD name="History" refname="System.History" type="History">
         <HELPTEXT>Discussion thread plus automatic record of changes</HELPTEXT>
       </FIELD>
-      <FIELD name="Integration Build" refname="Microsoft.VSTS.Build.IntegrationBuild" type="String" reportable="dimension">
-        <HELPTEXT>The build on which the test suite was executed</HELPTEXT>
-        <SUGGESTEDVALUES expanditems="true">
-          <LISTITEM value="&lt;None&gt;" />
-        </SUGGESTEDVALUES>
-      </FIELD>
+      <FIELD name="Related Link Count" refname="System.RelatedLinkCount" type="Integer" />
+      <FIELD name="Tags" refname="System.Tags" type="PlainText" />
+      <FIELD name="Board Column" refname="System.BoardColumn" type="String" reportable="dimension" />
+      <FIELD name="Board Column Done" refname="System.BoardColumnDone" type="Boolean" reportable="dimension" />
+      <FIELD name="Board Lane" refname="System.BoardLane" type="String" reportable="dimension" />
       <FIELD name="Test Suite Type Id" refname="Microsoft.VSTS.TCM.TestSuiteTypeId" type="Integer">
-        <DEFAULT from="value" value="1" />
         <REQUIRED />
         <FROZEN />
+        <DEFAULT from="value" value="1" />
       </FIELD>
       <FIELD name="Test Suite Type" refname="Microsoft.VSTS.TCM.TestSuiteType" type="String" reportable="dimension">
         <HELPTEXT>Specifies the category of the test suite.</HELPTEXT>
-        <ALLOWEDVALUES>
-          <LISTITEM value="Static" />
+        <ALLOWEDVALUES expanditems="true">
           <LISTITEM value="Query Based" />
           <LISTITEM value="Requirement Based" />
+          <LISTITEM value="Static" />
         </ALLOWEDVALUES>
+        <REQUIRED />
         <WHENNOTCHANGED field="Microsoft.VSTS.TCM.TestSuiteTypeId">
           <READONLY />
         </WHENNOTCHANGED>
-        <REQUIRED />
       </FIELD>
       <FIELD name="Query Text" refname="Microsoft.VSTS.TCM.QueryText" type="PlainText">
         <WHEN field="Microsoft.VSTS.TCM.TestSuiteTypeId" value="2">
@@ -62,28 +81,44 @@
       <FIELD name="Test Suite Audit" refname="Microsoft.VSTS.TCM.TestSuiteAudit" type="PlainText">
         <HELPTEXT>Captures the test suite audit trail.</HELPTEXT>
       </FIELD>
+      <FIELD name="Integration Build" refname="Microsoft.VSTS.Build.IntegrationBuild" type="String" reportable="dimension">
+        <HELPTEXT>The build on which the test suite was executed</HELPTEXT>
+        <SUGGESTEDVALUES expanditems="true">
+          <LISTITEM value="&amp;lt;None&amp;gt;" />
+        </SUGGESTEDVALUES>
+      </FIELD>
     </FIELDS>
     <WORKFLOW>
       <STATES>
+        <STATE value="Completed" />
         <STATE value="In Planning" />
         <STATE value="In Progress" />
-        <STATE value="Completed" />
       </STATES>
       <TRANSITIONS>
+        <TRANSITION from="In Planning" to="In Progress">
+          <REASONS>
+            <DEFAULTREASON value="Tests in this test suite are now active and can be run" />
+          </REASONS>
+        </TRANSITION>
+        <TRANSITION from="Completed" to="In Progress">
+          <REASONS>
+            <DEFAULTREASON value="Reactivating to run tests" />
+          </REASONS>
+        </TRANSITION>
         <TRANSITION from="" to="In Progress">
           <REASONS>
             <DEFAULTREASON value="New test suite" />
           </REASONS>
           <FIELDS>
             <FIELD refname="Microsoft.VSTS.TCM.TestSuiteType">
-              <WHEN field="Microsoft.VSTS.TCM.TestSuiteTypeId" value="1">
-                <COPY from="value" value="Static" />
+              <WHEN field="Microsoft.VSTS.TCM.TestSuiteTypeId" value="3">
+                <COPY from="value" value="Requirement Based" />
               </WHEN>
               <WHEN field="Microsoft.VSTS.TCM.TestSuiteTypeId" value="2">
                 <COPY from="value" value="Query Based" />
               </WHEN>
-              <WHEN field="Microsoft.VSTS.TCM.TestSuiteTypeId" value="3">
-                <COPY from="value" value="Requirement Based" />
+              <WHEN field="Microsoft.VSTS.TCM.TestSuiteTypeId" value="1">
+                <COPY from="value" value="Static" />
               </WHEN>
             </FIELD>
           </FIELDS>
@@ -93,29 +128,19 @@
             <DEFAULTREASON value="Plan test cases for this test suite" />
           </REASONS>
         </TRANSITION>
+        <TRANSITION from="Completed" to="In Planning">
+          <REASONS>
+            <DEFAULTREASON value="Reactivating to planning phase" />
+          </REASONS>
+        </TRANSITION>
         <TRANSITION from="In Progress" to="Completed">
           <REASONS>
             <DEFAULTREASON value="Completed testing for this test suite" />
           </REASONS>
         </TRANSITION>
-        <TRANSITION from="In Planning" to="In Progress">
-          <REASONS>
-            <DEFAULTREASON value="Tests in this test suite are now active and can be run" />
-          </REASONS>
-        </TRANSITION>
         <TRANSITION from="In Planning" to="Completed">
           <REASONS>
             <DEFAULTREASON value="Removed from planning and test execution" />
-          </REASONS>
-        </TRANSITION>
-        <TRANSITION from="Completed" to="In Progress">
-          <REASONS>
-            <DEFAULTREASON value="Reactivating to run tests" />
-          </REASONS>
-        </TRANSITION>
-        <TRANSITION from="Completed" to="In Planning">
-          <REASONS>
-            <DEFAULTREASON value="Reactivating to planning phase" />
           </REASONS>
         </TRANSITION>
       </TRANSITIONS>

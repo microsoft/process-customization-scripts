@@ -3,11 +3,60 @@
   <WORKITEMTYPE name="Bug" refname="Microsoft.VSTS.WorkItemTypes.Bug">
     <DESCRIPTION>Describes a divergence between required and actual behavior, and tracks the work done to correct the defect and verify the correction.</DESCRIPTION>
     <FIELDS>
-      <FIELD name="Id" refname="System.Id" type="Integer" reportable="dimension" />
+      <FIELD name="Iteration Path" refname="System.IterationPath" type="TreePath" reportable="dimension">
+        <HELPTEXT>The iteration within which this bug will be fixed</HELPTEXT>
+      </FIELD>
+      <FIELD name="Iteration ID" refname="System.IterationId" type="Integer" />
+      <FIELD name="External Link Count" refname="System.ExternalLinkCount" type="Integer" />
+      <FIELD name="Team Project" refname="System.TeamProject" type="String" reportable="dimension" />
+      <FIELD name="Parent" refname="System.Parent" type="Integer" />
+      <FIELD name="Remote Link Count" refname="System.RemoteLinkCount" type="Integer" />
+      <FIELD name="Comment Count" refname="System.CommentCount" type="Integer" />
+      <FIELD name="Hyperlink Count" refname="System.HyperLinkCount" type="Integer" />
+      <FIELD name="Attached File Count" refname="System.AttachedFileCount" type="Integer" />
+      <FIELD name="Node Name" refname="System.NodeName" type="String" />
+      <FIELD name="Area Path" refname="System.AreaPath" type="TreePath" reportable="dimension">
+        <HELPTEXT>The area of the product with which this bug is associated</HELPTEXT>
+      </FIELD>
+      <FIELD name="Revised Date" refname="System.RevisedDate" type="DateTime" reportable="detail" />
+      <FIELD name="Changed Date" refname="System.ChangedDate" type="DateTime" reportable="dimension" />
+      <FIELD name="ID" refname="System.Id" type="Integer" reportable="dimension" />
+      <FIELD name="Area ID" refname="System.AreaId" type="Integer" />
+      <FIELD name="Authorized As" refname="System.AuthorizedAs" type="String" syncnamechanges="true" />
       <FIELD name="Title" refname="System.Title" type="String" reportable="dimension">
         <HELPTEXT>Stories affected and how</HELPTEXT>
         <REQUIRED />
       </FIELD>
+      <FIELD name="State" refname="System.State" type="String" reportable="dimension">
+        <HELPTEXT>New = for triage; Active = not yet fixed; Resolved = fixed not yet verified; Closed = fix verified.</HELPTEXT>
+      </FIELD>
+      <FIELD name="Authorized Date" refname="System.AuthorizedDate" type="DateTime" />
+      <FIELD name="Watermark" refname="System.Watermark" type="Integer" />
+      <FIELD name="Rev" refname="System.Rev" type="Integer" reportable="dimension" />
+      <FIELD name="Changed By" refname="System.ChangedBy" type="String" syncnamechanges="true" reportable="dimension">
+        <ALLOWEXISTINGVALUE />
+        <VALIDUSER />
+      </FIELD>
+      <FIELD name="Reason" refname="System.Reason" type="String" reportable="dimension">
+        <HELPTEXT>The reason why the bug is in the current state</HELPTEXT>
+      </FIELD>
+      <FIELD name="Assigned To" refname="System.AssignedTo" type="String" syncnamechanges="true" reportable="dimension">
+        <HELPTEXT>The person currently working on this bug</HELPTEXT>
+        <ALLOWEXISTINGVALUE />
+        <VALIDUSER />
+      </FIELD>
+      <FIELD name="Work Item Type" refname="System.WorkItemType" type="String" reportable="dimension" />
+      <FIELD name="Created Date" refname="System.CreatedDate" type="DateTime" reportable="dimension" />
+      <FIELD name="Created By" refname="System.CreatedBy" type="String" syncnamechanges="true" reportable="dimension" />
+      <FIELD name="Description" refname="System.Description" type="HTML" />
+      <FIELD name="History" refname="System.History" type="History">
+        <HELPTEXT>Discussion thread plus automatic record of changes</HELPTEXT>
+      </FIELD>
+      <FIELD name="Related Link Count" refname="System.RelatedLinkCount" type="Integer" />
+      <FIELD name="Tags" refname="System.Tags" type="PlainText" />
+      <FIELD name="Board Column" refname="System.BoardColumn" type="String" reportable="dimension" />
+      <FIELD name="Board Column Done" refname="System.BoardColumnDone" type="Boolean" reportable="dimension" />
+      <FIELD name="Board Lane" refname="System.BoardLane" type="String" reportable="dimension" />
       <FIELD name="Story Points" refname="Microsoft.VSTS.Scheduling.StoryPoints" type="Double" reportable="measure" formula="sum">
         <HELPTEXT>The size of work estimated for fixing the bug</HELPTEXT>
       </FIELD>
@@ -22,14 +71,14 @@
       </FIELD>
       <FIELD name="Activity" refname="Microsoft.VSTS.Common.Activity" type="String" reportable="dimension">
         <HELPTEXT>Type of work involved</HELPTEXT>
-        <SUGGESTEDVALUES>
-          <LISTITEM value="Development" />
-          <LISTITEM value="Testing" />
-          <LISTITEM value="Requirements" />
-          <LISTITEM value="Design" />
+        <ALLOWEDVALUES expanditems="true">
           <LISTITEM value="Deployment" />
+          <LISTITEM value="Design" />
+          <LISTITEM value="Development" />
           <LISTITEM value="Documentation" />
-        </SUGGESTEDVALUES>
+          <LISTITEM value="Requirements" />
+          <LISTITEM value="Testing" />
+        </ALLOWEDVALUES>
       </FIELD>
       <FIELD name="System Info" refname="Microsoft.VSTS.TCM.SystemInfo" type="HTML">
         <HELPTEXT>Test context, provided automatically by test infrastructure</HELPTEXT>
@@ -37,40 +86,13 @@
       <FIELD name="Repro Steps" refname="Microsoft.VSTS.TCM.ReproSteps" type="HTML">
         <HELPTEXT>How to see the bug. End by contrasting expected with actual behavior.</HELPTEXT>
       </FIELD>
-      <FIELD name="Assigned To" refname="System.AssignedTo" type="String" reportable="dimension" syncnamechanges="true">
-        <HELPTEXT>The person currently working on this bug</HELPTEXT>
-        <ALLOWEXISTINGVALUE />
-        <VALIDUSER />
-      </FIELD>
-      <FIELD name="Area Path" refname="System.AreaPath" type="TreePath" reportable="dimension">
-        <HELPTEXT>The area of the product with which this bug is associated</HELPTEXT>
-      </FIELD>
-      <FIELD name="Iteration Path" refname="System.IterationPath" type="TreePath" reportable="dimension">
-        <HELPTEXT>The iteration within which this bug will be fixed</HELPTEXT>
-      </FIELD>
-      <FIELD name="History" refname="System.History" type="History">
-        <HELPTEXT>Discussion thread plus automatic record of changes</HELPTEXT>
-      </FIELD>
-      <FIELD name="State" refname="System.State" type="String" reportable="dimension">
-        <HELPTEXT>New = for triage; Active = not yet fixed; Resolved = fixed not yet verified; Closed = fix verified.</HELPTEXT>
-      </FIELD>
-      <FIELD name="Reason" refname="System.Reason" type="String" reportable="dimension">
-        <HELPTEXT>The reason why the bug is in the current state</HELPTEXT>
-      </FIELD>
-      <FIELD name="Changed Date" refname="System.ChangedDate" type="DateTime" reportable="dimension" />
-      <FIELD name="Changed By" refname="System.ChangedBy" type="String" reportable="dimension" syncnamechanges="true">
-        <ALLOWEXISTINGVALUE />
-        <VALIDUSER />
-      </FIELD>
-      <FIELD name="Created Date" refname="System.CreatedDate" type="DateTime" reportable="dimension" />
-      <FIELD name="Created By" refname="System.CreatedBy" type="String" reportable="dimension" syncnamechanges="true" />
       <FIELD name="State Change Date" refname="Microsoft.VSTS.Common.StateChangeDate" type="DateTime">
-        <WHENCHANGED field="System.State">
-          <SERVERDEFAULT from="clock" />
-        </WHENCHANGED>
         <WHENNOTCHANGED field="System.State">
           <READONLY />
         </WHENNOTCHANGED>
+        <WHENCHANGED field="System.State">
+          <SERVERDEFAULT from="clock" />
+        </WHENCHANGED>
       </FIELD>
       <FIELD name="Activated Date" refname="Microsoft.VSTS.Common.ActivatedDate" type="DateTime" reportable="dimension">
         <WHENNOTCHANGED field="System.State">
@@ -79,9 +101,9 @@
       </FIELD>
       <FIELD name="Activated By" refname="Microsoft.VSTS.Common.ActivatedBy" type="String" syncnamechanges="true" reportable="dimension">
         <WHENNOTCHANGED field="System.State">
+          <ALLOWEXISTINGVALUE />
           <READONLY />
         </WHENNOTCHANGED>
-        <ALLOWEXISTINGVALUE />
       </FIELD>
       <FIELD name="Resolved Date" refname="Microsoft.VSTS.Common.ResolvedDate" type="DateTime" reportable="dimension">
         <WHENNOTCHANGED field="System.State">
@@ -90,22 +112,22 @@
       </FIELD>
       <FIELD name="Resolved By" refname="Microsoft.VSTS.Common.ResolvedBy" type="String" syncnamechanges="true" reportable="dimension">
         <WHENNOTCHANGED field="System.State">
+          <ALLOWEXISTINGVALUE />
           <READONLY />
         </WHENNOTCHANGED>
-        <ALLOWEXISTINGVALUE />
       </FIELD>
       <FIELD name="Resolved Reason" refname="Microsoft.VSTS.Common.ResolvedReason" type="String" reportable="dimension">
-        <ALLOWEDVALUES>
+        <HELPTEXT>The reason why the bug was resolved</HELPTEXT>
+        <ALLOWEDVALUES expanditems="true">
           <LISTITEM value="As Designed" />
           <LISTITEM value="Cannot Reproduce" />
+          <LISTITEM value="Copied to Backlog" />
           <LISTITEM value="Deferred" />
           <LISTITEM value="Duplicate" />
           <LISTITEM value="Fixed" />
           <LISTITEM value="Fixed and verified" />
           <LISTITEM value="Obsolete" />
-          <LISTITEM value="Copied to Backlog" />
         </ALLOWEDVALUES>
-        <HELPTEXT>The reason why the bug was resolved</HELPTEXT>
       </FIELD>
       <FIELD name="Closed Date" refname="Microsoft.VSTS.Common.ClosedDate" type="DateTime" reportable="dimension">
         <WHENNOTCHANGED field="System.State">
@@ -114,9 +136,9 @@
       </FIELD>
       <FIELD name="Closed By" refname="Microsoft.VSTS.Common.ClosedBy" type="String" syncnamechanges="true" reportable="dimension">
         <WHENNOTCHANGED field="System.State">
+          <ALLOWEXISTINGVALUE />
           <READONLY />
         </WHENNOTCHANGED>
-        <ALLOWEXISTINGVALUE />
       </FIELD>
       <FIELD name="Priority" refname="Microsoft.VSTS.Common.Priority" type="Integer" reportable="dimension">
         <HELPTEXT>Business importance. 1=must fix; 4=unimportant.</HELPTEXT>
@@ -142,61 +164,36 @@
         <HELPTEXT>Work first on items with lower-valued stack rank. Set in triage.</HELPTEXT>
       </FIELD>
       <FIELD name="Value Area" refname="Microsoft.VSTS.Common.ValueArea" type="String">
-        <REQUIRED />
-        <ALLOWEDVALUES>
+        <HELPTEXT>The type should be set to Business primarily to represent customer-facing issues. Work to change the architecture should be added as a User Story</HELPTEXT>
+        <ALLOWEDVALUES expanditems="true">
           <LISTITEM value="Architectural" />
           <LISTITEM value="Business" />
         </ALLOWEDVALUES>
+        <REQUIRED />
         <DEFAULT from="value" value="Business" />
-        <HELPTEXT>The type should be set to Business primarily to represent customer-facing issues. Work to change the architecture should be added as a User Story</HELPTEXT>
-      </FIELD>
-      <!-- **************** Team Build Integration Fields **************  -->
-      <FIELD name="Integration Build" refname="Microsoft.VSTS.Build.IntegrationBuild" type="String" reportable="dimension">
-        <HELPTEXT>The build in which the bug was fixed</HELPTEXT>
-        <SUGGESTEDVALUES>
-          <LISTITEM value="&lt;None&gt;" />
-        </SUGGESTEDVALUES>
       </FIELD>
       <FIELD name="Found In" refname="Microsoft.VSTS.Build.FoundIn" type="String" reportable="dimension">
         <HELPTEXT>The build in which the bug was found</HELPTEXT>
-        <SUGGESTEDVALUES>
-          <LISTITEM value="&lt;None&gt;" />
+        <SUGGESTEDVALUES expanditems="true">
+          <LISTITEM value="&amp;lt;None&amp;gt;" />
+        </SUGGESTEDVALUES>
+      </FIELD>
+      <FIELD name="Integration Build" refname="Microsoft.VSTS.Build.IntegrationBuild" type="String" reportable="dimension">
+        <HELPTEXT>The build in which the bug was fixed</HELPTEXT>
+        <SUGGESTEDVALUES expanditems="true">
+          <LISTITEM value="&amp;lt;None&amp;gt;" />
         </SUGGESTEDVALUES>
       </FIELD>
     </FIELDS>
     <WORKFLOW>
       <STATES>
-        <STATE value="New">
-          <FIELDS>
-            <FIELD refname="Microsoft.VSTS.Common.ResolvedDate">
-              <EMPTY />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ResolvedBy">
-              <EMPTY />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-              <EMPTY />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
-              <EMPTY />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
-              <EMPTY />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
-              <EMPTY />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
-              <EMPTY />
-            </FIELD>
-          </FIELDS>
-        </STATE>
         <STATE value="Active">
           <FIELDS>
             <FIELD refname="Microsoft.VSTS.Common.ResolvedDate">
               <EMPTY />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ResolvedBy">
+              <ALLOWEXISTINGVALUE />
               <EMPTY />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
@@ -206,6 +203,36 @@
               <EMPTY />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <ALLOWEXISTINGVALUE />
+              <EMPTY />
+            </FIELD>
+          </FIELDS>
+        </STATE>
+        <STATE value="Closed" />
+        <STATE value="New">
+          <FIELDS>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
+              <EMPTY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
+              <ALLOWEXISTINGVALUE />
+              <EMPTY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ResolvedDate">
+              <EMPTY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ResolvedBy">
+              <ALLOWEXISTINGVALUE />
+              <EMPTY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+              <EMPTY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
+              <EMPTY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <ALLOWEXISTINGVALUE />
               <EMPTY />
             </FIELD>
           </FIELDS>
@@ -216,351 +243,39 @@
               <EMPTY />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <ALLOWEXISTINGVALUE />
               <EMPTY />
             </FIELD>
           </FIELDS>
         </STATE>
-        <STATE value="Closed" />
       </STATES>
       <TRANSITIONS>
-        <TRANSITION from="" to="New">
+        <TRANSITION from="Resolved" to="Closed">
           <REASONS>
-            <REASON value="Build Failure" />
-            <DEFAULTREASON value="New" />
-          </REASONS>
-        </TRANSITION>
-        <TRANSITION from="New" to="Active">
-          <ACTIONS>
-            <ACTION value="Microsoft.VSTS.Actions.StartWork" />
-          </ACTIONS>
-          <REASONS>
-            <DEFAULTREASON value="Approved" />
-            <REASON value="Investigate" />
+            <DEFAULTREASON value="Verified" />
           </REASONS>
           <FIELDS>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
+            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <ALLOWEXISTINGVALUE />
               <COPY from="currentuser" />
               <VALIDUSER />
               <REQUIRED />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
-              <SERVERDEFAULT from="clock" />
-            </FIELD>
-          </FIELDS>
-        </TRANSITION>
-        <TRANSITION from="New" to="Resolved">
-          <ACTIONS>
-            <ACTION value="Microsoft.VSTS.Actions.Checkin" />
-          </ACTIONS>
-          <REASONS>
-            <DEFAULTREASON value="Fixed">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="Fixed" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="Fixed" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </DEFAULTREASON>
-            <REASON value="Deferred">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="Deferred" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="Deferred" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </REASON>
-            <REASON value="Duplicate">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="Duplicate" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="Duplicate" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </REASON>
-            <REASON value="As Designed">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="As Designed" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="As Designed" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </REASON>
-            <REASON value="Cannot Reproduce">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="Cannot Reproduce" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="Cannot Reproduce" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </REASON>
-            <REASON value="Obsolete">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="Obsolete" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="Obsolete" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </REASON>
-            <REASON value="Copied to Backlog">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="Copied to Backlog" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="Copied to Backlog" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </REASON>
-          </REASONS>
-          <FIELDS>
-            <FIELD refname="System.AssignedTo">
-              <COPY from="field" field="System.CreatedBy" />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
-              <SERVERDEFAULT from="clock" />
+              <READONLY />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
-              <COPY from="currentuser" />
-              <VALIDUSER />
-              <REQUIRED />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ResolvedBy">
-              <COPY from="currentuser" />
-              <VALIDUSER />
-              <REQUIRED />
+              <ALLOWEXISTINGVALUE />
+              <READONLY />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ResolvedDate">
-              <SERVERDEFAULT from="clock" />
-            </FIELD>
-          </FIELDS>
-        </TRANSITION>
-        <TRANSITION from="New" to="Closed">
-          <REASONS>
-            <DEFAULTREASON value="Fixed and verified">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="Fixed and verified" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="Fixed and verified" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </DEFAULTREASON>
-            <REASON value="Deferred">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="Deferred" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="Deferred" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </REASON>
-            <REASON value="Duplicate">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="Duplicate" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="Duplicate" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </REASON>
-            <REASON value="As Designed">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="As Designed" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="As Designed" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </REASON>
-            <REASON value="Cannot Reproduce">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="Cannot Reproduce" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="Cannot Reproduce" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </REASON>
-            <REASON value="Obsolete">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="Obsolete" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="Obsolete" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </REASON>
-            <REASON value="Copied to Backlog">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="Copied to Backlog" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="Copied to Backlog" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </REASON>
-          </REASONS>
-          <FIELDS>
-            <FIELD refname="System.AssignedTo">
-              <COPY from="field" field="System.CreatedBy" />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
-              <SERVERDEFAULT from="clock" />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
-              <COPY from="currentuser" />
-              <VALIDUSER />
-              <REQUIRED />
+              <READONLY />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ResolvedBy">
-              <COPY from="currentuser" />
-              <VALIDUSER />
-              <REQUIRED />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ResolvedDate">
-              <SERVERDEFAULT from="clock" />
+              <ALLOWEXISTINGVALUE />
+              <READONLY />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
-              <SERVERDEFAULT from="clock" />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
-              <COPY from="currentuser" />
-              <VALIDUSER />
-              <REQUIRED />
-            </FIELD>
-          </FIELDS>
-        </TRANSITION>
-        <TRANSITION from="Active" to="New">
-          <ACTIONS>
-            <ACTION value="Microsoft.VSTS.Actions.StopWork" />
-          </ACTIONS>
-          <REASONS>
-            <DEFAULTREASON value="Investigation Complete" />
-          </REASONS>
-        </TRANSITION>
-        <TRANSITION from="Resolved" to="New">
-          <REASONS>
-            <REASON value="Test Failed" />
-            <DEFAULTREASON value="Not fixed" />
-          </REASONS>
-        </TRANSITION>
-        <TRANSITION from="Closed" to="New">
-          <REASONS>
-            <REASON value="Test Failed" />
-            <DEFAULTREASON value="Not fixed" />
-          </REASONS>
-        </TRANSITION>
-        <TRANSITION from="Active" to="Resolved">
-          <ACTIONS>
-            <ACTION value="Microsoft.VSTS.Actions.Checkin" />
-          </ACTIONS>
-          <REASONS>
-            <DEFAULTREASON value="Fixed">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="Fixed" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="Fixed" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </DEFAULTREASON>
-            <REASON value="Deferred">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="Deferred" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="Deferred" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </REASON>
-            <REASON value="Duplicate">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="Duplicate" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="Duplicate" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </REASON>
-            <REASON value="As Designed">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="As Designed" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="As Designed" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </REASON>
-            <REASON value="Cannot Reproduce">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="Cannot Reproduce" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="Cannot Reproduce" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </REASON>
-            <REASON value="Obsolete">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="Obsolete" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="Obsolete" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </REASON>
-            <REASON value="Copied to Backlog">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="Copied to Backlog" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="Copied to Backlog" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </REASON>
-          </REASONS>
-          <FIELDS>
-            <FIELD refname="System.AssignedTo">
-              <COPY from="field" field="System.CreatedBy" />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
-              <READONLY />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
-              <READONLY />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ResolvedBy">
-              <COPY from="currentuser" />
-              <VALIDUSER />
-              <REQUIRED />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ResolvedDate">
               <SERVERDEFAULT from="clock" />
             </FIELD>
           </FIELDS>
@@ -571,37 +286,17 @@
               <FIELDS>
                 <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
                   <COPY from="value" value="Fixed and verified" />
-                  <ALLOWEDVALUES>
+                  <ALLOWEDVALUES expanditems="true">
                     <LISTITEM value="Fixed and verified" />
                   </ALLOWEDVALUES>
                 </FIELD>
               </FIELDS>
             </DEFAULTREASON>
-            <REASON value="Deferred">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="Deferred" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="Deferred" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </REASON>
-            <REASON value="Duplicate">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="Duplicate" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="Duplicate" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </REASON>
             <REASON value="As Designed">
               <FIELDS>
                 <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
                   <COPY from="value" value="As Designed" />
-                  <ALLOWEDVALUES>
+                  <ALLOWEDVALUES expanditems="true">
                     <LISTITEM value="As Designed" />
                   </ALLOWEDVALUES>
                 </FIELD>
@@ -611,18 +306,8 @@
               <FIELDS>
                 <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
                   <COPY from="value" value="Cannot Reproduce" />
-                  <ALLOWEDVALUES>
+                  <ALLOWEDVALUES expanditems="true">
                     <LISTITEM value="Cannot Reproduce" />
-                  </ALLOWEDVALUES>
-                </FIELD>
-              </FIELDS>
-            </REASON>
-            <REASON value="Obsolete">
-              <FIELDS>
-                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
-                  <COPY from="value" value="Obsolete" />
-                  <ALLOWEDVALUES>
-                    <LISTITEM value="Obsolete" />
                   </ALLOWEDVALUES>
                 </FIELD>
               </FIELDS>
@@ -631,27 +316,62 @@
               <FIELDS>
                 <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
                   <COPY from="value" value="Copied to Backlog" />
-                  <ALLOWEDVALUES>
+                  <ALLOWEDVALUES expanditems="true">
                     <LISTITEM value="Copied to Backlog" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </REASON>
+            <REASON value="Deferred">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="Deferred" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="Deferred" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </REASON>
+            <REASON value="Duplicate">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="Duplicate" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="Duplicate" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </REASON>
+            <REASON value="Obsolete">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="Obsolete" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="Obsolete" />
                   </ALLOWEDVALUES>
                 </FIELD>
               </FIELDS>
             </REASON>
           </REASONS>
           <FIELDS>
-            <FIELD refname="System.AssignedTo">
-              <COPY from="field" field="System.CreatedBy" />
+            <FIELD refname="Microsoft.VSTS.Common.ResolvedBy">
+              <ALLOWEXISTINGVALUE />
+              <COPY from="currentuser" />
+              <VALIDUSER />
+              <REQUIRED />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <ALLOWEXISTINGVALUE />
+              <COPY from="currentuser" />
+              <VALIDUSER />
+              <REQUIRED />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
               <READONLY />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
+              <ALLOWEXISTINGVALUE />
               <READONLY />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ResolvedBy">
-              <COPY from="currentuser" />
-              <VALIDUSER />
-              <REQUIRED />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ResolvedDate">
               <SERVERDEFAULT from="clock" />
@@ -659,20 +379,96 @@
             <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
               <SERVERDEFAULT from="clock" />
             </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+          </FIELDS>
+        </TRANSITION>
+        <TRANSITION from="New" to="Closed">
+          <REASONS>
+            <DEFAULTREASON value="Fixed and verified">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="Fixed and verified" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="Fixed and verified" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </DEFAULTREASON>
+            <REASON value="As Designed">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="As Designed" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="As Designed" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </REASON>
+            <REASON value="Cannot Reproduce">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="Cannot Reproduce" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="Cannot Reproduce" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </REASON>
+            <REASON value="Copied to Backlog">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="Copied to Backlog" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="Copied to Backlog" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </REASON>
+            <REASON value="Deferred">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="Deferred" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="Deferred" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </REASON>
+            <REASON value="Duplicate">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="Duplicate" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="Duplicate" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </REASON>
+            <REASON value="Obsolete">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="Obsolete" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="Obsolete" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </REASON>
+          </REASONS>
+          <FIELDS>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
+              <ALLOWEXISTINGVALUE />
               <COPY from="currentuser" />
               <VALIDUSER />
               <REQUIRED />
             </FIELD>
-          </FIELDS>
-        </TRANSITION>
-        <TRANSITION from="Resolved" to="Active">
-          <REASONS>
-            <REASON value="Test Failed" />
-            <DEFAULTREASON value="Not fixed" />
-          </REASONS>
-          <FIELDS>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
+            <FIELD refname="Microsoft.VSTS.Common.ResolvedBy">
+              <ALLOWEXISTINGVALUE />
+              <COPY from="currentuser" />
+              <VALIDUSER />
+              <REQUIRED />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <ALLOWEXISTINGVALUE />
               <COPY from="currentuser" />
               <VALIDUSER />
               <REQUIRED />
@@ -680,54 +476,11 @@
             <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
               <SERVERDEFAULT from="clock" />
             </FIELD>
-            <FIELD refname="System.AssignedTo">
-              <COPY from="field" field="Microsoft.VSTS.Common.ResolvedBy" />
-            </FIELD>
-          </FIELDS>
-        </TRANSITION>
-        <TRANSITION from="Resolved" to="Closed">
-          <REASONS>
-            <DEFAULTREASON value="Verified" />
-          </REASONS>
-          <FIELDS>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
-              <READONLY />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
-              <READONLY />
-            </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ResolvedDate">
-              <READONLY />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ResolvedBy">
-              <READONLY />
+              <SERVERDEFAULT from="clock" />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
               <SERVERDEFAULT from="clock" />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
-              <COPY from="currentuser" />
-              <VALIDUSER />
-              <REQUIRED />
-            </FIELD>
-          </FIELDS>
-        </TRANSITION>
-        <TRANSITION from="Closed" to="Active">
-          <REASONS>
-            <REASON value="Reactivated" />
-            <DEFAULTREASON value="Regression" />
-          </REASONS>
-          <FIELDS>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
-              <COPY from="currentuser" />
-              <VALIDUSER />
-              <REQUIRED />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
-              <SERVERDEFAULT from="clock" />
-            </FIELD>
-            <FIELD refname="System.AssignedTo">
-              <COPY from="field" field="Microsoft.VSTS.Common.ResolvedBy" />
             </FIELD>
           </FIELDS>
         </TRANSITION>
@@ -740,6 +493,284 @@
               <COPY from="field" field="Microsoft.VSTS.Common.ResolvedBy" />
             </FIELD>
           </FIELDS>
+        </TRANSITION>
+        <TRANSITION from="Active" to="Resolved">
+          <REASONS>
+            <DEFAULTREASON value="Fixed">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="Fixed" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="Fixed" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </DEFAULTREASON>
+            <REASON value="As Designed">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="As Designed" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="As Designed" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </REASON>
+            <REASON value="Cannot Reproduce">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="Cannot Reproduce" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="Cannot Reproduce" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </REASON>
+            <REASON value="Copied to Backlog">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="Copied to Backlog" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="Copied to Backlog" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </REASON>
+            <REASON value="Deferred">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="Deferred" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="Deferred" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </REASON>
+            <REASON value="Duplicate">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="Duplicate" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="Duplicate" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </REASON>
+            <REASON value="Obsolete">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="Obsolete" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="Obsolete" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </REASON>
+          </REASONS>
+          <FIELDS>
+            <FIELD refname="Microsoft.VSTS.Common.ResolvedBy">
+              <ALLOWEXISTINGVALUE />
+              <COPY from="currentuser" />
+              <VALIDUSER />
+              <REQUIRED />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
+              <READONLY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
+              <ALLOWEXISTINGVALUE />
+              <READONLY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ResolvedDate">
+              <SERVERDEFAULT from="clock" />
+            </FIELD>
+          </FIELDS>
+          <ACTIONS>
+            <ACTION value="Microsoft.VSTS.Actions.Checkin" />
+          </ACTIONS>
+        </TRANSITION>
+        <TRANSITION from="New" to="Resolved">
+          <REASONS>
+            <DEFAULTREASON value="Fixed">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="Fixed" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="Fixed" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </DEFAULTREASON>
+            <REASON value="As Designed">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="As Designed" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="As Designed" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </REASON>
+            <REASON value="Cannot Reproduce">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="Cannot Reproduce" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="Cannot Reproduce" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </REASON>
+            <REASON value="Copied to Backlog">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="Copied to Backlog" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="Copied to Backlog" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </REASON>
+            <REASON value="Deferred">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="Deferred" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="Deferred" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </REASON>
+            <REASON value="Duplicate">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="Duplicate" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="Duplicate" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </REASON>
+            <REASON value="Obsolete">
+              <FIELDS>
+                <FIELD refname="Microsoft.VSTS.Common.ResolvedReason">
+                  <COPY from="value" value="Obsolete" />
+                  <ALLOWEDVALUES expanditems="true">
+                    <LISTITEM value="Obsolete" />
+                  </ALLOWEDVALUES>
+                </FIELD>
+              </FIELDS>
+            </REASON>
+          </REASONS>
+          <FIELDS>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
+              <ALLOWEXISTINGVALUE />
+              <COPY from="currentuser" />
+              <VALIDUSER />
+              <REQUIRED />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ResolvedBy">
+              <ALLOWEXISTINGVALUE />
+              <COPY from="currentuser" />
+              <VALIDUSER />
+              <REQUIRED />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
+              <SERVERDEFAULT from="clock" />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ResolvedDate">
+              <SERVERDEFAULT from="clock" />
+            </FIELD>
+          </FIELDS>
+          <ACTIONS>
+            <ACTION value="Microsoft.VSTS.Actions.Checkin" />
+          </ACTIONS>
+        </TRANSITION>
+        <TRANSITION from="Closed" to="Active">
+          <REASONS>
+            <DEFAULTREASON value="Regression" />
+            <REASON value="Reactivated" />
+          </REASONS>
+          <FIELDS>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
+              <ALLOWEXISTINGVALUE />
+              <COPY from="currentuser" />
+              <VALIDUSER />
+              <REQUIRED />
+            </FIELD>
+            <FIELD refname="System.AssignedTo">
+              <COPY from="field" field="Microsoft.VSTS.Common.ResolvedBy" />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
+              <SERVERDEFAULT from="clock" />
+            </FIELD>
+          </FIELDS>
+        </TRANSITION>
+        <TRANSITION from="Resolved" to="Active">
+          <REASONS>
+            <DEFAULTREASON value="Not fixed" />
+            <REASON value="Test Failed" />
+          </REASONS>
+          <FIELDS>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
+              <ALLOWEXISTINGVALUE />
+              <COPY from="currentuser" />
+              <VALIDUSER />
+              <REQUIRED />
+            </FIELD>
+            <FIELD refname="System.AssignedTo">
+              <COPY from="field" field="Microsoft.VSTS.Common.ResolvedBy" />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
+              <SERVERDEFAULT from="clock" />
+            </FIELD>
+          </FIELDS>
+        </TRANSITION>
+        <TRANSITION from="New" to="Active">
+          <REASONS>
+            <DEFAULTREASON value="Approved" />
+            <REASON value="Investigate" />
+          </REASONS>
+          <FIELDS>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
+              <ALLOWEXISTINGVALUE />
+              <COPY from="currentuser" />
+              <VALIDUSER />
+              <REQUIRED />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
+              <SERVERDEFAULT from="clock" />
+            </FIELD>
+          </FIELDS>
+          <ACTIONS>
+            <ACTION value="Microsoft.VSTS.Actions.StartWork" />
+          </ACTIONS>
+        </TRANSITION>
+        <TRANSITION from="Closed" to="New">
+          <REASONS>
+            <DEFAULTREASON value="Not fixed" />
+            <REASON value="Test Failed" />
+          </REASONS>
+        </TRANSITION>
+        <TRANSITION from="Resolved" to="New">
+          <REASONS>
+            <DEFAULTREASON value="Not fixed" />
+            <REASON value="Test Failed" />
+          </REASONS>
+        </TRANSITION>
+        <TRANSITION from="Active" to="New">
+          <REASONS>
+            <DEFAULTREASON value="Investigation Complete" />
+          </REASONS>
+          <ACTIONS>
+            <ACTION value="Microsoft.VSTS.Actions.StopWork" />
+          </ACTIONS>
+        </TRANSITION>
+        <TRANSITION from="" to="New">
+          <REASONS>
+            <DEFAULTREASON value="New" />
+            <REASON value="Build Failure" />
+          </REASONS>
         </TRANSITION>
       </TRANSITIONS>
     </WORKFLOW>
@@ -894,9 +925,12 @@
             </Group>
           </Section>
           <Section>
+            <Group Label="Deployment">
+              <Control Type="DeploymentsControl" Name="Deployments" />
+            </Group>
             <Group Label="Development">
               <Control Type="LinksControl" Name="Development">
-                <LinksControlOptions ViewMode="Dynamic" ZeroDataExperience="Development" ShowCallToAction="true">
+                <LinksControlOptions ViewMode="List" ZeroDataExperience="Development" ShowCallToAction="true">
                   <ListViewOptions GroupLinks="false">
                   </ListViewOptions>
                   <LinkFilters>
@@ -908,13 +942,15 @@
                     <ExternalLinkFilter Type="Fixed in Changeset" />
                     <ExternalLinkFilter Type="Source Code File" />
                     <ExternalLinkFilter Type="Found in build" />
+                    <ExternalLinkFilter Type="GitHub Pull Request" />
+                    <ExternalLinkFilter Type="GitHub Commit" />
                   </LinkFilters>
                 </LinksControlOptions>
               </Control>
             </Group>
             <Group Label="Related Work">
               <Control Type="LinksControl" Name="Related Work">
-                <LinksControlOptions>
+                <LinksControlOptions ViewMode="List">
                   <LinkFilters>
                     <WorkItemLinkFilter Type="System.LinkTypes.Duplicate-Reverse" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Hierarchy-Reverse" />
@@ -924,6 +960,7 @@
                     <WorkItemLinkFilter Type="System.LinkTypes.Duplicate-Forward" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Dependency" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Related" />
+                    <ExternalLinkFilter Type="GitHub Issue" />
                   </LinkFilters>
                   <Columns>
                     <Column Name="System.State" />

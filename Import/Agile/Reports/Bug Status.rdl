@@ -58,7 +58,10 @@ SELECT
 {
 	CrossJoin(
 		[Date Range],
-		[Work Item].[System_State].[System_State]
+		NonEmpty(
+			[Work Item].[System_State].[System_State]
+			,[Measures].[Work Item Count]
+		)
 	)
 } ON ROWS
 FROM

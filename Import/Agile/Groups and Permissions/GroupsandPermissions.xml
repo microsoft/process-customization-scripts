@@ -17,7 +17,7 @@
               <iterationPath path="Iteration 3" />
             </iterationPaths>
           </teamSettings>
-        </group>
+        </group>       
         <group name="Readers" description="Members of this group have access to the team project.">
           <permissions>
             <permission name="GENERIC_READ" class="PROJECT" allow="true" />
@@ -39,7 +39,6 @@
             <permission name="MANAGE_TEST_SUITES" class="CSS_NODE" allow="true" />
             <permission name="MANAGE_TEST_ENVIRONMENTS" class="PROJECT" allow="true" />
             <permission name="MANAGE_TEST_CONFIGURATIONS" class="PROJECT" allow="true" />
-            <permission name="WORK_ITEM_DELETE" class="PROJECT" allow="true" />
           </permissions>
           <members>
             <member name="@defaultTeam"/>

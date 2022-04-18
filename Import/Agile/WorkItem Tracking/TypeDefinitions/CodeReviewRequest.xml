@@ -3,48 +3,69 @@
   <WORKITEMTYPE name="Code Review Request" refname="Microsoft.VSTS.WorkItemTypes.CodeReviewRequest">
     <DESCRIPTION>Represents the master work item for a code review. Child work items should be created of the type Code Review Response.</DESCRIPTION>
     <FIELDS>
-      <!-- ********** Core fields ******************* -->
-      <FIELD name="Id" refname="System.Id" type="Integer" reportable="dimension" />
+      <FIELD name="Iteration Path" refname="System.IterationPath" type="TreePath" reportable="dimension" />
+      <FIELD name="Iteration ID" refname="System.IterationId" type="Integer" />
+      <FIELD name="External Link Count" refname="System.ExternalLinkCount" type="Integer" />
+      <FIELD name="Team Project" refname="System.TeamProject" type="String" reportable="dimension" />
+      <FIELD name="Parent" refname="System.Parent" type="Integer" />
+      <FIELD name="Remote Link Count" refname="System.RemoteLinkCount" type="Integer" />
+      <FIELD name="Comment Count" refname="System.CommentCount" type="Integer" />
+      <FIELD name="Hyperlink Count" refname="System.HyperLinkCount" type="Integer" />
+      <FIELD name="Attached File Count" refname="System.AttachedFileCount" type="Integer" />
+      <FIELD name="Node Name" refname="System.NodeName" type="String" />
+      <FIELD name="Area Path" refname="System.AreaPath" type="TreePath" reportable="dimension" />
+      <FIELD name="Revised Date" refname="System.RevisedDate" type="DateTime" reportable="detail" />
+      <FIELD name="Changed Date" refname="System.ChangedDate" type="DateTime" reportable="dimension" />
+      <FIELD name="ID" refname="System.Id" type="Integer" reportable="dimension" />
+      <FIELD name="Area ID" refname="System.AreaId" type="Integer" />
+      <FIELD name="Authorized As" refname="System.AuthorizedAs" type="String" syncnamechanges="true" />
       <FIELD name="Title" refname="System.Title" type="String" reportable="dimension">
         <REQUIRED />
       </FIELD>
-      <FIELD name="Assigned To" refname="System.AssignedTo" type="String" reportable="dimension" syncnamechanges="true">
-        <ALLOWEXISTINGVALUE />
-        <VALIDUSER />
-      </FIELD>
-      <FIELD name="Created Date" refname="System.CreatedDate" type="DateTime" reportable="dimension" />
-      <FIELD name="Created By" refname="System.CreatedBy" type="String" reportable="dimension" syncnamechanges="true" />
-      <FIELD name="Changed Date" refname="System.ChangedDate" type="DateTime" reportable="dimension" />
-      <FIELD name="Changed By" refname="System.ChangedBy" type="String" reportable="dimension" syncnamechanges="true" />
-      <FIELD name="Closed Date" refname="Microsoft.VSTS.Common.ClosedDate" type="DateTime" reportable="dimension" />
-      <FIELD name="Closed By" refname="Microsoft.VSTS.Common.ClosedBy" type="String" reportable="dimension" syncnamechanges="true">
-        <ALLOWEXISTINGVALUE />
-        <VALIDUSER />
-      </FIELD>
       <FIELD name="State" refname="System.State" type="String" reportable="dimension" />
+      <FIELD name="Authorized Date" refname="System.AuthorizedDate" type="DateTime" />
+      <FIELD name="Watermark" refname="System.Watermark" type="Integer" />
+      <FIELD name="Rev" refname="System.Rev" type="Integer" reportable="dimension" />
+      <FIELD name="Changed By" refname="System.ChangedBy" type="String" syncnamechanges="true" reportable="dimension" />
       <FIELD name="Reason" refname="System.Reason" type="String" reportable="dimension" />
+      <FIELD name="Assigned To" refname="System.AssignedTo" type="String" syncnamechanges="true" reportable="dimension">
+        <ALLOWEXISTINGVALUE />
+        <VALIDUSER />
+      </FIELD>
+      <FIELD name="Work Item Type" refname="System.WorkItemType" type="String" reportable="dimension" />
+      <FIELD name="Created Date" refname="System.CreatedDate" type="DateTime" reportable="dimension" />
+      <FIELD name="Created By" refname="System.CreatedBy" type="String" syncnamechanges="true" reportable="dimension" />
+      <FIELD name="Description" refname="System.Description" type="HTML" />
       <FIELD name="History" refname="System.History" type="History" />
-      <FIELD name="Area Path" refname="System.AreaPath" type="TreePath" reportable="dimension" />
-      <FIELD name="Iteration Path" refname="System.IterationPath" type="TreePath" reportable="dimension" />
+      <FIELD name="Related Link Count" refname="System.RelatedLinkCount" type="Integer" />
+      <FIELD name="Tags" refname="System.Tags" type="PlainText" />
+      <FIELD name="Board Column" refname="System.BoardColumn" type="String" reportable="dimension" />
+      <FIELD name="Board Column Done" refname="System.BoardColumnDone" type="Boolean" reportable="dimension" />
+      <FIELD name="Board Lane" refname="System.BoardLane" type="String" reportable="dimension" />
+      <FIELD name="Closed Date" refname="Microsoft.VSTS.Common.ClosedDate" type="DateTime" reportable="dimension" />
+      <FIELD name="Closed By" refname="Microsoft.VSTS.Common.ClosedBy" type="String" syncnamechanges="true" reportable="dimension">
+        <ALLOWEXISTINGVALUE />
+        <VALIDUSER />
+      </FIELD>
       <FIELD name="Closing Comment" refname="Microsoft.VSTS.CodeReview.ClosingComment" type="String" />
       <FIELD name="Associated Context Code" refname="Microsoft.VSTS.CodeReview.ContextCode" type="Integer">
-        <WHEN field="Microsoft.VSTS.CodeReview.ContextType" value="Shelveset">
-          <COPY from="value" value="1" />
-        </WHEN>
         <WHEN field="Microsoft.VSTS.CodeReview.ContextType" value="Changeset">
           <COPY from="value" value="2" />
         </WHEN>
+        <WHEN field="Microsoft.VSTS.CodeReview.ContextType" value="Shelveset">
+          <COPY from="value" value="1" />
+        </WHEN>
       </FIELD>
       <FIELD name="Associated Context Type" refname="Microsoft.VSTS.CodeReview.ContextType" type="String">
-        <WHEN field="Microsoft.VSTS.CodeReview.ContextCode" value="1">
-          <COPY from="value" value="Shelveset" />
-        </WHEN>
         <WHEN field="Microsoft.VSTS.CodeReview.ContextCode" value="2">
           <COPY from="value" value="Changeset" />
         </WHEN>
-        <ALLOWEDVALUES>
-          <LISTITEM value="Shelveset" />
+        <WHEN field="Microsoft.VSTS.CodeReview.ContextCode" value="1">
+          <COPY from="value" value="Shelveset" />
+        </WHEN>
+        <ALLOWEDVALUES expanditems="true">
           <LISTITEM value="Changeset" />
+          <LISTITEM value="Shelveset" />
         </ALLOWEDVALUES>
         <DEFAULT from="value" value="Shelveset" />
       </FIELD>
@@ -53,17 +74,17 @@
       </FIELD>
       <FIELD name="Associated Context Owner" refname="Microsoft.VSTS.CodeReview.ContextOwner" type="String" />
       <FIELD name="Closed Status Code" refname="Microsoft.VSTS.CodeReview.ClosedStatusCode" type="Integer">
-        <WHEN field="Microsoft.VSTS.CodeReview.ClosedStatus" value="">
-          <COPY from="value" value="0" />
-        </WHEN>
-        <WHEN field="Microsoft.VSTS.CodeReview.ClosedStatus" value="Abandoned">
-          <COPY from="value" value="1" />
+        <WHEN field="Microsoft.VSTS.CodeReview.ClosedStatus" value="Completed">
+          <COPY from="value" value="3" />
         </WHEN>
         <WHEN field="Microsoft.VSTS.CodeReview.ClosedStatus" value="Checked-in">
           <COPY from="value" value="2" />
         </WHEN>
-        <WHEN field="Microsoft.VSTS.CodeReview.ClosedStatus" value="Completed">
-          <COPY from="value" value="3" />
+        <WHEN field="Microsoft.VSTS.CodeReview.ClosedStatus" value="Abandoned">
+          <COPY from="value" value="1" />
+        </WHEN>
+        <WHEN field="Microsoft.VSTS.CodeReview.ClosedStatus" value="">
+          <COPY from="value" value="0" />
         </WHEN>
         <ALLOWEDVALUES expanditems="true">
           <LISTITEM value="0" />
@@ -77,29 +98,21 @@
         <WHEN field="Microsoft.VSTS.CodeReview.ClosedStatusCode" value="0">
           <COPY from="value" value="" />
         </WHEN>
-        <WHEN field="Microsoft.VSTS.CodeReview.ClosedStatusCode" value="1">
-          <COPY from="value" value="Abandoned" />
+        <WHEN field="Microsoft.VSTS.CodeReview.ClosedStatusCode" value="3">
+          <COPY from="value" value="Completed" />
         </WHEN>
         <WHEN field="Microsoft.VSTS.CodeReview.ClosedStatusCode" value="2">
           <COPY from="value" value="Checked-in" />
         </WHEN>
-        <WHEN field="Microsoft.VSTS.CodeReview.ClosedStatusCode" value="3">
-          <COPY from="value" value="Completed" />
+        <WHEN field="Microsoft.VSTS.CodeReview.ClosedStatusCode" value="1">
+          <COPY from="value" value="Abandoned" />
         </WHEN>
-        <ALLOWEDVALUES>
+        <ALLOWEDVALUES expanditems="true">
           <LISTITEM value="Abandoned" />
           <LISTITEM value="Checked-in" />
           <LISTITEM value="Completed" />
         </ALLOWEDVALUES>
       </FIELD>
-      <!-- **************** Team Build Integration Fields **************  -->
-      <FIELD name="Integration Build" refname="Microsoft.VSTS.Build.IntegrationBuild" type="String" reportable="dimension">
-        <HELPTEXT>The build in which the bug was fixed</HELPTEXT>
-        <SUGGESTEDVALUES>
-          <LISTITEM value="&lt;None&gt;" />
-        </SUGGESTEDVALUES>
-      </FIELD>
-      <!-- **************** Mirror field to determine the current state in code -->
       <FIELD name="State Code" refname="Microsoft.VSTS.Common.StateCode" type="Integer">
         <WHEN field="System.State" value="Requested">
           <COPY from="value" value="0" />
@@ -113,39 +126,46 @@
         </ALLOWEDVALUES>
         <DEFAULT from="value" value="0" />
       </FIELD>
+      <FIELD name="Integration Build" refname="Microsoft.VSTS.Build.IntegrationBuild" type="String" reportable="dimension">
+        <HELPTEXT>The build in which the bug was fixed</HELPTEXT>
+        <SUGGESTEDVALUES expanditems="true">
+          <LISTITEM value="&amp;lt;None&amp;gt;" />
+        </SUGGESTEDVALUES>
+      </FIELD>
     </FIELDS>
-    <!-- *************** Workflow ****************   -->
     <WORKFLOW>
       <STATES>
+        <STATE value="Closed">
+          <FIELDS>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
+              <REQUIRED />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <ALLOWEXISTINGVALUE />
+              <REQUIRED />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.CodeReview.ClosedStatus">
+              <REQUIRED />
+            </FIELD>
+          </FIELDS>
+        </STATE>
         <STATE value="Requested">
           <FIELDS>
             <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
               <EMPTY />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <ALLOWEXISTINGVALUE />
               <EMPTY />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.CodeReview.ClosingComment">
               <EMPTY />
             </FIELD>
-            <FIELD refname="Microsoft.VSTS.CodeReview.ClosedStatus">
-              <EMPTY />
-            </FIELD>
             <FIELD refname="Microsoft.VSTS.CodeReview.ClosedStatusCode">
               <READONLY />
             </FIELD>
-          </FIELDS>
-        </STATE>
-        <STATE value="Closed">
-          <FIELDS>
-            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
-              <REQUIRED />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
-              <REQUIRED />
-            </FIELD>
             <FIELD refname="Microsoft.VSTS.CodeReview.ClosedStatus">
-              <REQUIRED />
+              <EMPTY />
             </FIELD>
           </FIELDS>
         </STATE>
@@ -157,32 +177,24 @@
           </REASONS>
           <FIELDS>
             <FIELD refname="System.AssignedTo">
+              <ALLOWEXISTINGVALUE />
               <COPY from="currentuser" />
               <VALIDUSER />
             </FIELD>
           </FIELDS>
         </TRANSITION>
         <TRANSITION from="Requested" to="Closed">
-          <ACTIONS>
-            <ACTION value="Microsoft.VSTS.Actions.Checkin" />
-            <ACTION value="Microsoft.VSTS.CodeReview.Abandon" />
-          </ACTIONS>
           <REASONS>
             <DEFAULTREASON value="Closed" />
           </REASONS>
           <FIELDS>
-            <!-- Set the closing date -->
-            <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
-              <SERVERDEFAULT from="clock" />
-            </FIELD>
-            <!-- Set the closing person -->
-            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
-              <COPY from="currentuser" />
-              <VALIDUSER />
-            </FIELD>
-            <!-- Unassign the workitem -->
             <FIELD refname="System.AssignedTo">
               <COPY from="value" value="" />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <ALLOWEXISTINGVALUE />
+              <COPY from="currentuser" />
+              <VALIDUSER />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.CodeReview.ClosedStatusCode">
               <COPY from="value" value="2" />
@@ -190,7 +202,14 @@
             <FIELD refname="Microsoft.VSTS.CodeReview.ClosedStatus">
               <COPY from="value" value="Checked-in" />
             </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
+              <SERVERDEFAULT from="clock" />
+            </FIELD>
           </FIELDS>
+          <ACTIONS>
+            <ACTION value="Microsoft.VSTS.Actions.Checkin" />
+            <ACTION value="Microsoft.VSTS.CodeReview.Abandon" />
+          </ACTIONS>
         </TRANSITION>
       </TRANSITIONS>
     </WORKFLOW>
