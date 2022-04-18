@@ -3,10 +3,11 @@
   <metadata>
     <name>CMMI</name>
     <description>This template is for more formal projects requiring a framework for process improvement and an auditable record of decisions.</description>
-    <version type="27450541-8E31-4150-9947-DC59F998FC01" major="16" minor="1" />
+    <version type="020be08e-1565-46db-89ec-e2d80f0cf403" major="1" minor="0" />
     <plugins>
       <plugin name="Microsoft.ProjectCreationWizard.Classification" wizardPage="false" />
       <plugin name="Microsoft.ProjectCreationWizard.Reporting" wizardPage="false" />
+      <plugin name="Microsoft.ProjectCreationWizard.Portal" wizardPage="true" />
       <plugin name="Microsoft.ProjectCreationWizard.Groups" wizardPage="false" />
       <plugin name="Microsoft.ProjectCreationWizard.WorkItemTracking" wizardPage="false" />
       <plugin name="Microsoft.ProjectCreationWizard.VersionControl" wizardPage="true" />
@@ -17,7 +18,8 @@
   </metadata>
   <groups>
     <group id="Classification" description="Structure definition for the project." completionMessage="Project Structure uploaded.">
-      <dependencies></dependencies>
+      <dependencies>
+      </dependencies>
       <taskList filename="Classification\Classification.xml" />
     </group>
     <group id="Groups" description="Create Groups and assign Permissions." completionMessage="Groups created and Permissions assigned.">
@@ -25,14 +27,6 @@
         <dependency groupId="Classification" />
       </dependencies>
       <taskList filename="Groups and Permissions\GroupsandPermissions.xml" />
-    </group>
-    <group id="Reporting" description="Project reports uploading." completionMessage="Project reporting tasks completed.">
-      <dependencies>
-        <dependency groupId="Classification" />
-        <dependency groupId="WorkItemTracking" />
-        <dependency groupId="VersionControl" />
-      </dependencies>
-      <taskList filename="Reports\ReportsTasks.xml" />
     </group>
     <group id="WorkItemTracking" description="Workitem definitions uploading." completionMessage="Work item tracking tasks completed.">
       <dependencies>
@@ -48,6 +42,13 @@
         <dependency groupId="WorkItemTracking" />
       </dependencies>
       <taskList filename="Version Control\VersionControl.xml" />
+    </group>
+    <group id="Build" description="Build default processes uploading." completionMessage="Build default processes uploaded.">
+      <dependencies>
+        <dependency groupId="VersionControl" />
+        <dependency groupId="Groups" />
+      </dependencies>
+      <taskList filename="Build\Build.xml" />
     </group>
     <group id="Lab" description="Creating Lab." completionMessage="Lab task completed.">
       <dependencies>
@@ -66,12 +67,20 @@
       </dependencies>
       <taskList filename="Test Management\TestManagement.xml" />
     </group>
-    <group id="Build" description="Build default processes uploading." completionMessage="Build default processes uploaded.">
+    <group id="Reporting" description="Project reports uploading." completionMessage="Project reporting tasks completed.">
       <dependencies>
+        <dependency groupId="Classification" />
+        <dependency groupId="WorkItemTracking" />
         <dependency groupId="VersionControl" />
-        <dependency groupId="Groups" />
       </dependencies>
-      <taskList filename="Build\Build.xml" />
+      <taskList filename="Reports\ReportsTasks.xml" />
+    </group>
+    <group id="Portal" description="Creating project Site" completionMessage="Project portal tasks completed.">
+      <dependencies>
+        <dependency groupId="Classification" />
+        <dependency groupId="Reporting" />
+      </dependencies>
+      <taskList filename="Windows SharePoint Services\WssTasks.xml" />
     </group>
   </groups>
 </ProcessTemplate>

@@ -78,7 +78,7 @@
       </Fields>
       <Query>
         <DataSourceName>TfsOlapReportDS</DataSourceName>
-        <CommandText>="WITH
+        <CommandText>WITH
 	SET [Date Range] AS
 		Filter(
 			[Date].[Date].[Date],
@@ -87,39 +87,23 @@
 		)
 	MEMBER [Measures].[DateValue] AS
 		[Date].[Date].CurrentMember.Member_Value
-	" &amp;
-	IIF(Parameters!TrendLineParam.Value = "both" Or Parameters!TrendLineParam.Value = "actual","MEMBER [Ranked] AS Rank([Date].[Date].CurrentMember, [Date Range])","")
-	&amp;
-	IIF(Parameters!YAxis.Value="hours",	"
-	MEMBER [Measures].[Work Item Count] AS 0
-	","")
-	&amp;
-	IIF(Parameters!YAxis.Value="count",	"
-	MEMBER[Measures].[Microsoft_VSTS_Scheduling_RemainingWork] AS 0
-	MEMBER[Measures].[Microsoft_VSTS_Scheduling_CompletedWork] AS 0
-	","")
-	&amp;
-	"MEMBER [Measures].[RemainingWorkLine] AS " &amp;
-		IIF(Parameters!YAxis.Value="hours" AND (Parameters!TrendLineParam.Value = "both" Or Parameters!TrendLineParam.Value = "actual"),"
-			LinRegPoint(
-				[Ranked],
-				{[Date Range]},
-				[Measures].[Microsoft_VSTS_Scheduling_RemainingWork],
-				[Ranked]
-			)
-		","0") &amp; "
 
-		MEMBER [Measures].[CountLine] AS " &amp;
-		IIF(Parameters!YAxis.Value="count" AND (Parameters!TrendLineParam.Value = "both" Or Parameters!TrendLineParam.Value = "actual"),"
+	MEMBER [Measures].[RemainingWorkLine] AS
 		LinRegPoint(
-			[Ranked],
+			Rank([Date].[Date].CurrentMember, [Date Range]),
+			{[Date Range]},
+			[Measures].[Microsoft_VSTS_Scheduling_RemainingWork],
+			Rank([Date].[Date].CurrentMember, [Date Range])
+		)
+
+	MEMBER [Measures].[CountLine] AS
+		LinRegPoint(
+			Rank([Date].[Date].CurrentMember, [Date Range]),
 			{[Date Range]},
 			[Measures].[Work Item Count],
-			[Ranked]
+			Rank([Date].[Date].CurrentMember, [Date Range])
 		)
-		", "0")
-		
-&amp; "
+
 SELECT
 {
 	[Measures].[DateValue],
@@ -133,15 +117,14 @@ SELECT
 {
 	CrossJoin(
 		[Date Range],
-		EXCEPT([Work Item].[System_State].[All].Children, StrToMember(""[Work Item].[System_State].&amp;["" + @RemovedName + ""]"")) 
+		EXCEPT([Work Item].[System_State].[All].Children, StrToMember("[Work Item].[System_State].&amp;[" + @RemovedName + "]")) 
 		)
-} ON 1
-
+} ON ROWS
 FROM
 (
 	SELECT
 		CrossJoin(
-			StrToMember(""[Team Project].[Project Node GUID].&amp;[{"" + @ProjectGuid + ""}]""),
+			StrToMember("[Team Project].[Project Node GUID].&amp;[{" + @ProjectGuid + "}]"),
 			StrToSet(@StateParam),
 			StrToSet(@AreaParam),
 			StrToSet(@IterationParam),
@@ -151,7 +134,7 @@ FROM
 			)
 		) ON COLUMNS
 	FROM [Team System]
-)"</CommandText>
+)</CommandText>
         <QueryParameters>
           <QueryParameter Name="StartDateParam">
             <Value>=Parameters!StartDateParam.Value</Value>
@@ -1228,7 +1211,7 @@ ELSE
               </ChartEmptyPoints>
               <LegendName>Default</LegendName>
               <ChartItemInLegend>
-                <LegendText>Hours in Progress</LegendText>
+                <LegendText>Hours In Progress</LegendText>
               </ChartItemInLegend>
               <ChartAreaName>Default</ChartAreaName>
               <ValueAxisName>Primary</ValueAxisName>
@@ -1438,7 +1421,6 @@ ELSE
                       <VerticalAlign>Top</VerticalAlign>
                     </Style>
                     <Title>Today</Title>
-                    <TextOrientation>Horizontal</TextOrientation>
                     <IntervalType>Default</IntervalType>
                     <IntervalOffset>=CountDistinct(Fields!DateValue.Value, "dsBurndown") - DateDiff("d", Today(), Max(Fields!DateValue.Value, "dsBurndown"))</IntervalOffset>
                     <IntervalOffsetType>Default</IntervalOffsetType>
