@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <witd:WITD application="Work item type editor" version="1.0" xmlns:witd="http://schemas.microsoft.com/VisualStudio/2008/workitemtracking/typedef">
-  <WORKITEMTYPE name="Shared Steps" refname="Microsoft.VSTS.WorkItemTypes.SharedStep">
+  <WORKITEMTYPE name="Shared Steps" refname="Microsoft.VSTS.WorkItemTypes.SharedSteps">
     <DESCRIPTION>Server-side data for reusable set of test steps.</DESCRIPTION>
     <FIELDS>
       <FIELD name="Iteration Path" refname="System.IterationPath" type="TreePath" reportable="dimension">
