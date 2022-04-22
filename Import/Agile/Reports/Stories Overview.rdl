@@ -3499,8 +3499,7 @@ DECLARE @ChildAreas TABLE (AreaSK int, [AreaPath] nvarchar(4000) null);
 INSERT @ChildAreas 
     SELECT DISTINCT a.AreaSK, a.[AreaPath]
       FROM DimArea a
-     INNER JOIN @SelectedAreaList sa ON a.[AreaPath] LIKE sa.[AreaPath] + '\%'
-	 WHERE ProjectGUID = @ProjectGuid;
+     INNER JOIN @SelectedAreaList sa ON a.[AreaPath] LIKE sa.[AreaPath] + '\%';
 
 DECLARE @AreasAndChildren TABLE (AreaSK int, [AreaPath]  nvarchar(4000) null);
 INSERT @AreasAndChildren 
@@ -3508,25 +3507,24 @@ INSERT @AreasAndChildren
     UNION
     SELECT AreaSK, [AreaPath] FROM @ChildAreas;
 
-DECLARE @SelectedIterationList TABLE (IterationSK int, [IterationPath] nvarchar(4000) null);
+DECLARE @SelectedIterationList TABLE (IterationSk int, [IterationPath] nvarchar(4000) null);
 INSERT @SelectedIterationList
     SELECT IterationSK, [IterationPath] 
     FROM DimIteration
     WHERE ProjectGUID = @ProjectGuid
-      AND '*' IN (@IterationParam) OR CONVERT(NVARCHAR, IterationSK) IN (@IterationParam);
+      AND '*' IN (@IterationParam) OR CONVERT(NVARCHAR, IterationSk) IN (@IterationParam);
 
-DECLARE @ChildIterations TABLE (IterationSK int, [IterationPath] nvarchar(4000) null);
+DECLARE @ChildIterations TABLE (IterationSk int, [IterationPath] nvarchar(4000) null);
 INSERT @ChildIterations
     SELECT DISTINCT i.IterationSK, i.[IterationPath]
       FROM DimIteration i
-    INNER JOIN @SelectedIterationList si ON i.[IterationPath] LIKE si.[IterationPath] + '\%'
-	WHERE ProjectGUID = @ProjectGuid;
+    INNER JOIN @SelectedIterationList si ON i.[IterationPath] LIKE si.[IterationPath] + '\%';
 
 DECLARE @IterationsAndChildren TABLE (__ID int, [Iteration Path] nvarchar(4000) null);
 INSERT @IterationsAndChildren
-    SELECT IterationSK, [IterationPath] FROM @SelectedIterationList
+    SELECT IterationSk, [IterationPath] FROM @SelectedIterationList
     UNION
-    SELECT IterationSK, [IterationPath] FROM @ChildIterations;
+    SELECT IterationSk, [IterationPath] FROM @ChildIterations;
 
 -- TeamProjectCollection - Needed because links are done at the TPC level
 DECLARE @TeamProjectCollectionSK int; 
@@ -3564,11 +3562,7 @@ EXCEPT
             AND lh.TeamProjectCollectionSK = @TeamProjectCollectionSK
             AND cwi.[ProjectNodeGUID] = @ProjectGuid
 
-CREATE TABLE #Hierarchy
-(ID int, ParentID int, [Level] int, [Path] nvarchar(4000))
-
-CREATE CLUSTERED INDEX Idx_Hierarchy_ID on #Hierarchy(ID);
-
+DECLARE @Hierarchy Table(ID int, ParentID int, [Level] int, [Path] nvarchar(4000));
 WITH
 Hierarchy (ID, ParentID, [Level], [Path]) AS
 (
@@ -3586,13 +3580,13 @@ UNION ALL
                 AND flh.RemovedDate = CONVERT(DATETIME, '9999', 126)
                 AND flh.TeamProjectCollectionSK = @TeamProjectCollectionSK
         JOIN [CurrentWorkItemView] wi ON flh.TargetWorkItemID = wi.[System_ID]
-            AND wi.ProjectNodeGUID  = @ProjectGuid
             AND (wi.[System_WorkItemType] &lt;&gt; @Bug)
             AND (wi.System_State != @Proposed OR wi.System_WorkItemType != @Task) -- Exclude proposed tasks from the rollup
+            AND wi.ProjectNodeGUID  = @ProjectGuid
 
-    WHERE AreaProjectGUID = @ProjectGuid AND parent.Path NOT LIKE CAST('%' + STR(flh.TargetWorkItemID) + '%' AS nvarchar(20)) AND parent.Level &lt; 20
+    WHERE parent.Path NOT LIKE CAST('%' + STR(flh.TargetWorkItemID) + '%' AS nvarchar(20)) AND parent.Level &lt; 20 
 )
-INSERT #Hierarchy SELECT * FROM Hierarchy;
+INSERT @Hierarchy SELECT * FROM Hierarchy;
 -- Hierarchy now contains all the Tasks and their ancestors that we're interested in.
 
 
@@ -3600,15 +3594,15 @@ INSERT #Hierarchy SELECT * FROM Hierarchy;
 DECLARE @TestCases Table (DeliverableID int, TestCaseID int);
 INSERT @TestCases
     SELECT h.ID, flh.TargetWorkItemID
-    FROM #Hierarchy h
+    FROM @Hierarchy h
         JOIN FactWorkItemLinkHistory flh 
             ON flh.SourceWorkItemID = h.ID
                 AND flh.WorkItemLinkTypeSK = @TestedByLinkTypeSK
                 AND flh.RemovedDate = CONVERT(DATETIME, '9999', 126) 
                 AND flh.TeamProjectCollectionSK = @TeamProjectCollectionSK
         JOIN [CurrentWorkItemView] wi ON flh.TargetWorkItemID = wi.[System_ID]
-            AND wi.ProjectNodeGUID  = @ProjectGuid
             AND wi.[System_WorkItemType] = @TestCase
+            AND wi.ProjectNodeGUID  = @ProjectGuid
 
 -- Get Test Results associated with Test Cases linked to deliverable workitems
 DECLARE @TestResults TABLE (ID int, Passed int, Failed int, NotRun int, TestCaseCount int)
@@ -3620,7 +3614,7 @@ INSERT @TestResults
         SUM(CASE WHEN testResult.ResultOutcomeId = 3 THEN 1 ELSE 0 END) Failed, 
         SUM(CASE WHEN testResult.ResultOutcomeId = 255 THEN 1 ELSE 0 END) NotRun,
         COUNT(tc.TestCaseID) TestCaseCount
-    FROM #Hierarchy h 
+    FROM @Hierarchy h 
         JOIN @TestCases tc on h.ID = tc.DeliverableID
         LEFT OUTER JOIN (
             SELECT f.TestCaseId, r.OutcomeId AS ResultOutcomeId,
@@ -3643,15 +3637,15 @@ INSERT @Bugs
         SUM (CASE WHEN wi.[System_State] = @Resolved THEN 1 ELSE 0 END) Resolved,
         SUM (CASE WHEN wi.[System_State] = @Closed THEN 1 ELSE 0 END) Closed,
         SUM (CASE WHEN wi.[System_State] = @Proposed THEN 1 ELSE 0 END) Proposed
-    FROM #Hierarchy h
+    FROM @Hierarchy h
         JOIN FactWorkItemLinkHistory flh 
             ON flh.SourceWorkItemID = h.ID
             AND flh.TeamProjectCollectionSK = @TeamProjectCollectionSK
         JOIN [CurrentWorkItemView] wi 
-            ON wi.[System_WorkItemType] = @Bug
-            AND wi.[ProjectNodeGUID] = @ProjectGuid
+            ON wi.[System_WorkItemType] = @Bug 
             AND wi.[System_Id] = flh.TargetWorkItemID
             AND flh.RemovedDate = CONVERT(DATETIME, '9999', 126)
+            AND wi.[ProjectNodeGUID] = @ProjectGuid
     GROUP BY h.ID
 
 -- Add the Bugs linked to the Test Cases which are linked to the deliverable workitems
@@ -3673,22 +3667,21 @@ FROM @TestCases tc
         AND flh.TeamProjectCollectionSK = @TeamProjectCollectionSK
     JOIN [CurrentWorkItemView] wi
         ON wi.[System_Id] = flh.TargetWorkItemID
+        AND wi.[System_WorkItemType] = @Bug 
         AND wi.[ProjectNodeGUID] = @ProjectGuid
-        AND wi.[System_WorkItemType] = @Bug
 GROUP BY tc.DeliverableID
 
 --
 -- Find recent changes
 --
-DECLARE @RecentChanged TABLE (ID int PRIMARY KEY, Latest DateTime);
+DECLARE @RecentChanged TABLE (ID int, Latest DateTime);
 INSERT @RecentChanged
-    SELECT wi.[System_Id] AS ID, MAX(wi.[System_ChangedDate]) AS Latest
-    FROM #Hierarchy hierarchy 
-    INNER JOIN DimWorkItem wi ON hierarchy.ID = wi.[System_Id]
-	JOIN DimTeamProject on ProjectNodeSK=TeamProjectSK
-        AND ProjectNodeGUID = @ProjectGuid 
-    WHERE (wi.[System_ChangedDate] &lt; @ChangeDate)
-    GROUP BY wi.[System_Id]
+    SELECT     history.[System_Id] AS ID, MAX(history.[System_ChangedDate]) AS Latest
+    FROM       @Hierarchy hierarchy 
+    INNER JOIN [WorkItemHistoryView] history ON hierarchy.ID = history.[System_Id]
+        AND history.ProjectNodeGUID = @ProjectGuid
+    WHERE     (history.[System_ChangedDate]&lt; @ChangeDate)
+    GROUP BY history.[System_Id]
 ;
 
 DECLARE @RecentChanges TABLE (Id int, ChangedDate DateTime, RawOldRemaining float null, RawOldCompleted float null);
@@ -3698,14 +3691,14 @@ INSERT @RecentChanges
     history.[Microsoft_VSTS_Scheduling_CompletedWork] AS RawOldCompleted
     FROM @RecentChanged AS recent INNER JOIN [WorkItemHistoryView] AS history
     ON	recent.ID = history.[System_Id]
-    AND history.ProjectNodeGUID = @ProjectGuid
     AND recent.[Latest] = history.[System_ChangedDate]
     AND history.[RecordCount] = 1
+    AND history.ProjectNodeGUID = @ProjectGuid
 ;
 --
 -- Roll values up the hierarchy
 --
-create TABLE #Rollups
+DECLARE @Rollups TABLE 
     (ID int, ParentID int, [Level] int, [Path] nvarchar(256), Project nvarchar(256) null, [State] nvarchar(256) null,
     Remaining float, Completed float, RawRemaining float, RawCompleted float, StackRank float null,
     RawOldRemaining float, RawOldCompleted float, OldRemaining float, OldCompleted float, ChangedDate DateTime null, --Added for Recent Changes Data
@@ -3719,10 +3712,9 @@ create TABLE #Rollups
     AreaPath nvarchar(4000) null, IterationPath nvarchar(4000) null
     );
 
-create clustered index IDX_Rollups_ID on #Rollups(ID);
 -- Initialize the table for the rolled up results.
 
-INSERT #Rollups
+INSERT @Rollups
     SELECT hierarchy.ID, ParentID, [Level], [Path], [ProjectNodeName] as Project, [System_State] as [State],
         ISNULL(Microsoft_VSTS_Scheduling_RemainingWork, 0) Remaining, 
         ISNULL(Microsoft_VSTS_Scheduling_CompletedWork, 0) Completed,
@@ -3748,7 +3740,7 @@ INSERT #Rollups
         (CASE WHEN [System_State] NOT  IN (@ClosedStateCategory) THEN 1 ELSE 0 END) IsOpen,
         [AreaPath] AreaPath,
         [IterationPath] IterationPath
-    FROM (#Hierarchy hierarchy LEFT OUTER JOIN @RecentChanges changes ON hierarchy.ID = changes.Id)
+    FROM (@Hierarchy hierarchy LEFT OUTER JOIN @RecentChanges changes ON hierarchy.ID = changes.Id)
         INNER JOIN [CurrentWorkItemView] ON hierarchy.ID = [System_ID] AND ProjectNodeGUID = @ProjectGuid
         LEFT OUTER JOIN @TestResults testResults ON testResults.ID = hierarchy.ID
         LEFT OUTER JOIN  (
@@ -3771,7 +3763,7 @@ DECLARE @Sums TABLE (ID int, Remaining float null, Completed float null,
         Passed int, Failed int, NotRun int, TestCaseCount int,
         ChildInScope int);
 DECLARE @Level int;
-SET @Level = (SELECT Max(Level) FROM #Rollups);
+SET @Level = (SELECT Max(Level) FROM @Rollups);
 WHILE @Level &gt; 0
 BEGIN
     WITH IncludeRaw AS
@@ -3793,7 +3785,7 @@ BEGIN
             ISNULL(s.NotRun, 0) + CASE WHEN ru.InScope&gt;0 THEN ru.RawNotRun ELSE 0 END AS NotRun,
             ISNULL(s.TestCaseCount, 0) + CASE WHEN ru.InScope&gt;0 THEN ru.RawTestCaseCount ELSE 0 END AS TestCaseCount,
             ISNULL(s.ChildInScope, 0) + CASE WHEN ru.InScope &gt; 0 THEN 1 ELSE 0 END as ChildInScope
-        FROM #Rollups ru LEFT OUTER JOIN @Sums s ON s.ID = ru.ID 
+        FROM @Rollups ru LEFT OUTER JOIN @Sums s ON s.ID = ru.ID 
         WHERE ru.[Level] = @Level
     )
     INSERT @Sums
@@ -3819,7 +3811,7 @@ BEGIN
 END;
 
 -- Merge the sums into the rollup table
-UPDATE #Rollups 
+UPDATE @Rollups 
     SET 
         Remaining = ISNULL(sums.Remaining, 0) + CASE WHEN rollups.InScope&gt;0 THEN rollups.Remaining ELSE 0 END,
         Completed = ISNULL(sums.Completed, 0) + CASE WHEN rollups.InScope&gt;0 THEN rollups.Completed ELSE 0 END,
@@ -3837,14 +3829,14 @@ UPDATE #Rollups
         ClosedBugs = ISNULL(sums.ClosedBugs, 0) + CASE WHEN rollups.InScope&gt;0 THEN rollups.RawClosedBugs ELSE 0 END,
         ProposedBugs = ISNULL(sums.ProposedBugs, 0) + CASE WHEN rollups.InScope&gt;0 THEN rollups.RawProposedBugs ELSE 0 END,
         ChildInScope = ISNULL(sums.ChildInScope, 0) + rollups.InScope
-    FROM #Rollups rollups LEFT OUTER JOIN @Sums sums ON rollups.ID = sums.ID;
+    FROM @Rollups rollups LEFT OUTER JOIN @Sums sums ON rollups.ID = sums.ID;
 
 --
 -- Remove Tasks and other contributing leaves
 --
 IF @IncludeTasks = 0
 BEGIN
-    DELETE FROM #Rollups WHERE  WIT NOT IN (@DeliverableCategory)
+    DELETE FROM @Rollups WHERE  WIT NOT IN (@DeliverableCategory)
 END
 
 
@@ -3856,7 +3848,7 @@ BEGIN
     Declare @OwnValuesTag nvarchar(20);
     Set @OwnValuesTag = '[' + @OwnValues + ']';
 
-    INSERT #Rollups
+    INSERT @Rollups
         SELECT -ID as ID, ID as ParentID, [Level] + 1 as [Level],
             CAST([Path] + '/-' + STR(ID) AS nvarchar(256)) as [Path],
             [Project], [State],
@@ -3879,7 +3871,7 @@ BEGIN
             InScope, ChildInScope, 
             IsOpen,
             AreaPath, IterationPath
-        FROM #Rollups
+        FROM @Rollups
         WHERE Remaining &gt; RawRemaining AND RawRemaining &gt; 0 OR OldRemaining &gt; RawOldRemaining AND RawOldRemaining &gt; 0
             OR Completed &gt; RawCompleted AND RawCompleted &gt; 0 OR OldCompleted &gt; RawOldCompleted AND RawOldCompleted &gt; 0
             OR TestCaseCount &gt; RawTestCaseCount AND RawTestCaseCount &gt; 0 
@@ -3888,7 +3880,7 @@ END
 DECLARE @RootMax float;
 Set @RootMax =
 (	SELECT MAX(Remaining + Completed) as MaxTotal
-    FROM #Rollups
+    FROM @Rollups
     WHERE [Level] = 0
 );
 
@@ -3919,12 +3911,9 @@ SELECT ru.ID, ParentID, [Level], [Path], Title, Project, WIT, [State],
     CASE WHEN (Passed+Failed+NotRun)&gt;0 THEN 1.0*Failed/(Passed+Failed+NotRun) ELSE 0 END AS FailedPercent,
     CASE WHEN (Passed+Failed+NotRun)&gt;0 THEN 1.0*NotRun/(Passed+Failed+NotRun) ELSE 0 END AS NotRunPercent,
     AreaPath, IterationPath
-FROM #Rollups ru
+FROM @Rollups ru
 WHERE (InScope &gt; 0 OR ChildInScope &gt; 0) AND [State] &lt;&gt; @Removed -- show if this or any descendant is within the selected Area(s) and Iteration(s)
-ORDER BY StackRank, Title;
-
-DROP TABLE #Hierarchy;
-DROP TABLE #Rollups;</CommandText>
+ORDER BY StackRank, Title;</CommandText>
         <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
       </Query>
       <Fields>
@@ -4207,7 +4196,7 @@ SELECT	CONVERT(NVARCHAR, AreaSK) AS ID,
 		ParentAreaSK as ParentID, 
 		AreaName AS Area, 
 		AreaPath AS [Area Path],
-        REPLACE([AreaPath], ' ','') AS NormalizedAreaPath
+    REPLACE([AreaPath], ' ','') AS NormalizedAreaPath
  FROM DimArea
 WHERE ProjectGUID = @ProjectGuid
   AND AreaSK &lt;&gt;  ParentAreaSK

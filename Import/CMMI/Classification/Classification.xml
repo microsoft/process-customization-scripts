@@ -14,7 +14,7 @@
       </Nodes>
       <properties>
         <property name="MSPROJ" value="Classification\FileMapping.xml" isFile="true" />
-        <property name="Process Template" value="Agile"/>
+        <property name="Process Template" value="MSF for Agile Software Development 2013.3"/>
       </properties>
     </taskXml>
   </task>

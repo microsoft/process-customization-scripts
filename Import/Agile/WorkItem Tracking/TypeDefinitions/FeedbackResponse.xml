@@ -3,48 +3,77 @@
   <WORKITEMTYPE name="Feedback Response" refname="Microsoft.VSTS.WorkItemTypes.FeedbackResponse">
     <DESCRIPTION>This is a child work item that should be parented to a Feedback Request work item. It is assigned to the reviewer and contains the current state of the review for this reviewer.</DESCRIPTION>
     <FIELDS>
-      <!-- ********** Core fields ******************* -->
-      <FIELD name="Id" refname="System.Id" type="Integer" reportable="dimension" />
-      <FIELD name="Title" refname="System.Title" type="String" reportable="dimension">
-        <REQUIRED />
-        <HELPTEXT>One line summary of the feedback response</HELPTEXT>
+      <FIELD name="Iteration Path" refname="System.IterationPath" type="TreePath" reportable="dimension">
+        <HELPTEXT>The iteration within which this feedback response was requested</HELPTEXT>
       </FIELD>
+      <FIELD name="Iteration ID" refname="System.IterationId" type="Integer" />
+      <FIELD name="External Link Count" refname="System.ExternalLinkCount" type="Integer" />
+      <FIELD name="Team Project" refname="System.TeamProject" type="String" reportable="dimension" />
+      <FIELD name="Parent" refname="System.Parent" type="Integer" />
+      <FIELD name="Remote Link Count" refname="System.RemoteLinkCount" type="Integer" />
+      <FIELD name="Comment Count" refname="System.CommentCount" type="Integer" />
+      <FIELD name="Hyperlink Count" refname="System.HyperLinkCount" type="Integer" />
+      <FIELD name="Attached File Count" refname="System.AttachedFileCount" type="Integer" />
+      <FIELD name="Node Name" refname="System.NodeName" type="String" />
+      <FIELD name="Area Path" refname="System.AreaPath" type="TreePath" reportable="dimension">
+        <HELPTEXT>The area of the product with which this feedback response is associated</HELPTEXT>
+      </FIELD>
+      <FIELD name="Revised Date" refname="System.RevisedDate" type="DateTime" reportable="detail" />
+      <FIELD name="Changed Date" refname="System.ChangedDate" type="DateTime" reportable="dimension" />
+      <FIELD name="ID" refname="System.Id" type="Integer" reportable="dimension" />
+      <FIELD name="Area ID" refname="System.AreaId" type="Integer" />
+      <FIELD name="Authorized As" refname="System.AuthorizedAs" type="String" syncnamechanges="true" />
+      <FIELD name="Title" refname="System.Title" type="String" reportable="dimension">
+        <HELPTEXT>One line summary of the feedback response</HELPTEXT>
+        <REQUIRED />
+      </FIELD>
+      <FIELD name="State" refname="System.State" type="String" reportable="dimension">
+        <HELPTEXT>Current status of the feedback response</HELPTEXT>
+      </FIELD>
+      <FIELD name="Authorized Date" refname="System.AuthorizedDate" type="DateTime" />
+      <FIELD name="Watermark" refname="System.Watermark" type="Integer" />
+      <FIELD name="Rev" refname="System.Rev" type="Integer" reportable="dimension" />
+      <FIELD name="Changed By" refname="System.ChangedBy" type="String" syncnamechanges="true" reportable="dimension" />
+      <FIELD name="Reason" refname="System.Reason" type="String" reportable="dimension">
+        <HELPTEXT>The reason why the feedback response is in its current state</HELPTEXT>
+      </FIELD>
+      <FIELD name="Assigned To" refname="System.AssignedTo" type="String" syncnamechanges="true" reportable="dimension">
+        <HELPTEXT>Person responsible for next set of actions on the feedback</HELPTEXT>
+        <ALLOWEXISTINGVALUE />
+        <VALIDUSER />
+      </FIELD>
+      <FIELD name="Work Item Type" refname="System.WorkItemType" type="String" reportable="dimension" />
+      <FIELD name="Created Date" refname="System.CreatedDate" type="DateTime" reportable="dimension" />
+      <FIELD name="Created By" refname="System.CreatedBy" type="String" syncnamechanges="true" reportable="dimension" />
       <FIELD name="Description" refname="System.Description" type="HTML">
         <HELPTEXT>Feedback response from the stakeholder</HELPTEXT>
       </FIELD>
-      <FIELD name="Assigned To" refname="System.AssignedTo" type="String" reportable="dimension" syncnamechanges="true">
-        <ALLOWEXISTINGVALUE />
-        <VALIDUSER />
-        <HELPTEXT>Person responsible for next set of actions on the feedback</HELPTEXT>
+      <FIELD name="History" refname="System.History" type="History">
+        <HELPTEXT>Discussion thread plus automatic record of changes</HELPTEXT>
+      </FIELD>
+      <FIELD name="Related Link Count" refname="System.RelatedLinkCount" type="Integer" />
+      <FIELD name="Tags" refname="System.Tags" type="PlainText" />
+      <FIELD name="Board Column" refname="System.BoardColumn" type="String" reportable="dimension" />
+      <FIELD name="Board Column Done" refname="System.BoardColumnDone" type="Boolean" reportable="dimension" />
+      <FIELD name="Board Lane" refname="System.BoardLane" type="String" reportable="dimension" />
+      <FIELD name="System Info" refname="Microsoft.VSTS.TCM.SystemInfo" type="HTML">
+        <HELPTEXT>Test context, provided automatically by test infrastructure</HELPTEXT>
       </FIELD>
       <FIELD name="Closed Date" refname="Microsoft.VSTS.Common.ClosedDate" type="DateTime" reportable="dimension">
         <WHENNOTCHANGED field="System.State">
           <READONLY />
         </WHENNOTCHANGED>
       </FIELD>
-      <FIELD name="Closed By" refname="Microsoft.VSTS.Common.ClosedBy" type="String" reportable="dimension" syncnamechanges="true">
+      <FIELD name="Closed By" refname="Microsoft.VSTS.Common.ClosedBy" type="String" syncnamechanges="true" reportable="dimension">
         <WHENNOTCHANGED field="System.State">
+          <ALLOWEXISTINGVALUE />
           <READONLY />
         </WHENNOTCHANGED>
-        <ALLOWEXISTINGVALUE />
-      </FIELD>
-      <FIELD name="State" refname="System.State" type="String" reportable="dimension">
-        <HELPTEXT>Current status of the feedback response</HELPTEXT>
-      </FIELD>
-      <FIELD name="Reason" refname="System.Reason" type="String" reportable="dimension">
-        <HELPTEXT>The reason why the feedback response is in its current state</HELPTEXT>
-      </FIELD>
-      <FIELD name="History" refname="System.History" type="History">
-        <HELPTEXT>Discussion thread plus automatic record of changes</HELPTEXT>
-      </FIELD>
-      <FIELD name="Area Path" refname="System.AreaPath" type="TreePath" reportable="dimension">
-        <HELPTEXT>The area of the product with which this feedback response is associated</HELPTEXT>
-      </FIELD>
-      <FIELD name="Iteration Path" refname="System.IterationPath" type="TreePath" reportable="dimension">
-        <HELPTEXT>The iteration within which this feedback response was requested</HELPTEXT>
       </FIELD>
       <FIELD name="Rating" refname="Microsoft.VSTS.Common.Rating" type="String" reportable="dimension">
-        <ALLOWEDVALUES>
+        <HELPTEXT>Overall rating provided as part of feedback response</HELPTEXT>
+        <DEFAULT from="value" value="0 - Not Rated" />
+        <ALLOWEDVALUES expanditems="true">
           <LISTITEM value="0 - Not Rated" />
           <LISTITEM value="1 - Poor" />
           <LISTITEM value="2 - Fair" />
@@ -52,69 +81,62 @@
           <LISTITEM value="4 - Very Good" />
           <LISTITEM value="5 - Excellent" />
         </ALLOWEDVALUES>
-        <DEFAULT from="value" value="0 - Not Rated" />
-        <HELPTEXT>Overall rating provided as part of feedback response</HELPTEXT>
       </FIELD>
-      <FIELD name="System Info" refname="Microsoft.VSTS.TCM.SystemInfo" type="HTML">
-        <HELPTEXT>Test context, provided automatically by test infrastructure</HELPTEXT>
-      </FIELD>
-      <!-- **************** Team Build Integration Fields **************  -->
       <FIELD name="Integration Build" refname="Microsoft.VSTS.Build.IntegrationBuild" type="String" reportable="dimension">
-        <SUGGESTEDVALUES>
-          <LISTITEM value="&lt;None&gt;" />
-        </SUGGESTEDVALUES>
         <HELPTEXT>The build in which the bug was fixed</HELPTEXT>
+        <SUGGESTEDVALUES expanditems="true">
+          <LISTITEM value="&amp;lt;None&amp;gt;" />
+        </SUGGESTEDVALUES>
       </FIELD>
     </FIELDS>
-    <!-- *************** Workflow ****************   -->
     <WORKFLOW>
       <STATES>
+        <STATE value="Closed">
+          <FIELDS>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
+              <REQUIRED />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <ALLOWEXISTINGVALUE />
+              <REQUIRED />
+            </FIELD>
+          </FIELDS>
+        </STATE>
         <STATE value="Active">
           <FIELDS>
             <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
               <EMPTY />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <ALLOWEXISTINGVALUE />
               <EMPTY />
-            </FIELD>
-          </FIELDS>
-        </STATE>
-        <STATE value="Closed">
-          <FIELDS>
-            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
-              <REQUIRED />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
-              <REQUIRED />
             </FIELD>
           </FIELDS>
         </STATE>
       </STATES>
       <TRANSITIONS>
-        <TRANSITION from="" to="Active">
-          <REASONS>
-            <DEFAULTREASON value="New" />
-          </REASONS>
-        </TRANSITION>
         <TRANSITION from="Active" to="Closed">
           <REASONS>
             <DEFAULTREASON value="Reviewed" />
           </REASONS>
           <FIELDS>
-            <!-- Set the closing date -->
             <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
               <SERVERDEFAULT from="clock" />
             </FIELD>
-            <!-- Set the closing person -->
             <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
-              <COPY from="currentuser" />
+              <ALLOWEXISTINGVALUE />
               <VALIDUSER />
+              <COPY from="currentuser" />
             </FIELD>
-            <!-- Unassign the workitem -->
             <FIELD refname="System.AssignedTo">
               <COPY from="value" value="" />
             </FIELD>
           </FIELDS>
+        </TRANSITION>
+        <TRANSITION from="" to="Active">
+          <REASONS>
+            <DEFAULTREASON value="New" />
+          </REASONS>
         </TRANSITION>
       </TRANSITIONS>
     </WORKFLOW>

@@ -1,49 +1,48 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <cat:CATEGORIES xmlns:cat="http://schemas.microsoft.com/VisualStudio/2008/workitemtracking/categories">
-  <!-- Usage: for resilience in Test system. Even if WITs have different name, they can be referred to by the category -->
-  <CATEGORY name="Bug Category" refname="Microsoft.BugCategory">
+  <CATEGORY refname="Microsoft.BugCategory" name="Bug Category">
     <DEFAULTWORKITEMTYPE name="Bug" />
   </CATEGORY>
-  <CATEGORY name="Epic Category" refname="Microsoft.EpicCategory">
+  <CATEGORY refname="Microsoft.EpicCategory" name="Epic Category">
     <DEFAULTWORKITEMTYPE name="Epic" />
   </CATEGORY>
-  <CATEGORY name="Feature Category" refname="Microsoft.FeatureCategory">
+  <CATEGORY refname="Microsoft.FeatureCategory" name="Feature Category">
     <DEFAULTWORKITEMTYPE name="Feature" />
   </CATEGORY>
-  <CATEGORY name="Requirement Category" refname="Microsoft.RequirementCategory">
+  <CATEGORY refname="Microsoft.RequirementCategory" name="Requirement Category">
     <DEFAULTWORKITEMTYPE name="Product Backlog Item" />
   </CATEGORY>
-  <CATEGORY name="Test Case Category" refname="Microsoft.TestCaseCategory">
+  <CATEGORY refname="Microsoft.TestCaseCategory" name="Test Case Category">
     <DEFAULTWORKITEMTYPE name="Test Case" />
   </CATEGORY>
-  <CATEGORY name="Shared Step Category" refname="Microsoft.SharedStepCategory">
+  <CATEGORY refname="Microsoft.SharedStepCategory" name="Shared Step Category">
     <DEFAULTWORKITEMTYPE name="Shared Steps" />
   </CATEGORY>
-  <CATEGORY name="Shared Parameter Category" refname="Microsoft.SharedParameterCategory">
+  <CATEGORY refname="Microsoft.SharedParameterCategory" name="Shared Parameter Category">
     <DEFAULTWORKITEMTYPE name="Shared Parameter" />
   </CATEGORY>
-  <CATEGORY name="Code Review Request Category" refname="Microsoft.CodeReviewRequestCategory">
+  <CATEGORY refname="Microsoft.CodeReviewRequestCategory" name="Code Review Request Category">
     <DEFAULTWORKITEMTYPE name="Code Review Request" />
   </CATEGORY>
-  <CATEGORY name="Code Review Response Category" refname="Microsoft.CodeReviewResponseCategory">
+  <CATEGORY refname="Microsoft.CodeReviewResponseCategory" name="Code Review Response Category">
     <DEFAULTWORKITEMTYPE name="Code Review Response" />
   </CATEGORY>
-  <CATEGORY name="Feedback Request Category" refname="Microsoft.FeedbackRequestCategory">
+  <CATEGORY refname="Microsoft.FeedbackRequestCategory" name="Feedback Request Category">
     <DEFAULTWORKITEMTYPE name="Feedback Request" />
   </CATEGORY>
-  <CATEGORY name="Feedback Response Category" refname="Microsoft.FeedbackResponseCategory">
+  <CATEGORY refname="Microsoft.FeedbackResponseCategory" name="Feedback Response Category">
     <DEFAULTWORKITEMTYPE name="Feedback Response" />
   </CATEGORY>
-  <CATEGORY name="Test Plan Category" refname="Microsoft.TestPlanCategory">
+  <CATEGORY refname="Microsoft.TestPlanCategory" name="Test Plan Category">
     <DEFAULTWORKITEMTYPE name="Test Plan" />
   </CATEGORY>
-  <CATEGORY name="Test Suite Category" refname="Microsoft.TestSuiteCategory">
+  <CATEGORY refname="Microsoft.TestSuiteCategory" name="Test Suite Category">
     <DEFAULTWORKITEMTYPE name="Test Suite" />
   </CATEGORY>
-  <CATEGORY name="Task Category" refname="Microsoft.TaskCategory">
+  <CATEGORY refname="Microsoft.TaskCategory" name="Task Category">
     <DEFAULTWORKITEMTYPE name="Task" />
   </CATEGORY>
-  <CATEGORY name="Hidden Types Category" refname="Microsoft.HiddenCategory">
+  <CATEGORY refname="Microsoft.HiddenCategory" name="Hidden Types Category">
     <DEFAULTWORKITEMTYPE name="Code Review Request" />
     <WORKITEMTYPE name="Code Review Response" />
     <WORKITEMTYPE name="Feedback Request" />

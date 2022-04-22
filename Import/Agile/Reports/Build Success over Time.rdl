@@ -79,10 +79,10 @@ DECLARE @Results AS TABLE(
 	BlocksNotCovered INT
 )
 
-DECLARE @StartDate DATETIME, @EndDate DATETIME;
-SET @StartDate = CAST(@StartDateParam AS DATETIME);
-SET @EndDate = DATEADD(dd, 1, CAST(@EndDateParam AS DATETIME));
-DECLARE @Stopped AS INT = 16;
+DECLARE @StartDate DATETIME, @EndDate DATETIME
+SET @StartDate = CAST(@StartDateParam AS DATETIME)
+SET @EndDate = DATEADD(dd, 1, CAST(@EndDateParam AS DATETIME))
+DECLARE @Stopped AS INT = 16
 
 --
 -- First get the set of builds for the project that are in the date range, and with the appropriate filters
@@ -99,7 +99,7 @@ INSERT INTO @BuildList (BuildBK, [DateTime], BuildStartTime,
 		 AND (bd.BuildDefinitionName IN (@BuildTypeParam) OR '*' IN (@BuildTypeParam))
 		 AND (pv.BuildPlatformName IN (@PlatformParam) OR '*' IN (@PlatformParam))
 		 AND (pv.BuildFlavorName IN (@FlavorParam) OR '*' IN (@FlavorParam))
-		 AND (bd.BuildStatusNameId != @Stopped);
+		 AND (bd.BuildStatusNameId != @Stopped)
 
 --
 -- Get the last build for each day.
@@ -118,7 +118,7 @@ INSERT INTO @Results (BuildBK, [DateTime], BuildStartTime,
 			AND (b.BuildFlavorName = a.BuildFlavorName OR (a.BuildFlavorName IS NULL AND b.BuildFlavorName IS NULL))
 			AND b.BuildDefinitionName = a.BuildDefinitionName
 		  ORDER BY b.BuildStartTime DESC
-		);
+		)
 
 --
 -- Update the number of builds in the results table
@@ -129,13 +129,9 @@ UPDATE @Results
 		  FROM @BuildList bl
 		 WHERE bl.[DateTime] = r.[DateTime]
 	)
-   FROM @Results r;
+   FROM @Results r
 
---
--- Calcuate code coverage for each build. 
--- It is possible that if code coverage data is large as with TestResults below, the update will need to be separated out
---
-WITH
+;WITH
 CodeCoverage AS
 (
 	SELECT BuildBK, BuildPlatformName, BuildFlavorName, SUM(BlocksCovered) AS BlocksCovered, SUM(BlocksNotCovered) AS BlocksNotCovered
@@ -143,6 +139,7 @@ CodeCoverage AS
 	 WHERE TeamProjectProjectNodeGUID = @ProjectGuid
 	GROUP BY BuildBK, BuildPlatformName, BuildFlavorName
 )
+
 UPDATE	@Results
    SET	BlocksCovered = cc.BlocksCovered,
 		BlocksNotCovered = cc.BlocksNotCovered
@@ -150,67 +147,57 @@ UPDATE	@Results
 INNER JOIN CodeCoverage cc ON r.BuildBK = cc.Buildbk
 	AND r.BuildPlatformName = cc.BuildPlatformName
 	AND r.BuildFlavorName = cc.BuildFlavorName
-	;
 
---
--- Calculate Build Test Results
---
--- Inserting the results into another temporary table instead of updating @Results directly
--- saves an unnecessary full table scan on FactTestResult, which can be very expensive
-DECLARE @Passed INT = 2;
-DECLARE @Failed INT = 3;
-
-DECLARE @BuildTestResults AS TABLE (
-	BuildBK NVARCHAR(64),
-	BuildPlatformName NVARCHAR(64),
-	BuildFlavorName NVARCHAR(128),
-	PassedCount INT,
-	FailedCount INT
-);
-WITH BuildOutcome AS
+;WITH
+BuildOutcome AS
 (
-	SELECT BuildBK, BuildPlatformName, BuildFlavorName,
-		CASE ResultOutcomeId WHEN @Passed THEN COUNT(*) ELSE 0 END AS PassedCount,
-		CASE ResultOutcomeId WHEN @Failed THEN COUNT(*) ELSE 0 END AS FailedCount		   
-	  FROM _TestResultView
+	SELECT [DateTime], BuildBK, BuildName, ResultOutcomeId, COUNT(ResultOutcomeId) AS OutcomeCount,
+		   BuildPlatformName, BuildFlavorName
+	  FROM TestResultView
 	 WHERE TeamProjectProjectNodeGUID = @ProjectGuid
-	   AND ResultOutcomeId IN (@Passed, @Failed)
-	GROUP BY BuildBK, ResultOutcomeId, BuildPlatformName, BuildFlavorName
-), TestResultsByBuild AS
-(
-	SELECT BuildBK, BuildPlatformName, BuildFlavorName, SUM(PassedCount) AS PassedCount, SUM(FailedCount) AS FailedCount
-	  FROM BuildOutcome
-	GROUP BY BuildBK, BuildPlatformName, BuildFlavorName
-)
-INSERT INTO @BuildTestResults
-SELECT * FROM TestResultsByBuild;
+	GROUP BY [DateTime], BuildBK, BuildName, ResultOutcomeId, BuildPlatformName, BuildFlavorName
+),
 
---
--- Inject Build Test Results into our report
---
+FailedPassedCounts AS
+(
+	SELECT [DateTime], BuildBK, BuildName, OutcomeCount AS FailedCount, 0 as PassedCount, BuildPlatformName, BuildFlavorName
+	  FROM BuildOutcome
+	 WHERE ResultOutcomeId = 3	-- 'Failed'
+
+	UNION
+
+	SELECT [DateTime], BuildBK, BuildName, 0 as FailedCount, OutcomeCount AS PassedCount, BuildPlatformName, BuildFlavorName
+	  FROM BuildOutcome
+	 WHERE ResultOutcomeId = 2 -- 'Passed'
+),
+
+TestResultsByBuild AS
+(
+	SELECT [DateTime], BuildBK, BuildName, SUM(FailedCount) AS FailedCount, SUM(PassedCount) AS PassedCount, BuildPlatformName, BuildFlavorName
+	  FROM FailedPassedCounts
+	GROUP BY [DateTime], BuildBK, BuildName, BuildPlatformName, BuildFlavorName
+)
+
 UPDATE	@Results
    SET	FailedCount = tr.FailedCount,
 		PassedCount = tr.PassedCount
   FROM	@Results r 
-  JOIN @BuildTestResults tr ON r.BuildBK = tr.BuildBK
+INNER JOIN TestResultsByBuild tr ON r.BuildBK = tr.BuildBK
 	AND r.BuildPlatformName = tr.BuildPlatformName
-	AND r.BuildFlavorName = tr.BuildFlavorName;
+	AND r.BuildFlavorName = tr.BuildFlavorName
 
---
--- Display Output
---
-WITH DateValues AS
+;WITH DateValues AS
 (
 	SELECT [DateTime] AS [DateTime] FROM DimDate WHERE [DateTime] &gt;= @StartDate and [DateTime] &lt; @EndDate
 )
 
 SELECT	dv.[DateTime], r.BuildDefinitionName,
 		r.BuildPlatformName, r.BuildFlavorName,
-		r.BuildStatusName, b.BuildStatusNameId AS [Build Status], r.NumBuilds AS [Num Builds], r.FailedCount AS FailedCount,
+		r.BuildStatusName, bs.BuildStatusNameId AS [Build Status], r.NumBuilds AS [Num Builds], r.FailedCount AS FailedCount,
 		r.PassedCount AS PassedCount, BlocksCovered / (BlocksCovered + BlocksNotCovered + 0.0) AS [Code Coverage]
 FROM DateValues dv
 	LEFT OUTER JOIN @Results r ON r.[DateTime] = dv.[DateTime]
-	LEFT OUTER JOIN DimBuildStatus b ON b.BuildStatusName = r.BuildStatusName;</CommandText>
+	LEFT OUTER JOIN DimBuildStatus bs ON bs.BuildStatusName = r.BuildStatusName</CommandText>
         <QueryParameters>
           <QueryParameter Name="@StartDateParam">
             <Value>=Parameters!StartDateParam.Value</Value>

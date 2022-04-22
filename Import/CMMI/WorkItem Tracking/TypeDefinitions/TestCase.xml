@@ -3,6 +3,26 @@
   <WORKITEMTYPE name="Test Case" refname="Microsoft.VSTS.WorkItemTypes.TestCase">
     <DESCRIPTION>Server-side data for a set of steps to be tested.</DESCRIPTION>
     <FIELDS>
+      <FIELD name="Iteration Path" refname="System.IterationPath" type="TreePath" reportable="dimension">
+        <HELPTEXT>The iteration within which this bug will be fixed</HELPTEXT>
+      </FIELD>
+      <FIELD name="Iteration ID" refname="System.IterationId" type="Integer" />
+      <FIELD name="External Link Count" refname="System.ExternalLinkCount" type="Integer" />
+      <FIELD name="Team Project" refname="System.TeamProject" type="String" reportable="dimension" />
+      <FIELD name="Parent" refname="System.Parent" type="Integer" />
+      <FIELD name="Remote Link Count" refname="System.RemoteLinkCount" type="Integer" />
+      <FIELD name="Comment Count" refname="System.CommentCount" type="Integer" />
+      <FIELD name="Hyperlink Count" refname="System.HyperLinkCount" type="Integer" />
+      <FIELD name="Attached File Count" refname="System.AttachedFileCount" type="Integer" />
+      <FIELD name="Node Name" refname="System.NodeName" type="String" />
+      <FIELD name="Area Path" refname="System.AreaPath" type="TreePath" reportable="dimension">
+        <HELPTEXT>The area of the product with which this test case is associated</HELPTEXT>
+      </FIELD>
+      <FIELD name="Revised Date" refname="System.RevisedDate" type="DateTime" reportable="detail" />
+      <FIELD name="Changed Date" refname="System.ChangedDate" type="DateTime" reportable="dimension" />
+      <FIELD name="ID" refname="System.Id" type="Integer" reportable="dimension" />
+      <FIELD name="Area ID" refname="System.AreaId" type="Integer" />
+      <FIELD name="Authorized As" refname="System.AuthorizedAs" type="String" syncnamechanges="true" />
       <FIELD name="Title" refname="System.Title" type="String" reportable="dimension">
         <HELPTEXT>Short description of the test case used to differentiate it in a list or report</HELPTEXT>
         <REQUIRED />
@@ -10,29 +30,12 @@
       <FIELD name="State" refname="System.State" type="String" reportable="dimension">
         <HELPTEXT>The workflow state of the test case</HELPTEXT>
       </FIELD>
+      <FIELD name="Authorized Date" refname="System.AuthorizedDate" type="DateTime" />
+      <FIELD name="Watermark" refname="System.Watermark" type="Integer" />
       <FIELD name="Rev" refname="System.Rev" type="Integer" reportable="dimension" />
       <FIELD name="Changed By" refname="System.ChangedBy" type="String" syncnamechanges="true" reportable="dimension">
+        <ALLOWEXISTINGVALUE />
         <VALIDUSER />
-        <ALLOWEXISTINGVALUE />
-      </FIELD>
-      <FIELD name="State Change Date" refname="Microsoft.VSTS.Common.StateChangeDate" type="DateTime">
-        <WHENCHANGED field="System.State">
-          <SERVERDEFAULT from="clock" />
-        </WHENCHANGED>
-        <WHENNOTCHANGED field="System.State">
-          <READONLY />
-        </WHENNOTCHANGED>
-      </FIELD>
-      <FIELD name="Activated Date" refname="Microsoft.VSTS.Common.ActivatedDate" type="DateTime" reportable="dimension">
-        <WHENNOTCHANGED field="System.State">
-          <READONLY />
-        </WHENNOTCHANGED>
-      </FIELD>
-      <FIELD name="Activated By" refname="Microsoft.VSTS.Common.ActivatedBy" type="String" syncnamechanges="true" reportable="dimension">
-        <WHENNOTCHANGED field="System.State">
-          <READONLY />
-        </WHENNOTCHANGED>
-        <ALLOWEXISTINGVALUE />
       </FIELD>
       <FIELD name="Reason" refname="System.Reason" type="String" reportable="dimension">
         <HELPTEXT>The reason why the test case is in the current state</HELPTEXT>
@@ -42,6 +45,39 @@
         <ALLOWEXISTINGVALUE />
         <VALIDUSER />
       </FIELD>
+      <FIELD name="Work Item Type" refname="System.WorkItemType" type="String" reportable="dimension" />
+      <FIELD name="Created Date" refname="System.CreatedDate" type="DateTime" reportable="dimension" />
+      <FIELD name="Created By" refname="System.CreatedBy" type="String" syncnamechanges="true" reportable="dimension" />
+      <FIELD name="Description" refname="System.Description" type="HTML">
+        <HELPTEXT>Purpose of this test; requirement tested</HELPTEXT>
+      </FIELD>
+      <FIELD name="History" refname="System.History" type="History">
+        <HELPTEXT>Discussion thread and other historical information</HELPTEXT>
+      </FIELD>
+      <FIELD name="Related Link Count" refname="System.RelatedLinkCount" type="Integer" />
+      <FIELD name="Tags" refname="System.Tags" type="PlainText" />
+      <FIELD name="Board Column" refname="System.BoardColumn" type="String" reportable="dimension" />
+      <FIELD name="Board Column Done" refname="System.BoardColumnDone" type="Boolean" reportable="dimension" />
+      <FIELD name="Board Lane" refname="System.BoardLane" type="String" reportable="dimension" />
+      <FIELD name="State Change Date" refname="Microsoft.VSTS.Common.StateChangeDate" type="DateTime">
+        <WHENNOTCHANGED field="System.State">
+          <READONLY />
+        </WHENNOTCHANGED>
+        <WHENCHANGED field="System.State">
+          <SERVERDEFAULT from="clock" />
+        </WHENCHANGED>
+      </FIELD>
+      <FIELD name="Activated Date" refname="Microsoft.VSTS.Common.ActivatedDate" type="DateTime" reportable="dimension">
+        <WHENNOTCHANGED field="System.State">
+          <READONLY />
+        </WHENNOTCHANGED>
+      </FIELD>
+      <FIELD name="Activated By" refname="Microsoft.VSTS.Common.ActivatedBy" type="String" syncnamechanges="true" reportable="dimension">
+        <WHENNOTCHANGED field="System.State">
+          <ALLOWEXISTINGVALUE />
+          <READONLY />
+        </WHENNOTCHANGED>
+      </FIELD>
       <FIELD name="Closed Date" refname="Microsoft.VSTS.Common.ClosedDate" type="DateTime" reportable="dimension">
         <WHENNOTCHANGED field="System.State">
           <READONLY />
@@ -49,9 +85,9 @@
       </FIELD>
       <FIELD name="Closed By" refname="Microsoft.VSTS.Common.ClosedBy" type="String" syncnamechanges="true" reportable="dimension">
         <WHENNOTCHANGED field="System.State">
+          <ALLOWEXISTINGVALUE />
           <READONLY />
         </WHENNOTCHANGED>
-        <ALLOWEXISTINGVALUE />
       </FIELD>
       <FIELD name="Priority" refname="Microsoft.VSTS.Common.Priority" type="Integer" reportable="dimension">
         <HELPTEXT>Importance of this test case to the business goals of the product. 1=Most important.</HELPTEXT>
@@ -61,29 +97,12 @@
           <LISTITEM value="3" />
           <LISTITEM value="4" />
         </ALLOWEDVALUES>
+        <DEFAULT from="value" value="2" />
       </FIELD>
-      <FIELD name="Created Date" refname="System.CreatedDate" type="DateTime" reportable="dimension" />
-      <FIELD name="Created By" refname="System.CreatedBy" type="String" syncnamechanges="true" reportable="dimension" />
       <FIELD name="Steps" refname="Microsoft.VSTS.TCM.Steps" type="HTML">
         <HELPTEXT>Steps required to perform the test</HELPTEXT>
       </FIELD>
-      <FIELD name="Description" refname="System.Description" type="HTML">
-        <HELPTEXT>Purpose of this test; requirement tested</HELPTEXT>
-      </FIELD>
-      <FIELD name="History" refname="System.History" type="History">
-        <HELPTEXT>Discussion thread and other historical information</HELPTEXT>
-      </FIELD>
-      <FIELD name="Team Project" refname="System.TeamProject" type="String" reportable="dimension" />
-      <FIELD name="Area Path" refname="System.AreaPath" type="TreePath" reportable="dimension">
-        <HELPTEXT>The area of the product with which this test case is associated</HELPTEXT>
-      </FIELD>
-      <FIELD name="Iteration Path" refname="System.IterationPath" type="TreePath" reportable="dimension">
-        <HELPTEXT>The iteration within which this bug will be fixed</HELPTEXT>
-      </FIELD>
-      <FIELD name="Revised Date" refname="System.RevisedDate" type="DateTime" reportable="detail" />
-      <FIELD name="Changed Date" refname="System.ChangedDate" type="DateTime" reportable="dimension" />
-      <FIELD name="Id" refname="System.Id" type="Integer" reportable="dimension" />
-      <FIELD name="Area ID" refname="System.AreaId" type="Integer" />
+      <FIELD name="Parameters" refname="Microsoft.VSTS.TCM.Parameters" type="HTML" />
       <FIELD name="Automated Test Name" refname="Microsoft.VSTS.TCM.AutomatedTestName" type="String">
         <HELPTEXT>The name of the test that automates this test case</HELPTEXT>
       </FIELD>
@@ -96,121 +115,45 @@
       <FIELD name="Automated Test Type" refname="Microsoft.VSTS.TCM.AutomatedTestType" type="String">
         <HELPTEXT>The type of the test that automates this test case</HELPTEXT>
       </FIELD>
-      <FIELD name="Parameters" refname="Microsoft.VSTS.TCM.Parameters" type="HTML" />
       <FIELD name="Local Data Source" refname="Microsoft.VSTS.TCM.LocalDataSource" type="HTML" />
-      <FIELD reportable="dimension" type="String" name="Automation status" refname="Microsoft.VSTS.TCM.AutomationStatus">
+      <FIELD name="Automation status" refname="Microsoft.VSTS.TCM.AutomationStatus" type="String" reportable="dimension">
+        <WHENNOT field="Microsoft.VSTS.TCM.AutomatedTestId" value="">
+          <COPY from="value" value="Automated" />
+          <ALLOWEDVALUES expanditems="true">
+            <LISTITEM value="Automated" />
+          </ALLOWEDVALUES>
+        </WHENNOT>
         <WHEN field="Microsoft.VSTS.TCM.AutomatedTestId" value="">
-          <ALLOWEDVALUES>
+          <ALLOWEDVALUES expanditems="true">
             <LISTITEM value="Not Automated" />
             <LISTITEM value="Planned" />
           </ALLOWEDVALUES>
         </WHEN>
-        <WHENNOT field="Microsoft.VSTS.TCM.AutomatedTestId" value="">
-          <ALLOWEDVALUES>
-            <LISTITEM value="Automated" />
-          </ALLOWEDVALUES>
-          <COPY from="value" value="Automated" />
-        </WHENNOT>
       </FIELD>
-      <!-- **************** Team Build Integration Fields **************  -->
       <FIELD name="Integration Build" refname="Microsoft.VSTS.Build.IntegrationBuild" type="String" reportable="dimension">
         <HELPTEXT>The build in which the bug was fixed</HELPTEXT>
-        <SUGGESTEDVALUES>
-          <LISTITEM value="&lt;None&gt;" />
+        <SUGGESTEDVALUES expanditems="true">
+          <LISTITEM value="&amp;lt;None&amp;gt;" />
         </SUGGESTEDVALUES>
       </FIELD>
     </FIELDS>
     <WORKFLOW>
       <STATES>
+        <STATE value="Closed" />
+        <STATE value="Design" />
         <STATE value="Ready">
           <FIELDS>
             <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
               <EMPTY />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <ALLOWEXISTINGVALUE />
               <EMPTY />
             </FIELD>
           </FIELDS>
         </STATE>
-        <STATE value="Closed" />
-        <STATE value="Design" />
       </STATES>
       <TRANSITIONS>
-        <TRANSITION from="" to="Design">
-          <REASONS>
-            <DEFAULTREASON value="New" />
-          </REASONS>
-          <FIELDS>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
-              <COPY from="currentuser" />
-              <VALIDUSER />
-              <REQUIRED />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
-              <SERVERDEFAULT from="clock" />
-            </FIELD>
-            <FIELD refname="System.AssignedTo">
-              <DEFAULT from="currentuser" />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.Priority">
-              <DEFAULT from="value" value="2" />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.TCM.AutomationStatus">
-              <DEFAULT from="value" value="Not Automated" />
-            </FIELD>
-          </FIELDS>
-        </TRANSITION>
-        <TRANSITION from="Design" to="Closed">
-          <REASONS>
-            <REASON value="Deferred" />
-            <REASON value="Duplicate" />
-            <DEFAULTREASON value="Obsolete" />
-          </REASONS>
-          <FIELDS>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
-              <READONLY />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
-              <READONLY />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
-              <SERVERDEFAULT from="clock" />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
-              <COPY from="currentuser" />
-              <VALIDUSER />
-              <REQUIRED />
-            </FIELD>
-          </FIELDS>
-        </TRANSITION>
-        <TRANSITION from="Design" to="Ready">
-          <REASONS>
-            <DEFAULTREASON value="Completed" />
-          </REASONS>
-        </TRANSITION>
-        <TRANSITION from="Ready" to="Closed">
-          <REASONS>
-            <REASON value="Deferred" />
-            <REASON value="Duplicate" />
-            <DEFAULTREASON value="Obsolete" />
-          </REASONS>
-          <FIELDS>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
-              <READONLY />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
-              <READONLY />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
-              <SERVERDEFAULT from="clock" />
-            </FIELD>
-            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
-              <COPY from="currentuser" />
-              <VALIDUSER />
-              <REQUIRED />
-            </FIELD>
-          </FIELDS>
-        </TRANSITION>
         <TRANSITION from="Ready" to="Design">
           <REASONS>
             <DEFAULTREASON value="Update Test Case" />
@@ -222,6 +165,7 @@
           </REASONS>
           <FIELDS>
             <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
+              <ALLOWEXISTINGVALUE />
               <COPY from="currentuser" />
               <VALIDUSER />
               <REQUIRED />
@@ -231,17 +175,95 @@
             </FIELD>
           </FIELDS>
         </TRANSITION>
+        <TRANSITION from="" to="Design">
+          <REASONS>
+            <DEFAULTREASON value="New" />
+          </REASONS>
+          <FIELDS>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
+              <ALLOWEXISTINGVALUE />
+              <COPY from="currentuser" />
+              <VALIDUSER />
+              <REQUIRED />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
+              <SERVERDEFAULT from="clock" />
+            </FIELD>
+            <FIELD refname="System.AssignedTo">
+              <DEFAULT from="currentuser" />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.TCM.AutomationStatus">
+              <DEFAULT from="value" value="Not Automated" />
+            </FIELD>
+          </FIELDS>
+        </TRANSITION>
+        <TRANSITION from="Design" to="Ready">
+          <REASONS>
+            <DEFAULTREASON value="Completed" />
+          </REASONS>
+        </TRANSITION>
         <TRANSITION from="Closed" to="Ready">
           <REASONS>
             <DEFAULTREASON value="Reactivated" />
           </REASONS>
           <FIELDS>
             <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
+              <ALLOWEXISTINGVALUE />
               <COPY from="currentuser" />
               <VALIDUSER />
               <REQUIRED />
             </FIELD>
             <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
+              <SERVERDEFAULT from="clock" />
+            </FIELD>
+          </FIELDS>
+        </TRANSITION>
+        <TRANSITION from="Design" to="Closed">
+          <REASONS>
+            <DEFAULTREASON value="Obsolete" />
+            <REASON value="Deferred" />
+            <REASON value="Duplicate" />
+          </REASONS>
+          <FIELDS>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <ALLOWEXISTINGVALUE />
+              <COPY from="currentuser" />
+              <VALIDUSER />
+              <REQUIRED />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
+              <READONLY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
+              <ALLOWEXISTINGVALUE />
+              <READONLY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
+              <SERVERDEFAULT from="clock" />
+            </FIELD>
+          </FIELDS>
+        </TRANSITION>
+        <TRANSITION from="Ready" to="Closed">
+          <REASONS>
+            <DEFAULTREASON value="Obsolete" />
+            <REASON value="Deferred" />
+            <REASON value="Duplicate" />
+          </REASONS>
+          <FIELDS>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedBy">
+              <ALLOWEXISTINGVALUE />
+              <COPY from="currentuser" />
+              <VALIDUSER />
+              <REQUIRED />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedDate">
+              <READONLY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ActivatedBy">
+              <ALLOWEXISTINGVALUE />
+              <READONLY />
+            </FIELD>
+            <FIELD refname="Microsoft.VSTS.Common.ClosedDate">
               <SERVERDEFAULT from="clock" />
             </FIELD>
           </FIELDS>
@@ -356,7 +378,7 @@
           <Section>
             <Group Label="Related Work">
               <Control Type="LinksControl" Name="Related Work">
-                <LinksControlOptions>
+                <LinksControlOptions ViewMode="List">
                   <LinkFilters>
                     <WorkItemLinkFilter Type="System.LinkTypes.Duplicate-Reverse" />
                     <WorkItemLinkFilter Type="System.LinkTypes.Hierarchy-Reverse" />
