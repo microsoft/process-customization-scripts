@@ -32,7 +32,7 @@ FOREACH ($project in $projectList)
     Write-Host "    $projectName ($x) " -ForegroundColor White;
     Write-Host "-----------------------------------------------------------------------------------------------" -ForegroundColor White;
    
-    Invoke-Expression "& `".\ConformProject.ps1`" `"$CollectionURL`" `"$projectName`" `"$processfolder\$projectName`""
+    Invoke-Expression "& `".\ConformProject.ps1`" `"$CollectionURL`" `"$projectName`" `"$processfolder`""
     
     Write-Host ""
     Write-Host ""
