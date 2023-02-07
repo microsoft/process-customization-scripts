@@ -76,7 +76,3 @@ Misc
 use getprojects.ps1 to get a list or projects from a collection using the REST API's. You can also get the full list of projects from your TFS collection database by using the following sql:
 
 Select * from tbl_projects where State = 'WellFormed' and PartitionId > 0 
-
-Support
--------------------
-Contact vsocustpt@microsoft.com with questions or issues
