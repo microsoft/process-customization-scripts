@@ -91,6 +91,7 @@ $VSDirectories += "${env:ProgramFiles(x86)}\Microsoft Visual Studio 11.0\Common7
 $VSDirectories += "${env:ProgramFiles(x86)}\Microsoft Visual Studio 10.0\Common7\IDE"
 
 $WitAdminExe = "witadmin.exe"
+$Resolved = $false
 
 if(-not (Get-Command $WitAdminExe -ErrorAction SilentlyContinue)) {
   Write-Host -Verbose "Unable to find witadmin.exe on your path. Attempting VS install directories"
@@ -98,13 +99,22 @@ if(-not (Get-Command $WitAdminExe -ErrorAction SilentlyContinue)) {
     $WitAdminExe = Join-Path $vsDir "witadmin.exe"
     Write-Host -Verbose "Testing for $WitAdminExe"
     if(Test-Path $WitAdminExe) {
-      break
+      $Resolved = $true
     }
   }
 }
 
-if(-not (Test-Path $WitAdminExe)) {
-  throw "Unable to find the witadmin.exe in your path or in any VS install."
+if(-not ($Resolved)) {
+  ($env:PATH -split ';') | foreach {
+    $testPath = Join-Path $_ $WitAdminExe
+    if (Test-Path $testPath) {
+      $Resolved = $true
+    }
+  }
+
+  if(-not ($Resolved)) {
+    throw "Unable to find the witadmin.exe in your path or in any VS install."
+  }
 }
 
 # Format witadmin exe with quotes for the invoke-expression to like
